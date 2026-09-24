@@ -3,2138 +3,958 @@
 
 <head>
 
-<meta charset="UTF-8">
-
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0"
->
-
-<title>Visualizador KML & Excel</title>
-
-
-<!-- =========================================================
-     MÓDULO 01 - LIBRERÍAS
-     ========================================================= -->
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-/>
-
-<script
-  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-</script>
-
-<script
-  src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js">
-</script>
-
-<script
-  src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
-</script>
-
-
-<style>
-
-/* =========================================================
-   ESTILOS GENERALES
-   ========================================================= */
-
-html,
-body {
-
-  margin: 0;
-  padding: 0;
-
-  width: 100%;
-  height: 100%;
-
-  overflow: hidden;
-
-  font-family:
-    Arial,
-    sans-serif;
-
-}
-
-
-#map {
-
-  width: 100%;
-  height: 100%;
-
-  z-index: 1;
-
-}
-
-
-/* =========================================================
-   MARCADORES
-   ========================================================= */
-
-.custom-marker {
-
-  position: relative;
-
-  width: 36px;
-  height: 36px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-}
-
-
-.marker-pin {
-
-  width: 29px;
-  height: 29px;
-
-  position: absolute;
-
-  left: 3px;
-  top: 3px;
-
-  border-radius:
-    50% 50% 50% 0;
-
-  transform:
-    rotate(-45deg);
-
-  border:
-    2px solid white;
-
-  box-shadow:
-    0 3px 9px rgba(0,0,0,.4);
-
-}
-
-
-.marker-pin::after {
-
-  content: "";
-
-  position: absolute;
-
-  width: 9px;
-  height: 9px;
-
-  background: white;
-
-  border-radius: 50%;
-
-  top: 7px;
-  left: 7px;
-
-}
-
-
-.route-badge {
-
-  position: absolute;
-
-  top: -8px;
-  right: -7px;
-
-  min-width: 23px;
-  height: 23px;
-
-  display: flex;
-
-  justify-content: center;
-  align-items: center;
-
-  background:
-    #2563eb;
-
-  color:
-    white;
-
-  font-size:
-    11px;
-
-  font-weight:
-    bold;
-
-  border-radius:
-    50%;
-
-  border:
-    2px solid white;
-
-  z-index:
-    10;
-
-}
-
-
-/* =========================================================
-   CAMPOS EDITABLES
-   ========================================================= */
-
-.edit-input {
-
-  width: 100%;
-
-  min-height: 36px;
-
-  border:
-    1px solid #cbd5e1;
-
-  border-radius:
-    6px;
-
-  padding:
-    7px 8px;
-
-  font-size:
-    12px;
-
-  background:
-    white;
-
-  box-sizing:
-    border-box;
-
-}
-
-
-.edit-input:focus {
-
-  outline:
-    none;
-
-  border-color:
-    #2563eb;
-
-  box-shadow:
-    0 0 0 2px rgba(37,99,235,.10);
-
-}
-
-
-/* =========================================================
-   CAMPOS PROTEGIDOS
-   ========================================================= */
-
-.readonly-field {
-
-  width: 100%;
-
-  background:
-    #f1f5f9;
-
-  border:
-    1px solid #cbd5e1;
-
-  border-radius:
-    6px;
-
-  padding:
-    7px;
-
-  font-size:
-    12px;
-
-  color:
-    #475569;
-
-  cursor:
-    not-allowed;
-
-  box-sizing:
-    border-box;
-
-}
-
-
-/* =========================================================
-   NOMBRE TABLA
-   ========================================================= */
-
-.table-point-name {
-
-  color:
-    #2563eb;
-
-  cursor:
-    pointer;
-
-  text-decoration:
-    underline;
-
-  font-weight:
-    600;
-
-}
-
-
-.table-point-name:hover {
-
-  color:
-    #1d4ed8;
-
-  background:
-    #eff6ff;
-
-}
-
-
-/* =========================================================
-   FILTROS
-   ========================================================= */
-
-.filter-panel {
-
-  border:
-    1px solid #e2e8f0;
-
-  border-radius:
-    8px;
-
-  background:
-    #ffffff;
-
-}
-
-
-.filter-panel-header {
-
-  background:
-    #f8fafc;
-
-  border-bottom:
-    1px solid #e2e8f0;
-
-}
-
-
-.filter-values {
-
-  max-height:
-    180px;
-
-  overflow-y:
-    auto;
-
-}
-
-
-.filter-option {
-
-  display:
-    flex;
-
-  align-items:
-    center;
-
-  gap:
-    6px;
-
-  padding:
-    5px;
-
-  border-radius:
-    5px;
-
-  font-size:
-    11px;
-
-}
-
-
-.filter-option:hover {
-
-  background:
-    #f1f5f9;
-
-}
-
-
-.filter-option-text {
-
-  flex:
-    1;
-
-  overflow:
-    hidden;
-
-  text-overflow:
-    ellipsis;
-
-  white-space:
-    nowrap;
-
-}
-
-
-/* =========================================================
-   TOAST
-   ========================================================= */
-
-.toast {
-
-  position:
-    absolute;
-
-  top:
-    15px;
-
-  left:
-    50%;
-
-  transform:
-    translateX(-50%);
-
-  background:
-    #0f172a;
-
-  color:
-    white;
-
-  padding:
-    10px 18px;
-
-  border-radius:
-    20px;
-
-  z-index:
-    5000;
-
-  opacity:
-    0;
-
-  transition:
-    .3s;
-
-  pointer-events:
-    none;
-
-}
-
-
-.toast.show {
-
-  opacity:
-    1;
-
-}
-
-
-/* =========================================================
-   RUTA - COORDENADA INICIAL
-   ========================================================= */
-
-.route-coordinate-box {
-
-  background:
-    #f8fafc;
-
-  border:
-    1px solid #e2e8f0;
-
-  border-radius:
-    8px;
-
-  padding:
-    10px;
-
-}
-
-
-.route-coordinate-input {
-
-  width: 100%;
-
-  box-sizing:
-    border-box;
-
-  border:
-    1px solid #cbd5e1;
-
-  border-radius:
-    6px;
-
-  padding:
-    8px;
-
-  font-size:
-    12px;
-
-}
-
-
-.route-coordinate-input:focus {
-
-  outline:
-    none;
-
-  border-color:
-    #2563eb;
-
-  box-shadow:
-    0 0 0 2px rgba(37,99,235,.10);
-
-}
-
-
-/* =========================================================
-   TABLA
-   ========================================================= */
-
-.table-container {
-
-  overflow:
-    auto;
-
-  max-height:
-    550px;
-
-  border:
-    1px solid #e2e8f0;
-
-  border-radius:
-    8px;
-
-}
-
-
-.data-table {
-
-  width:
-    100%;
-
-  min-width:
-    1050px;
-
-  border-collapse:
-    collapse;
-
-}
-
-
-.data-table th {
-
-  padding:
-    8px;
-
-  white-space:
-    nowrap;
-
-}
-
-
-.data-table td {
-
-  padding:
-    4px;
-
-  vertical-align:
-    middle;
-
-}
-
-
-.description-cell {
-
-  min-width:
-    170px;
-
-}
-
-
-.description-cell .edit-input {
-
-  min-width:
-    160px;
-
-  min-height:
-    40px;
-
-}
-
-
-/* =========================================================
-   CHECKBOX REGRESO
-   ========================================================= */
-
-.return-check {
-
-  display:
-    flex;
-
-  align-items:
-    center;
-
-  gap:
-    8px;
-
-  margin-top:
-    8px;
-
-  font-size:
-    12px;
-
-  cursor:
-    pointer;
-
-}
-
-
-.return-check input {
-
-  width:
-    16px;
-
-  height:
-    16px;
-
-  cursor:
-    pointer;
-
-}
-
-</style>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Gestor de Excel y BASE</title>
+
+
+  <!-- =======================================================
+       MÓDULO 01 - ESTILOS
+       ======================================================= -->
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f3f4f6;
+      color: #1f2937;
+    }
+
+    .contenedor {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .encabezado {
+      background: #111827;
+      color: white;
+      padding: 22px;
+      border-radius: 12px;
+      margin-bottom: 18px;
+    }
+
+    .encabezado h1 {
+      margin: 0 0 7px 0;
+      font-size: 24px;
+    }
+
+    .encabezado p {
+      margin: 0;
+      color: #d1d5db;
+      font-size: 14px;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 18px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .panel h2 {
+      margin-top: 0;
+      font-size: 18px;
+      color: #111827;
+    }
+
+    .campo {
+      margin-bottom: 15px;
+    }
+
+    .campo label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 7px;
+      font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="file"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+      background: white;
+    }
+
+    input[type="file"] {
+      padding: 10px;
+    }
+
+    .botones {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .btn-principal {
+      background: #111827;
+      color: white;
+    }
+
+    .btn-secundario {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .btn-verde {
+      background: #166534;
+      color: white;
+    }
+
+    .btn-azul {
+      background: #1d4ed8;
+      color: white;
+    }
+
+    .btn-rojo {
+      background: #991b1b;
+      color: white;
+    }
+
+    .estado {
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 15px;
+      background: #f3f4f6;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .estado.ok {
+      background: #ecfdf5;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .estado.error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .estado.proceso {
+      background: #eff6ff;
+      color: #1e40af;
+      border: 1px solid #bfdbfe;
+    }
+
+    .carpeta-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    .carpeta-nombre {
+      font-weight: bold;
+    }
+
+    .tabla-contenedor {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 750px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 11px 10px;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th {
+      background: #f9fafb;
+      font-weight: bold;
+    }
+
+    tr:hover td {
+      background: #f9fafb;
+    }
+
+    .acciones {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .acciones button {
+      padding: 7px 10px;
+      font-size: 12px;
+    }
+
+    .resultado-grid {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .resultado-item {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .resultado-item span {
+      display: block;
+      color: #6b7280;
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .resultado-item strong {
+      font-size: 18px;
+      color: #111827;
+    }
+
+    .oculto {
+      display: none !important;
+    }
+
+    .separador {
+      height: 1px;
+      background: #e5e7eb;
+      margin: 18px 0;
+    }
+
+    .nota {
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+
+    .cargando {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #d1d5db;
+      border-top-color: #111827;
+      border-radius: 50%;
+      animation: giro .7s linear infinite;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    @keyframes giro {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (max-width: 600px) {
+
+      .contenedor {
+        padding: 10px;
+      }
+
+      .panel {
+        padding: 15px;
+      }
+
+      .encabezado {
+        padding: 17px;
+      }
+
+      .encabezado h1 {
+        font-size: 20px;
+      }
+
+      button {
+        width: 100%;
+      }
+
+      .acciones button {
+        width: auto;
+      }
+
+    }
+
+  </style>
 
 </head>
 
 
-<body
-  class="
-    flex
-    flex-col
-    md:flex-row
-    w-full
-    h-screen
-    bg-slate-100
-  "
->
-
-
-<!-- =========================================================
-     MÓDULO 02 - PANEL PRINCIPAL
-     ========================================================= -->
-
-<aside
-  class="
-    w-full
-    md:w-[470px]
-    h-[43%]
-    md:h-full
-    bg-white
-    border-r
-    shadow-xl
-    z-20
-    flex
-    flex-col
-  "
->
-
-
-<!-- CABECERA -->
-
-<div
-  class="
-    bg-slate-900
-    text-white
-    p-4
-    flex
-    justify-between
-    items-center
-  "
->
-
-<div>
-
-<h1
-  class="
-    font-bold
-    text-base
-  "
->
-Visualizador KML & Excel
-</h1>
-
-<p
-  class="
-    text-xs
-    text-slate-400
-  "
->
-KML + Excel + Google Maps
-</p>
-
-</div>
-
-
-<span
-  id="marker-count"
-  class="
-    bg-slate-800
-    px-3
-    py-1
-    rounded-full
-    text-xs
-  "
->
-0 puntos
-</span>
-
-</div>
-
-
-<!-- ESTADO DRIVE -->
-
-<div
-  class="
-    bg-slate-800
-    text-white
-    p-2
-    text-xs
-    flex
-    justify-between
-  "
->
-
-<span
-  id="drive-status"
->
-Drive conectado
-</span>
-
-
-<button
-  onclick="refreshFiles()"
-  class="
-    px-2
-    bg-slate-700
-    rounded
-  "
->
-<i class="fa-solid fa-rotate"></i>
-</button>
-
-</div>
-
-
-<!-- =========================================================
-     PESTAÑAS
-     ========================================================= -->
-
-<div
-  class="
-    flex
-    border-b
-    bg-slate-50
-  "
->
-
-<button
-  id="tab-data"
-  onclick="switchTab('data')"
-  class="
-    flex-1
-    py-3
-    text-xs
-    font-bold
-    border-b-2
-    border-blue-600
-    text-blue-600
-  "
->
-Archivos
-</button>
-
-
-<button
-  id="tab-table"
-  onclick="switchTab('table')"
-  class="
-    flex-1
-    py-3
-    text-xs
-    font-bold
-    border-b-2
-    border-transparent
-  "
->
-Tabla
-</button>
-
-
-<button
-  id="tab-filter"
-  onclick="switchTab('filter')"
-  class="
-    flex-1
-    py-3
-    text-xs
-    font-bold
-    border-b-2
-    border-transparent
-  "
->
-Filtros
-</button>
-
-
-<button
-  id="tab-route"
-  onclick="switchTab('route')"
-  class="
-    flex-1
-    py-3
-    text-xs
-    font-bold
-    border-b-2
-    border-transparent
-  "
->
-Rutas
-</button>
-
-</div>
-
-
-<!-- CONTENIDO -->
-
-<div
-  class="
-    flex-1
-    overflow-y-auto
-    p-4
-  "
->
-
-
-<!-- =========================================================
-     MÓDULO 03 - ARCHIVOS
-     ========================================================= -->
-
-<section
-  id="content-data"
-  class="space-y-4"
->
-
-
-<div>
-
-<label
-  class="
-    block
-    text-xs
-    font-bold
-    mb-1
-  "
->
-Archivos en Drive
-</label>
-
-
-<select
-  id="file-select"
-  onchange="openSelectedFile()"
-  class="
-    w-full
-    border
-    rounded-lg
-    p-2
-    text-xs
-  "
->
-
-<option value="">
--- Seleccionar --
-</option>
-
-</select>
-
-</div>
-
-
-<div
-  class="
-    border-2
-    border-dashed
-    border-slate-300
-    rounded-xl
-    p-5
-    text-center
-  "
->
-
-<input
-  type="file"
-  id="file-input"
-  class="hidden"
-  accept=".xlsx,.xls,.kml,.xml"
-  onchange="handleUpload(event)"
->
-
-
-<label
-  for="file-input"
-  class="cursor-pointer"
->
-
-<i
-  class="
-    fa-solid
-    fa-cloud-arrow-up
-    text-3xl
-    text-blue-600
-  "
-></i>
-
-
-<div
-  class="
-    font-bold
-    text-sm
-    mt-2
-  "
->
-Cargar KML o Excel
-</div>
-
-
-<div
-  class="
-    text-xs
-    text-slate-400
-  "
->
-El Excel será guardado en Drive
-</div>
-
-</label>
-
-</div>
-
-
-<div
-  id="export-box"
-  class="hidden space-y-2"
->
-
-<button
-  onclick="saveCurrentExcel()"
-  class="
-    w-full
-    bg-emerald-600
-    text-white
-    py-2
-    rounded-lg
-    text-xs
-    font-bold
-  "
->
-<i class="fa-solid fa-file-excel"></i>
-Guardar Excel actualizado
-</button>
-
-
-<button
-  onclick="downloadKML()"
-  class="
-    w-full
-    bg-blue-600
-    text-white
-    py-2
-    rounded-lg
-    text-xs
-    font-bold
-  "
->
-<i class="fa-solid fa-earth-americas"></i>
-Descargar KML
-</button>
-
-</div>
-
-
-<div>
-
-<div
-  class="
-    flex
-    justify-between
-    mb-2
-  "
->
-
-<span
-  class="
-    text-xs
-    font-bold
-    text-slate-500
-  "
->
-PUNTOS
-</span>
-
-
-<button
-  onclick="zoomAll()"
-  class="
-    text-xs
-    text-blue-600
-  "
->
-Ver todos
-</button>
-
-</div>
-
-
-<div
-  id="points-list"
-  class="space-y-1"
-></div>
-
-</div>
-
-
-</section>
-
-
-<!-- =========================================================
-     MÓDULO 04 - TABLA
-     ========================================================= -->
-
-<section
-  id="content-table"
-  class="hidden space-y-3"
->
-
-
-<input
-  id="table-search"
-  oninput="renderTable()"
-  placeholder="Buscar..."
-  class="
-    w-full
-    border
-    rounded-lg
-    p-2
-    text-xs
-  "
->
-
-
-<div class="table-container">
-
-<table class="data-table text-xs">
-
-<thead
-  class="
-    bg-slate-100
-    sticky
-    top-0
-    z-10
-  "
->
-
-<tr>
-
-<th>Orden</th>
-
-<th>Nombre</th>
-
-<th>Latitud</th>
-
-<th>Longitud</th>
-
-<th>Desc. 1</th>
-
-<th>Desc. 2</th>
-
-<th>Desc. 3</th>
-
-<th>Color</th>
-
-</tr>
-
-</thead>
-
-
-<tbody
-  id="table-body"
-></tbody>
-
-</table>
-
-</div>
-
-
-</section>
-
-
-<!-- =========================================================
-     MÓDULO 05 - FILTROS
-     ========================================================= -->
-
-<section
-  id="content-filter"
-  class="hidden space-y-4"
->
-
-
-<!-- BÚSQUEDA GENERAL -->
-
-<div>
-
-<label
-  class="
-    block
-    text-xs
-    font-bold
-    mb-1
-  "
->
-Buscar
-</label>
-
-
-<input
-  id="general-search"
-  oninput="applyFilters()"
-  placeholder="Nombre o descripción..."
-  class="
-    w-full
-    border
-    rounded-lg
-    p-2
-    text-xs
-  "
->
-
-</div>
-
-
-<!-- =======================================================
-     FILTRO POR COLOR
-     ======================================================= -->
-
-<div class="filter-panel">
-
-<div
-  class="
-    filter-panel-header
-    p-2
-    flex
-    justify-between
-    items-center
-  "
->
-
-<span class="text-xs font-bold">
-Colores
-</span>
-
-
-<button
-  onclick="selectAllColors(true)"
-  class="text-xs text-blue-600"
->
-Todos
-</button>
-
-</div>
-
-
-<div
-  id="color-filters"
-  class="
-    p-2
-    max-h-60
-    overflow-y-auto
-    space-y-1
-  "
-></div>
-
-</div>
-
-
-<!-- =======================================================
-     DESCRIPCIÓN 1
-     ======================================================= -->
-
-<div class="filter-panel">
-
-<div
-  class="
-    filter-panel-header
-    p-2
-    flex
-    justify-between
-    items-center
-  "
->
-
-<span class="text-xs font-bold">
-Descripción 1
-</span>
-
-
-<button
-  onclick="selectAllDescriptionValues('desc1', true)"
-  class="text-xs text-blue-600"
->
-Todos
-</button>
-
-</div>
-
-
-<div
-  id="desc1-filters"
-  class="filter-values p-2"
-></div>
-
-</div>
-
-
-<!-- =======================================================
-     DESCRIPCIÓN 2
-     ======================================================= -->
-
-<div class="filter-panel">
-
-<div
-  class="
-    filter-panel-header
-    p-2
-    flex
-    justify-between
-    items-center
-  "
->
-
-<span class="text-xs font-bold">
-Descripción 2
-</span>
-
-
-<button
-  onclick="selectAllDescriptionValues('desc2', true)"
-  class="text-xs text-blue-600"
->
-Todos
-</button>
-
-</div>
-
-
-<div
-  id="desc2-filters"
-  class="filter-values p-2"
-></div>
-
-</div>
-
-
-<!-- =======================================================
-     DESCRIPCIÓN 3
-     ======================================================= -->
-
-<div class="filter-panel">
-
-<div
-  class="
-    filter-panel-header
-    p-2
-    flex
-    justify-between
-    items-center
-  "
->
-
-<span class="text-xs font-bold">
-Descripción 3
-</span>
-
-
-<button
-  onclick="selectAllDescriptionValues('desc3', true)"
-  class="text-xs text-blue-600"
->
-Todos
-</button>
-
-</div>
-
-
-<div
-  id="desc3-filters"
-  class="filter-values p-2"
-></div>
-
-</div>
-
-
-<button
-  onclick="resetFilters()"
-  class="
-    w-full
-    bg-slate-200
-    py-2
-    rounded-lg
-    text-xs
-    font-bold
-  "
->
-Restablecer
-</button>
-
-
-<div
-  id="filter-info"
-  class="
-    bg-slate-100
-    p-2
-    rounded-lg
-    text-xs
-  "
->
-0 puntos visibles
-</div>
-
-
-</section>
-
-
-<!-- =========================================================
-     MÓDULO 06 - RUTAS
-     ========================================================= -->
-
-<section
-  id="content-route"
-  class="hidden space-y-4"
->
-
-
-<div
-  class="
-    flex
-    justify-between
-  "
->
-
-<span
-  class="
-    text-xs
-    font-bold
-  "
->
-RUTAS
-</span>
-
-
-<button
-  onclick="createRoute()"
-  class="
-    bg-blue-600
-    text-white
-    px-3
-    py-1
-    rounded
-    text-xs
-  "
->
-+ Nueva
-</button>
-
-</div>
-
-
-<select
-  id="route-select"
-  onchange="selectRoute(this.value)"
-  class="
-    w-full
-    border
-    rounded-lg
-    p-2
-    text-xs
-  "
->
-
-<option value="">
--- Sin ruta --
-</option>
-
-</select>
-
-
-<div
-  id="route-panel"
-  class="hidden space-y-3"
->
-
-
-<!-- =======================================================
-     COORDENADA INICIAL OPCIONAL
-     ======================================================= -->
-
-<div class="route-coordinate-box">
-
-<label
-  class="
-    block
-    text-xs
-    font-bold
-    mb-1
-  "
->
-Coordenada inicial opcional
-</label>
-
-
-<input
-  id="route-start-coordinate"
-  class="route-coordinate-input"
-  type="text"
-  placeholder="Ejemplo: 19.432600, -99.133200"
-  oninput="updateRouteCoordinateState()"
->
-
-
-<div
-  class="
-    text-[10px]
-    text-slate-400
-    mt-1
-  "
->
-Escribe la coordenada completa como:
-Latitud, Longitud
-</div>
-
-
-<label class="return-check">
-
-<input
-  id="route-add-return"
-  type="checkbox"
-  onchange="updateRouteCoordinateState()"
->
-
-<span>
-Agregar regreso
-</span>
-
-</label>
-
-
-<div
-  id="route-coordinate-status"
-  class="
-    text-[10px]
-    text-slate-500
-    mt-1
-  "
->
-La coordenada inicial es opcional.
-</div>
-
-</div>
-
-
-<!-- =======================================================
-     SELECCIÓN DE PUNTOS
-     ======================================================= -->
-
-<button
-  id="route-mode-btn"
-  onclick="toggleRouteMode()"
-  class="
-    w-full
-    bg-slate-200
-    py-2
-    rounded-lg
-    text-xs
-    font-bold
-  "
->
-Activar selección
-</button>
-
-
-<div
-  class="
-    bg-slate-50
-    border
-    rounded-lg
-    p-2
-    text-xs
-  "
->
-
-Puntos:
-<strong
-  id="route-points"
->
-0
-</strong>
-
-<br>
-
-Distancia:
-<strong
-  id="route-distance"
->
-0 km
-</strong>
-
-</div>
-
-
-<div
-  id="route-list"
-  class="
-    border
-    rounded-lg
-    p-2
-    max-h-60
-    overflow-y-auto
-  "
-></div>
-
-
-<button
-  onclick="openGoogleRoute()"
-  class="
-    w-full
-    bg-green-600
-    text-white
-    py-2
-    rounded-lg
-    text-xs
-    font-bold
-  "
->
-Abrir en Google Maps
-</button>
-
-
-<button
-  onclick="clearRoute()"
-  class="
-    w-full
-    bg-red-50
-    text-red-600
-    py-2
-    rounded-lg
-    text-xs
-  "
->
-Limpiar ruta
-</button>
+<body>
+
+<div class="contenedor">
+
+
+  <!-- =======================================================
+       MÓDULO 02 - ENCABEZADO
+       ======================================================= -->
+
+  <div class="encabezado">
+
+    <h1>
+      Gestor de Excel y actualización de BASE
+    </h1>
+
+    <p>
+      Los archivos Excel se conservan en Google Drive y
+      pueden volver a visualizarse o procesarse posteriormente.
+    </p>
+
+  </div>
+
+
+  <!-- =======================================================
+       MÓDULO 03 - CARPETA DRIVE
+       ======================================================= -->
+
+  <div class="panel">
+
+    <h2>
+      1. Carpeta de Google Drive
+    </h2>
+
+    <div class="campo">
+
+      <label for="txtCarpeta">
+        Link o ID de la carpeta
+      </label>
+
+      <input
+        type="text"
+        id="txtCarpeta"
+        placeholder="Pega aquí el enlace o ID de la carpeta de Drive"
+      >
+
+    </div>
+
+    <div class="botones">
+
+      <button
+        type="button"
+        class="btn-principal"
+        id="btnGuardarCarpeta"
+      >
+        Guardar carpeta
+      </button>
+
+      <button
+        type="button"
+        class="btn-secundario"
+        id="btnCambiarCarpeta"
+      >
+        Cambiar carpeta
+      </button>
+
+    </div>
+
+
+    <div
+      id="carpetaInfo"
+      class="carpeta-info oculto"
+    >
+
+      <div>
+        Carpeta activa:
+        <span
+          id="nombreCarpeta"
+          class="carpeta-nombre"
+        >
+        </span>
+      </div>
+
+    </div>
+
+
+    <div
+      id="estadoCarpeta"
+      class="estado"
+    >
+      Verificando configuración...
+    </div>
+
+  </div>
+
+
+  <!-- =======================================================
+       MÓDULO 04 - CARGAR EXCEL
+       ======================================================= -->
+
+  <div class="panel">
+
+    <h2>
+      2. Cargar un Excel
+    </h2>
+
+    <div class="campo">
+
+      <label for="archivoExcel">
+        Seleccionar archivo Excel
+      </label>
+
+      <input
+        type="file"
+        id="archivoExcel"
+        accept=".xlsx,.xls,.xlsm"
+      >
+
+    </div>
+
+
+    <div class="botones">
+
+      <button
+        type="button"
+        class="btn-principal"
+        id="btnSubir"
+      >
+        Guardar Excel en Drive
+      </button>
+
+    </div>
+
+
+    <div
+      id="estadoCarga"
+      class="estado"
+    >
+      Selecciona un Excel para comenzar.
+    </div>
+
+  </div>
+
+
+  <!-- =======================================================
+       MÓDULO 05 - ARCHIVOS GUARDADOS
+       ======================================================= -->
+
+  <div class="panel">
+
+    <h2>
+      3. Excel guardados en Drive
+    </h2>
+
+    <div class="botones">
+
+      <button
+        type="button"
+        class="btn-azul"
+        id="btnActualizarLista"
+      >
+        Actualizar lista
+      </button>
+
+    </div>
+
+
+    <div
+      id="estadoLista"
+      class="estado"
+    >
+      Cargando archivos...
+    </div>
+
+
+    <div class="tabla-contenedor">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>
+              Archivo
+            </th>
+
+            <th>
+              Fecha
+            </th>
+
+            <th>
+              Tamaño
+            </th>
+
+            <th>
+              Acciones
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody
+          id="tablaArchivos"
+        >
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+
+  <!-- =======================================================
+       MÓDULO 06 - RESULTADO
+       ======================================================= -->
+
+  <div
+    class="panel oculto"
+    id="panelResultado"
+  >
+
+    <h2>
+      Resultado del procesamiento
+    </h2>
+
+
+    <div
+      id="mensajeResultado"
+      class="estado ok"
+    >
+    </div>
+
+
+    <div
+      class="resultado-grid"
+      id="resultadoGrid"
+    >
+    </div>
+
+  </div>
+
+
+  <!-- =======================================================
+       MÓDULO 07 - ESTADO DEL SISTEMA
+       ======================================================= -->
+
+  <div class="panel">
+
+    <h2>
+      Estado del sistema
+    </h2>
+
+    <div
+      id="estadoSistema"
+      class="estado"
+    >
+      Verificando...
+    </div>
+
+    <div class="nota">
+
+      La hoja BASE permanece en el archivo configurado en
+      <strong>Code.gs</strong>. Este libro vacío solamente
+      ejecuta la aplicación.
+
+    </div>
+
+  </div>
 
 
 </div>
-
-</section>
-
-
-</div>
-
-</aside>
-
-
-<!-- =========================================================
-     MÓDULO 07 - MAPA
-     ========================================================= -->
-
-<main
-  class="
-    flex-1
-    relative
-  "
->
-
-<div id="map"></div>
-
-
-<div
-  id="toast"
-  class="toast"
->
-
-<span id="toast-text"></span>
-
-</div>
-
-</main>
 
 
 <script>
 
-
-/***************************************************************
- * =============================================================
+/* ============================================================
  * MÓDULO 08 - VARIABLES
- * =============================================================
- ***************************************************************/
+ * ============================================================ */
+
+let carpetaConfigurada = false;
 
 
-let map;
-
-let googleHybrid;
-
-let googleSatellite;
-
-let googleStreets;
-
-let googleTerrain;
-
-
-let markersData = [];
-
-let markerLayer = [];
-
-
-let currentFile = '';
-
-let currentFileType = '';
-
-let currentSheetId = '';
-
-let currentFileId = '';
-
-
-let originalKML = '';
-
-
-let routes = [];
-
-let activeRouteId = null;
-
-let routeMode = false;
-
-
-/*
- * IMPORTANTE:
- *
- * Un Set vacío significa:
- *
- * "NO APLICAR ESTE FILTRO".
- *
- * Esto permite que al cargar el archivo
- * todos los filtros aparezcan deseleccionados
- * sin ocultar los puntos.
- */
-
-let selectedColors = new Set();
-
-
-let selectedDescriptionFilters = {
-
-  desc1:
-    new Set(),
-
-  desc2:
-    new Set(),
-
-  desc3:
-    new Set()
-
-};
-
-
-let automaticColorIndex = 0;
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 09 - COLORES
- * =============================================================
- ***************************************************************/
-
-
-const DEFAULT_COLORS = [
-
-  '#FF0000',
-  '#00FF00',
-  '#0000FF',
-  '#FFFF00',
-  '#00FFFF',
-  '#FF00FF',
-
-  '#800000',
-  '#008000',
-  '#000080',
-  '#808000',
-  '#800080',
-  '#008080',
-  '#C0C0C0',
-  '#808080',
-
-  '#FFA500',
-  '#A52A2A',
-  '#FFC0CB',
-  '#FFD700',
-  '#4B0082',
-  '#EE82EE',
-
-  '#DC143C',
-  '#FF6347',
-  '#FF4500',
-  '#FF1493',
-  '#FF69B4',
-  '#F0E68C',
-
-  '#7CFC00',
-  '#32CD32',
-  '#228B22',
-  '#006400',
-
-  '#40E0D0',
-  '#00CED1',
-  '#1E90FF',
-  '#4169E1',
-  '#00008B',
-
-  '#9932CC',
-  '#8A2BE2',
-  '#9400D3',
-  '#DA70D6',
-
-  '#D2691E',
-  '#CD853F',
-  '#DEB887',
-  '#F4A460',
-
-  '#2F4F4F',
-  '#708090',
-  '#696969',
-  '#D3D3D3',
-
-  '#7FFFD4',
-  '#66CDAA',
-  '#3CB371',
-  '#98FB98',
-
-  '#B22222',
-  '#FA8072',
-  '#E9967A',
-
-  '#B8860B',
-  '#DAA520',
-  '#EEE8AA',
-
-  '#191970',
-  '#483D8B',
-  '#6A5ACD',
-
-  '#556B2F',
-  '#6B8E23',
-  '#808000',
-
-  '#4682B4',
-  '#5F9EA0',
-  '#87CEEB',
-  '#87CEFA',
-
-  '#F5F5DC',
-  '#FFFFF0',
-  '#FAF0E6',
-
-  '#000000',
-  '#FFFFFF'
-
-];
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 10 - INICIO
- * =============================================================
- ***************************************************************/
-
+/* ============================================================
+ * MÓDULO 09 - INICIALIZACIÓN
+ * ============================================================ */
 
 window.addEventListener(
   'load',
-  initializeApp
+  function() {
+
+    cargarConfiguracion();
+
+    cargarEstadoSistema();
+
+  }
 );
 
 
-function initializeApp() {
+/* ============================================================
+ * MÓDULO 10 - ELEMENTOS
+ * ============================================================ */
 
-  initializeMap();
+const txtCarpeta =
+  document.getElementById(
+    'txtCarpeta'
+  );
 
-  refreshFiles();
+const btnGuardarCarpeta =
+  document.getElementById(
+    'btnGuardarCarpeta'
+  );
 
-}
+const btnCambiarCarpeta =
+  document.getElementById(
+    'btnCambiarCarpeta'
+  );
 
+const btnSubir =
+  document.getElementById(
+    'btnSubir'
+  );
 
-/***************************************************************
- * =============================================================
- * MÓDULO 11 - MAPA
- * =============================================================
- ***************************************************************/
+const btnActualizarLista =
+  document.getElementById(
+    'btnActualizarLista'
+  );
 
+const archivoExcel =
+  document.getElementById(
+    'archivoExcel'
+  );
 
-function initializeMap() {
+const estadoCarpeta =
+  document.getElementById(
+    'estadoCarpeta'
+  );
 
-  map =
-    L.map(
-      'map'
-    )
-    .setView(
-      [19.4326, -99.1332],
-      6
-    );
+const estadoCarga =
+  document.getElementById(
+    'estadoCarga'
+  );
 
+const estadoLista =
+  document.getElementById(
+    'estadoLista'
+  );
 
-  googleHybrid =
-    L.tileLayer(
-      'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
-      {
-        maxZoom: 20,
-        attribution:
-          '&copy; Google Maps'
-      }
-    );
+const tablaArchivos =
+  document.getElementById(
+    'tablaArchivos'
+  );
 
+const carpetaInfo =
+  document.getElementById(
+    'carpetaInfo'
+  );
 
-  googleSatellite =
-    L.tileLayer(
-      'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
-      {
-        maxZoom: 20,
-        attribution:
-          '&copy; Google Maps'
-      }
-    );
+const nombreCarpeta =
+  document.getElementById(
+    'nombreCarpeta'
+  );
 
+const panelResultado =
+  document.getElementById(
+    'panelResultado'
+  );
 
-  googleStreets =
-    L.tileLayer(
-      'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
-      {
-        maxZoom: 20,
-        attribution:
-          '&copy; Google Maps'
-      }
-    );
+const mensajeResultado =
+  document.getElementById(
+    'mensajeResultado'
+  );
 
+const resultadoGrid =
+  document.getElementById(
+    'resultadoGrid'
+  );
 
-  googleTerrain =
-    L.tileLayer(
-      'https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',
-      {
-        maxZoom: 20,
-        attribution:
-          '&copy; Google Maps'
-      }
-    );
-
-
-  googleHybrid.addTo(map);
-
-
-  L.control.layers({
-
-    'Google Híbrido':
-      googleHybrid,
-
-    'Google Satélite':
-      googleSatellite,
-
-    'Google Calles':
-      googleStreets,
-
-    'Google Terreno':
-      googleTerrain
-
-  }).addTo(map);
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 12 - PESTAÑAS
- * =============================================================
- ***************************************************************/
-
-
-function switchTab(tab) {
-
-  const tabs = [
-    'data',
-    'table',
-    'filter',
-    'route'
-  ];
-
-
-  tabs.forEach(
-    function(item) {
-
-      document
-        .getElementById(
-          'content-' + item
-        )
-        .classList
-        .add('hidden');
-
-
-      const button =
-        document.getElementById(
-          'tab-' + item
-        );
-
-
-      button.classList
-        .remove(
-          'border-blue-600',
-          'text-blue-600'
-        );
-
-
-      button.classList
-        .add(
-          'border-transparent'
-        );
-
-    }
+const estadoSistema =
+  document.getElementById(
+    'estadoSistema'
   );
 
 
-  document
-    .getElementById(
-      'content-' + tab
+/* ============================================================
+ * MÓDULO 11 - GUARDAR CARPETA
+ * ============================================================ */
+
+btnGuardarCarpeta.addEventListener(
+  'click',
+  guardarCarpeta
+);
+
+
+btnCambiarCarpeta.addEventListener(
+  'click',
+  function() {
+
+    txtCarpeta.focus();
+
+    txtCarpeta.select();
+
+  }
+);
+
+
+function guardarCarpeta() {
+
+  const valor =
+    txtCarpeta.value.trim();
+
+
+  if (!valor) {
+
+    mostrarEstado(
+      estadoCarpeta,
+      'Debes pegar el enlace o ID de la carpeta.',
+      'error'
+    );
+
+    txtCarpeta.focus();
+
+    return;
+
+  }
+
+
+  mostrarEstado(
+    estadoCarpeta,
+    '<span class="cargando"></span> Validando carpeta...',
+    'proceso',
+    true
+  );
+
+
+  btnGuardarCarpeta.disabled =
+    true;
+
+
+  google.script.run
+
+    .withSuccessHandler(
+      function(resultado) {
+
+        btnGuardarCarpeta.disabled =
+          false;
+
+
+        carpetaConfigurada =
+          true;
+
+
+        txtCarpeta.value =
+          resultado.folderId;
+
+
+        nombreCarpeta.textContent =
+          resultado.folderName;
+
+
+        carpetaInfo.classList.remove(
+          'oculto'
+        );
+
+
+        mostrarEstado(
+          estadoCarpeta,
+          'Carpeta configurada correctamente.',
+          'ok'
+        );
+
+
+        cargarLista();
+
+        cargarEstadoSistema();
+
+      }
     )
-    .classList
-    .remove('hidden');
+
+    .withFailureHandler(
+      function(error) {
+
+        btnGuardarCarpeta.disabled =
+          false;
 
 
-  const button =
-    document.getElementById(
-      'tab-' + tab
-    );
+        mostrarEstado(
+          estadoCarpeta,
+          error.message,
+          'error'
+        );
 
+      }
+    )
 
-  button.classList
-    .remove(
-      'border-transparent'
-    );
-
-
-  button.classList
-    .add(
-      'border-blue-600',
-      'text-blue-600'
+    .guardarCarpetaDrive(
+      valor
     );
 
 }
 
 
-/***************************************************************
- * =============================================================
- * MÓDULO 13 - CARGAR ARCHIVO
- * =============================================================
- ***************************************************************/
+/* ============================================================
+ * MÓDULO 12 - CARGAR CONFIGURACIÓN
+ * ============================================================ */
+
+function cargarConfiguracion() {
+
+  google.script.run
+
+    .withSuccessHandler(
+      function(resultado) {
+
+        if (
+          resultado.folderId
+        ) {
+
+          carpetaConfigurada =
+            true;
 
 
-function handleUpload(event) {
-
-  const file =
-    event.target.files[0];
+          txtCarpeta.value =
+            resultado.folderId;
 
 
-  if (!file) {
+          nombreCarpeta.textContent =
+            resultado.folderName;
+
+
+          carpetaInfo.classList.remove(
+            'oculto'
+          );
+
+
+          mostrarEstado(
+            estadoCarpeta,
+            'Carpeta configurada correctamente.',
+            'ok'
+          );
+
+
+          cargarLista();
+
+        } else {
+
+          carpetaConfigurada =
+            false;
+
+
+          mostrarEstado(
+            estadoCarpeta,
+            'Aún no se ha configurado una carpeta. Pega el link o ID arriba.',
+            ''
+          );
+
+        }
+
+      }
+    )
+
+    .withFailureHandler(
+      function(error) {
+
+        mostrarEstado(
+          estadoCarpeta,
+          error.message,
+          'error'
+        );
+
+      }
+    )
+
+    .obtenerConfiguracion();
+
+}
+
+
+/* ============================================================
+ * MÓDULO 13 - SUBIR EXCEL
+ * ============================================================ */
+
+btnSubir.addEventListener(
+  'click',
+  subirArchivo
+);
+
+
+function subirArchivo() {
+
+  const archivo =
+    archivoExcel.files[0];
+
+
+  if (!carpetaConfigurada) {
+
+    mostrarEstado(
+      estadoCarga,
+      'Primero debes configurar la carpeta de Drive.',
+      'error'
+    );
+
+    txtCarpeta.focus();
+
     return;
+
+  }
+
+
+  if (!archivo) {
+
+    mostrarEstado(
+      estadoCarga,
+      'Selecciona un archivo Excel.',
+      'error'
+    );
+
+    return;
+
   }
 
 
   const extension =
-    file.name
+    archivo.name
       .split('.')
       .pop()
       .toLowerCase();
 
 
-  showToast(
-    'Procesando archivo...'
-  );
-
-
   if (
-    extension === 'kml' ||
-    extension === 'xml'
+    !['xlsx', 'xls', 'xlsm']
+      .includes(extension)
   ) {
 
-    const reader =
-      new FileReader();
-
-
-    reader.onload =
-      function(e) {
-
-        const content =
-          e.target.result;
-
-
-        originalKML =
-          content;
-
-
-        processKML(
-          file.name,
-          content
-        );
-
-
-        google.script.run
-
-          .withSuccessHandler(
-            function() {
-
-              refreshFiles();
-
-              showToast(
-                'KML guardado en Drive.'
-              );
-
-            }
-          )
-
-          .withFailureHandler(
-            function(error) {
-
-              console.error(error);
-
-              showToast(
-                'Error al guardar KML.'
-              );
-
-            }
-          )
-
-          .saveKMLFile({
-
-            fileName:
-              file.name,
-
-            content:
-              content
-
-          });
-
-      };
-
-
-    reader.readAsText(file);
-
-    return;
-
-  }
-
-
-  if (
-    extension === 'xlsx' ||
-    extension === 'xls'
-  ) {
-
-    const reader =
-      new FileReader();
-
-
-    reader.onload =
-      function(e) {
-
-        try {
-
-          const workbook =
-            XLSX.read(
-              new Uint8Array(
-                e.target.result
-              ),
-              {
-                type:
-                  'array'
-              }
-            );
-
-
-          const sheet =
-            workbook.Sheets[
-              workbook.SheetNames[0]
-            ];
-
-
-          const rows =
-            XLSX.utils.sheet_to_json(
-              sheet,
-              {
-                header:
-                  1,
-
-                defval:
-                  ''
-              }
-            );
-
-
-          processExcel(
-            file.name,
-            rows
-          );
-
-
-          saveExcelToDrive(
-            file,
-            rows
-          );
-
-
-        } catch (error) {
-
-          console.error(error);
-
-          showToast(
-            'Error al leer Excel.'
-          );
-
-        }
-
-      };
-
-
-    reader.readAsArrayBuffer(file);
-
-  }
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 14 - PROCESAR EXCEL
- * =============================================================
- ***************************************************************/
-
-
-function processExcel(
-  fileName,
-  rows
-) {
-
-  if (
-    !rows ||
-    rows.length < 2
-  ) {
-
-    showToast(
-      'El Excel no contiene registros.'
+    mostrarEstado(
+      estadoCarga,
+      'El archivo debe ser XLSX, XLS o XLSM.',
+      'error'
     );
 
     return;
@@ -2142,425 +962,67 @@ function processExcel(
   }
 
 
-  clearMap();
-
-  markersData = [];
-
-
-  let order = 1;
+  btnSubir.disabled =
+    true;
 
 
-  for (
-    let i = 1;
-    i < rows.length;
-    i++
-  ) {
-
-    const row =
-      rows[i];
-
-
-    if (
-      !row ||
-      row.every(
-        value =>
-          String(
-            value || ''
-          ).trim() === ''
-      )
-    ) {
-
-      continue;
-
-    }
-
-
-    const nombre =
-      String(
-        row[0] ?? ''
-      ).trim();
-
-
-    const latitud =
-      parseFloat(
-        String(
-          row[1] ?? ''
-        ).replace(
-          ',',
-          '.'
-        )
-      );
-
-
-    const longitud =
-      parseFloat(
-        String(
-          row[2] ?? ''
-        ).replace(
-          ',',
-          '.'
-        )
-      );
-
-
-    if (
-      isNaN(latitud) ||
-      isNaN(longitud)
-    ) {
-
-      continue;
-
-    }
-
-
-    const desc1 =
-      String(
-        row[3] ?? ''
-      ).trim();
-
-
-    const desc2 =
-      String(
-        row[4] ?? ''
-      ).trim();
-
-
-    const desc3 =
-      String(
-        row[5] ?? ''
-      ).trim();
-
-
-    const color =
-      normalizeColor(
-        row[6]
-      );
-
-
-    markersData.push({
-
-      id:
-        'excel_' +
-        Date.now() +
-        '_' +
-        i,
-
-      row:
-        i + 1,
-
-      orden:
-        order,
-
-      nombre:
-        nombre,
-
-      latitud:
-        latitud,
-
-      longitud:
-        longitud,
-
-      desc1:
-        desc1,
-
-      desc2:
-        desc2,
-
-      desc3:
-        desc3,
-
-      color:
-        color,
-
-      marker:
-        null
-
-    });
-
-
-    order++;
-
-  }
-
-
-  currentFile =
-    fileName;
-
-  currentFileType =
-    'excel';
-
-
-  drawMarkers();
-
-  refreshInterface();
-
-  zoomAll();
-
-
-  document
-    .getElementById(
-      'export-box'
-    )
-    .classList
-    .remove('hidden');
-
-
-  showToast(
-    markersData.length +
-    ' puntos cargados.'
+  mostrarEstado(
+    estadoCarga,
+    '<span class="cargando"></span> Leyendo el archivo...',
+    'proceso',
+    true
   );
 
-}
 
-
-/***************************************************************
- * =============================================================
- * MÓDULO 15 - COLORES
- * =============================================================
- ***************************************************************/
-
-
-function normalizeColor(value) {
-
-  if (
-    value === null ||
-    value === undefined
-  ) {
-
-    return DEFAULT_COLORS[0];
-
-  }
-
-
-  let color =
-    String(value)
-      .trim()
-      .toLowerCase();
-
-
-  if (!color) {
-
-    return DEFAULT_COLORS[0];
-
-  }
-
-
-  if (
-    /^#[0-9a-f]{6}$/i.test(color)
-  ) {
-
-    return color;
-
-  }
-
-
-  if (
-    /^[0-9a-f]{6}$/i.test(color)
-  ) {
-
-    return '#' + color;
-
-  }
-
-
-  const rgb =
-    color.match(
-      /^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i
-    );
-
-
-  if (rgb) {
-
-    return rgbToHex(
-      Number(rgb[1]),
-      Number(rgb[2]),
-      Number(rgb[3])
-    );
-
-  }
-
-
-  const namedColors = {
-
-    rojo: '#FF0000',
-    red: '#FF0000',
-
-    verde: '#00A000',
-    green: '#008000',
-
-    azul: '#0000FF',
-    blue: '#0000FF',
-
-    amarillo: '#FFFF00',
-    yellow: '#FFFF00',
-
-    naranja: '#FFA500',
-    orange: '#FFA500',
-
-    morado: '#800080',
-    purple: '#800080',
-
-    rosa: '#FF69B4',
-    pink: '#FFC0CB',
-
-    negro: '#000000',
-    black: '#000000',
-
-    blanco: '#FFFFFF',
-    white: '#FFFFFF',
-
-    gris: '#808080',
-    gray: '#808080',
-
-    cyan: '#00FFFF',
-    turquesa: '#40E0D0',
-
-    cafe: '#8B4513',
-    marron: '#8B4513',
-
-    dorado: '#FFD700',
-    oro: '#FFD700',
-
-    plata: '#C0C0C0',
-
-    vino: '#800000',
-
-    verdeoscuro: '#006400',
-    verdeclaro: '#90EE90',
-
-    azuloscuro: '#00008B',
-    azulclaro: '#87CEEB',
-
-    moradooscuro: '#4B0082',
-    lila: '#C8A2C8',
-
-    beige: '#F5F5DC',
-    oliva: '#808000'
-
-  };
-
-
-  if (namedColors[color]) {
-
-    return namedColors[color];
-
-  }
-
-
-  return getAutomaticColor();
-
-}
-
-
-function getAutomaticColor() {
-
-  const color =
-    DEFAULT_COLORS[
-      automaticColorIndex %
-      DEFAULT_COLORS.length
-    ];
-
-
-  automaticColorIndex++;
-
-  return color;
-
-}
-
-
-function rgbToHex(r, g, b) {
-
-  return '#' +
-
-    [r, g, b]
-      .map(
-        function(value) {
-
-          return Math
-            .max(
-              0,
-              Math.min(
-                255,
-                value
-              )
-            )
-            .toString(16)
-            .padStart(
-              2,
-              '0'
-            );
-
-        }
-      )
-      .join('');
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 16 - GUARDAR EXCEL EN DRIVE
- * =============================================================
- ***************************************************************/
-
-
-function saveExcelToDrive(
-  file,
-  rows
-) {
-
-  const reader =
+  const lector =
     new FileReader();
 
 
-  reader.onload =
-    function(e) {
+  lector.onload =
+    function(evento) {
 
       const base64 =
-        e.target.result
-          .split(',')[1];
+        evento.target.result;
 
 
-      document
-        .getElementById(
-          'drive-status'
-        )
-        .textContent =
-          'Guardando Excel en Drive...';
+      mostrarEstado(
+        estadoCarga,
+        '<span class="cargando"></span> Guardando el Excel en Drive...',
+        'proceso',
+        true
+      );
 
 
       google.script.run
 
         .withSuccessHandler(
-          function(result) {
+          function(resultado) {
 
-            currentFileId =
-              result.fileId;
-
-            currentSheetId =
-              result.sheetId;
-
-            currentFile =
-              result.fileName;
-
-            currentFileType =
-              'excel';
+            btnSubir.disabled =
+              false;
 
 
-            document
-              .getElementById(
-                'drive-status'
-              )
-              .textContent =
-                'Excel guardado en Drive ✓';
-
-
-            refreshFiles();
-
-
-            showToast(
-              'Excel guardado en Drive.'
+            mostrarEstado(
+              estadoCarga,
+              '✓ ' +
+              resultado.message +
+              '<br><br>' +
+              'Archivo: ' +
+              escapeHtml(
+                resultado.fileName
+              ),
+              'ok',
+              true
             );
+
+
+            archivoExcel.value =
+              '';
+
+
+            cargarLista();
+
+            cargarEstadoSistema();
 
           }
         )
@@ -2568,3033 +1030,96 @@ function saveExcelToDrive(
         .withFailureHandler(
           function(error) {
 
-            console.error(error);
-
-            document
-              .getElementById(
-                'drive-status'
-              )
-              .textContent =
-                'Error al guardar';
+            btnSubir.disabled =
+              false;
 
 
-            showToast(
-              'Error al guardar Excel.'
+            mostrarEstado(
+              estadoCarga,
+              error.message,
+              'error'
             );
 
           }
         )
 
-        .saveExcelFile({
-
-          fileName:
-            file.name,
-
-          mimeType:
-            file.type,
-
-          base64:
-            base64,
-
-          rows:
-            rows
-
-        });
+        .subirExcel(
+          archivo.name,
+          base64,
+          archivo.type,
+          txtCarpeta.value.trim()
+        );
 
     };
 
 
-  reader.readAsDataURL(file);
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 17 - MARCADORES
- * =============================================================
- ***************************************************************/
-
-
-function drawMarkers() {
-
-  clearMap();
-
-
-  markersData.forEach(
-    function(point) {
-
-      const marker =
-        createMarker(point);
-
-
-      point.marker =
-        marker;
-
-
-      markerLayer.push(marker);
-
-    }
-  );
-
-}
-
-
-function createMarker(point) {
-
-  const marker =
-    L.marker(
-
-      [
-        point.latitud,
-        point.longitud
-      ],
-
-      {
-        icon:
-          createMarkerIcon(point)
-      }
-
-    );
-
-
-  marker.addTo(map);
-
-
-  marker.on(
-    'click',
+  lector.onerror =
     function() {
 
-      if (
-        routeMode &&
-        activeRouteId
-      ) {
-
-        togglePointInRoute(
-          point.id
-        );
-
-        return;
-
-      }
+      btnSubir.disabled =
+        false;
 
 
-      openPointEditor(point);
-
-    }
-  );
-
-
-  return marker;
-
-}
-
-
-function createMarkerIcon(point) {
-
-  let badge = '';
-
-
-  const route =
-    getActiveRoute();
-
-
-  if (route) {
-
-    const index =
-      route.points.indexOf(
-        point.id
+      mostrarEstado(
+        estadoCarga,
+        'No fue posible leer el archivo.',
+        'error'
       );
-
-
-    if (index >= 0) {
-
-      badge =
-        '<span class="route-badge">' +
-        (index + 1) +
-        '</span>';
-
-    }
-
-  }
-
-
-  return L.divIcon({
-
-    className: '',
-
-    html:
-
-      '<div class="custom-marker">' +
-
-        '<div ' +
-        'class="marker-pin" ' +
-        'style="background:' +
-        escapeHtml(point.color) +
-        ';">' +
-        '</div>' +
-
-        badge +
-
-      '</div>',
-
-    iconSize:
-      [36, 36],
-
-    iconAnchor:
-      [18, 32]
-
-  });
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 18 - EDITAR PUNTO
- * =============================================================
- ***************************************************************/
-
-
-function openPointEditor(point) {
-
-  const html = `
-
-    <div style="width:280px">
-
-      <strong>
-        Información del punto #${point.orden}
-      </strong>
-
-      <br><br>
-
-      <label>
-        Nombre
-      </label>
-
-      <div class="readonly-field">
-        ${escapeHtml(point.nombre)}
-      </div>
-
-      <label>
-        Latitud
-      </label>
-
-      <div class="readonly-field">
-        ${point.latitud}
-      </div>
-
-      <label>
-        Longitud
-      </label>
-
-      <div class="readonly-field">
-        ${point.longitud}
-      </div>
-
-      <label>
-        Descripción 1
-      </label>
-
-      <input
-        id="edit-d1-${point.id}"
-        class="edit-input"
-        value="${escapeHtml(point.desc1)}"
-      >
-
-      <label>
-        Descripción 2
-      </label>
-
-      <input
-        id="edit-d2-${point.id}"
-        class="edit-input"
-        value="${escapeHtml(point.desc2)}"
-      >
-
-      <label>
-        Descripción 3
-      </label>
-
-      <input
-        id="edit-d3-${point.id}"
-        class="edit-input"
-        value="${escapeHtml(point.desc3)}"
-      >
-
-      <label>
-        Color
-      </label>
-
-      <input
-        id="edit-color-${point.id}"
-        type="color"
-        class="w-full h-8"
-        value="${point.color}"
-      >
-
-      <button
-        onclick="savePointEdit('${point.id}')"
-        style="
-          width:100%;
-          margin-top:10px;
-          padding:8px;
-          border:0;
-          border-radius:7px;
-          background:#2563eb;
-          color:white;
-          font-weight:bold;
-        "
-      >
-        Guardar cambios
-      </button>
-
-    </div>
-
-  `;
-
-
-  L.popup()
-    .setLatLng([
-      point.latitud,
-      point.longitud
-    ])
-    .setContent(html)
-    .openOn(map);
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 19 - GUARDADO AUTOMÁTICO
- * =============================================================
- ***************************************************************/
-
-
-function savePointEdit(id) {
-
-  const point =
-    markersData.find(
-      p =>
-        p.id === id
-    );
-
-
-  if (!point) {
-    return;
-  }
-
-
-  point.desc1 =
-    document
-      .getElementById(
-        'edit-d1-' + id
-      )
-      .value;
-
-
-  point.desc2 =
-    document
-      .getElementById(
-        'edit-d2-' + id
-      )
-      .value;
-
-
-  point.desc3 =
-    document
-      .getElementById(
-        'edit-d3-' + id
-      )
-      .value;
-
-
-  point.color =
-    document
-      .getElementById(
-        'edit-color-' + id
-      )
-      .value;
-
-
-  redrawPoint(point);
-
-
-  if (
-    currentFileType === 'excel' &&
-    currentSheetId
-  ) {
-
-    autoSaveExcelPoint(point);
-
-  }
-
-
-  refreshInterface();
-
-  map.closePopup();
-
-
-  showToast(
-    'Punto actualizado.'
-  );
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 20 - GUARDAR CAMBIO EXCEL
- * =============================================================
- ***************************************************************/
-
-
-function autoSaveExcelPoint(point) {
-
-  google.script.run
-
-    .withSuccessHandler(
-      function() {
-
-        document
-          .getElementById(
-            'drive-status'
-          )
-          .textContent =
-            'Cambio guardado ✓';
-
-      }
-    )
-
-    .withFailureHandler(
-      function(error) {
-
-        console.error(error);
-
-        showToast(
-          'Error al guardar cambio.'
-        );
-
-      }
-    )
-
-    .updateExcelRow({
-
-      sheetId:
-        currentSheetId,
-
-      rowNumber:
-        point.row,
-
-      values: [
-
-        point.nombre,
-        point.latitud,
-        point.longitud,
-        point.desc1,
-        point.desc2,
-        point.desc3,
-        point.color
-
-      ]
-
-    });
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 21 - TABLA
- * =============================================================
- ***************************************************************/
-
-
-function renderTable() {
-
-  const tbody =
-    document.getElementById(
-      'table-body'
-    );
-
-
-  tbody.innerHTML = '';
-
-
-  const search =
-    document
-      .getElementById(
-        'table-search'
-      )
-      .value
-      .toLowerCase();
-
-
-  markersData.forEach(
-    function(point) {
-
-      const text =
-        [
-          point.nombre,
-          point.desc1,
-          point.desc2,
-          point.desc3
-        ]
-          .join(' ')
-          .toLowerCase();
-
-
-      if (
-        search &&
-        !text.includes(search)
-      ) {
-
-        return;
-
-      }
-
-
-      const tr =
-        document.createElement('tr');
-
-
-      tr.className =
-        'border-b';
-
-
-      tr.innerHTML = `
-
-        <td class="text-center">
-          ${point.orden}
-        </td>
-
-        <td>
-
-          <div
-            class="table-point-name p-2"
-            title="Ir al punto en el mapa"
-            onclick="focusPoint('${point.id}')"
-          >
-            ${escapeHtml(point.nombre)}
-          </div>
-
-        </td>
-
-        <td class="text-center">
-
-          <div class="readonly-field">
-            ${point.latitud}
-          </div>
-
-        </td>
-
-        <td class="text-center">
-
-          <div class="readonly-field">
-            ${point.longitud}
-          </div>
-
-        </td>
-
-        <td class="description-cell">
-
-          <input
-            class="edit-input"
-            value="${escapeHtml(point.desc1)}"
-            onchange="changeTableValue('${point.id}','desc1',this.value)"
-          >
-
-        </td>
-
-        <td class="description-cell">
-
-          <input
-            class="edit-input"
-            value="${escapeHtml(point.desc2)}"
-            onchange="changeTableValue('${point.id}','desc2',this.value)"
-          >
-
-        </td>
-
-        <td class="description-cell">
-
-          <input
-            class="edit-input"
-            value="${escapeHtml(point.desc3)}"
-            onchange="changeTableValue('${point.id}','desc3',this.value)"
-          >
-
-        </td>
-
-        <td class="text-center">
-
-          <input
-            type="color"
-            class="w-10 h-10 cursor-pointer"
-            value="${point.color}"
-            onchange="changeTableColor('${point.id}',this.value)"
-          >
-
-        </td>
-
-      `;
-
-
-      tbody.appendChild(tr);
-
-    }
-  );
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 22 - CAMBIOS TABLA
- * =============================================================
- ***************************************************************/
-
-
-function changeTableValue(
-  id,
-  field,
-  value
-) {
-
-  if (
-    field === 'nombre' ||
-    field === 'latitud' ||
-    field === 'longitud'
-  ) {
-
-    renderTable();
-
-    return;
-
-  }
-
-
-  const point =
-    markersData.find(
-      p =>
-        p.id === id
-    );
-
-
-  if (!point) {
-    return;
-  }
-
-
-  point[field] =
-    value;
-
-
-  redrawPoint(point);
-
-
-  if (
-    currentFileType === 'excel' &&
-    currentSheetId
-  ) {
-
-    autoSaveExcelPoint(point);
-
-  }
-
-
-  if (
-    field === 'desc1' ||
-    field === 'desc2' ||
-    field === 'desc3'
-  ) {
-
-    buildDescriptionFilters();
-
-  }
-
-
-  applyFilters();
-
-}
-
-
-function changeTableColor(
-  id,
-  color
-) {
-
-  const point =
-    markersData.find(
-      p =>
-        p.id === id
-    );
-
-
-  if (!point) {
-    return;
-  }
-
-
-  point.color =
-    color;
-
-
-  redrawPoint(point);
-
-
-  if (
-    currentFileType === 'excel' &&
-    currentSheetId
-  ) {
-
-    autoSaveExcelPoint(point);
-
-  }
-
-
-  buildColorFilters();
-
-  applyFilters();
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 23 - CONSTRUIR FILTROS
- * =============================================================
- ***************************************************************/
-
-
-function buildFilters() {
-
-  buildColorFilters();
-
-  buildDescriptionFilters();
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 24 - FILTRO COLOR
- * =============================================================
- *
- * CAMBIO IMPORTANTE:
- *
- * AHORA TODOS LOS COLORES INICIAN DESELECCIONADOS.
- *
- * Un Set vacío NO restringe el mapa.
- * Cuando se marca uno, entonces se aplica.
- * =============================================================
- ***************************************************************/
-
-
-function buildColorFilters() {
-
-  const colors =
-    [
-      ...new Set(
-        markersData.map(
-          p =>
-            p.color
-        )
-      )
-    ];
-
-
-  /*
-   * IMPORTANTE:
-   *
-   * Antes se llenaba selectedColors
-   * automáticamente.
-   *
-   * Ahora se deja vacío.
-   */
-
-  selectedColors =
-    new Set();
-
-
-  const box =
-    document.getElementById(
-      'color-filters'
-    );
-
-
-  box.innerHTML =
-    '';
-
-
-  colors.forEach(
-    function(color) {
-
-      box.innerHTML += `
-
-        <label class="filter-option">
-
-          <input
-            type="checkbox"
-            value="${escapeHtml(color)}"
-            data-color-filter
-            onchange="applyFilters()"
-          >
-
-          <span
-            style="
-              width:16px;
-              height:16px;
-              display:inline-block;
-              border-radius:50%;
-              background:${escapeHtml(color)};
-              border:1px solid #999;
-              flex-shrink:0;
-            "
-          ></span>
-
-          <span
-            class="filter-option-text"
-          >
-            ${escapeHtml(color)}
-          </span>
-
-        </label>
-
-      `;
-
-    }
-  );
-
-
-  if (!colors.length) {
-
-    box.innerHTML = `
-
-      <div class="text-[11px] text-slate-400 p-1">
-        Sin colores disponibles
-      </div>
-
-    `;
-
-  }
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 25 - FILTROS DESCRIPCIONES
- * =============================================================
- *
- * TODOS LOS CHECKBOX INICIAN DESELECCIONADOS.
- * =============================================================*/
-
-
-function buildDescriptionFilters() {
-
-  const fields = [
-
-    {
-      field:
-        'desc1',
-
-      container:
-        'desc1-filters'
-    },
-
-    {
-      field:
-        'desc2',
-
-      container:
-        'desc2-filters'
-    },
-
-    {
-      field:
-        'desc3',
-
-      container:
-        'desc3-filters'
-    }
-
-  ];
-
-
-  fields.forEach(
-    function(config) {
-
-      const values =
-        [
-          ...new Set(
-
-            markersData
-              .map(
-                p =>
-                  String(
-                    p[
-                      config.field
-                    ] ??
-                    ''
-                  ).trim()
-              )
-              .filter(
-                value =>
-                  value !== ''
-              )
-
-          )
-        ]
-          .sort(
-            function(a, b) {
-
-              return a.localeCompare(
-                b,
-                'es',
-                {
-                  sensitivity:
-                    'base'
-                }
-              );
-
-            }
-          );
-
-
-      const box =
-        document.getElementById(
-          config.container
-        );
-
-
-      box.innerHTML =
-        '';
-
-
-      if (!values.length) {
-
-        box.innerHTML = `
-
-          <div
-            class="
-              text-[11px]
-              text-slate-400
-              p-1
-            "
-          >
-            Sin valores disponibles
-          </div>
-
-        `;
-
-
-        selectedDescriptionFilters[
-          config.field
-        ] =
-          new Set();
-
-
-        return;
-
-      }
-
-
-      /*
-       * IMPORTANTE:
-       *
-       * Los valores YA NO se seleccionan
-       * automáticamente.
-       */
-
-      selectedDescriptionFilters[
-        config.field
-      ] =
-        new Set();
-
-
-      values.forEach(
-        function(value) {
-
-          box.innerHTML += `
-
-            <label class="filter-option">
-
-              <input
-                type="checkbox"
-                data-description-filter="${config.field}"
-                value="${escapeHtml(value)}"
-                onchange="applyFilters()"
-              >
-
-              <span
-                class="filter-option-text"
-                title="${escapeHtml(value)}"
-              >
-                ${escapeHtml(value)}
-              </span>
-
-            </label>
-
-          `;
-
-        }
-      );
-
-    }
-  );
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 26 - APLICAR FILTROS
- * =============================================================
- ***************************************************************/
-
-
-function applyFilters() {
-
-  const search =
-    document
-      .getElementById(
-        'general-search'
-      )
-      .value
-      .toLowerCase()
-      .trim();
-
-
-  /*
-   * COLOR
-   */
-
-  selectedColors =
-    new Set(
-
-      [
-        ...
-        document.querySelectorAll(
-          '[data-color-filter]:checked'
-        )
-      ]
-        .map(
-          e =>
-            e.value
-        )
-
-    );
-
-
-  /*
-   * DESCRIPCIONES
-   */
-
-  selectedDescriptionFilters =
-    {
-
-      desc1:
-        getSelectedDescriptionValues(
-          'desc1'
-        ),
-
-      desc2:
-        getSelectedDescriptionValues(
-          'desc2'
-        ),
-
-      desc3:
-        getSelectedDescriptionValues(
-          'desc3'
-        )
 
     };
 
 
-  let visible = 0;
-
-
-  markersData.forEach(
-    function(point) {
-
-      const text =
-        [
-          point.nombre,
-          point.desc1,
-          point.desc2,
-          point.desc3
-        ]
-          .join(' ')
-          .toLowerCase();
-
-
-      const matchSearch =
-        (
-          !search ||
-          text.includes(search)
-        );
-
-
-      /*
-       * IMPORTANTE:
-       *
-       * Si selectedColors está vacío,
-       * significa que NO se está utilizando
-       * el filtro de color.
-       */
-
-      const matchColor =
-        (
-          selectedColors.size === 0 ||
-          selectedColors.has(point.color)
-        );
-
-
-      const matchDesc1 =
-        matchesDescriptionFilter(
-          point.desc1,
-          selectedDescriptionFilters.desc1
-        );
-
-
-      const matchDesc2 =
-        matchesDescriptionFilter(
-          point.desc2,
-          selectedDescriptionFilters.desc2
-        );
-
-
-      const matchDesc3 =
-        matchesDescriptionFilter(
-          point.desc3,
-          selectedDescriptionFilters.desc3
-        );
-
-
-      const visiblePoint =
-        matchSearch &&
-        matchColor &&
-        matchDesc1 &&
-        matchDesc2 &&
-        matchDesc3;
-
-
-      if (visiblePoint) {
-
-        if (
-          point.marker &&
-          !map.hasLayer(point.marker)
-        ) {
-
-          point.marker.addTo(map);
-
-        }
-
-
-        visible++;
-
-      } else {
-
-        if (
-          point.marker &&
-          map.hasLayer(point.marker)
-        ) {
-
-          map.removeLayer(point.marker);
-
-        }
-
-      }
-
-    }
-  );
-
-
-  document
-    .getElementById(
-      'filter-info'
-    )
-    .textContent =
-      visible +
-      ' puntos visibles';
-
-}
-
-
-/***************************************************************
- * =============================================================
- * OBTENER VALORES SELECCIONADOS
- * =============================================================
- ***************************************************************/
-
-
-function getSelectedDescriptionValues(
-  field
-) {
-
-  return new Set(
-
-    [
-      ...
-      document.querySelectorAll(
-        '[data-description-filter="' +
-        field +
-        '"]:checked'
-      )
-    ]
-      .map(
-        element =>
-          element.value
-      )
-
+  lector.readAsDataURL(
+    archivo
   );
 
 }
 
 
-/***************************************************************
- * =============================================================
- * COMPROBAR FILTRO DESCRIPCIÓN
- * =============================================================
- ***************************************************************/
+/* ============================================================
+ * MÓDULO 14 - CARGAR LISTA DE ARCHIVOS
+ * ============================================================ */
+
+btnActualizarLista.addEventListener(
+  'click',
+  cargarLista
+);
 
 
-function matchesDescriptionFilter(
-  value,
-  selectedValues
-) {
+function cargarLista() {
 
-  /*
-   * Si NO hay ningún valor seleccionado,
-   * NO se aplica el filtro.
-   */
+  if (!carpetaConfigurada) {
 
-  if (
-    !selectedValues ||
-    selectedValues.size === 0
-  ) {
-
-    return true;
-
-  }
-
-
-  const normalizedValue =
-    String(
-      value ?? ''
-    ).trim();
-
-
-  return selectedValues.has(
-    normalizedValue
-  );
-
-}
-
-
-/***************************************************************
- * =============================================================
- * SELECCIONAR TODOS DESCRIPCIÓN
- * =============================================================
- ***************************************************************/
-
-
-function selectAllDescriptionValues(
-  field,
-  value
-) {
-
-  document
-    .querySelectorAll(
-      '[data-description-filter="' +
-      field +
-      '"]'
-    )
-    .forEach(
-      function(check) {
-
-        check.checked =
-          value;
-
-      }
-    );
-
-
-  applyFilters();
-
-}
-
-
-/***************************************************************
- * =============================================================
- * SELECCIONAR TODOS COLORES
- * =============================================================
- ***************************************************************/
-
-
-function selectAllColors(value) {
-
-  document
-    .querySelectorAll(
-      '[data-color-filter]'
-    )
-    .forEach(
-      function(check) {
-
-        check.checked =
-          value;
-
-      }
-    );
-
-
-  applyFilters();
-
-}
-
-
-/***************************************************************
- * =============================================================
- * RESTABLECER FILTROS
- * =============================================================
- ***************************************************************/
-
-
-function resetFilters() {
-
-  document
-    .getElementById(
-      'general-search'
-    )
-    .value =
+    tablaArchivos.innerHTML =
       '';
 
-
-  /*
-   * RESTABLECER SIGNIFICA:
-   *
-   * TODOS DESELECCIONADOS.
-   *
-   * Al no haber selección,
-   * los grupos no restringen.
-   */
-
-  document
-    .querySelectorAll(
-      '[data-color-filter]'
-    )
-    .forEach(
-      function(check) {
-
-        check.checked =
-          false;
-
-      }
+    mostrarEstado(
+      estadoLista,
+      'Configura primero una carpeta de Drive.',
+      ''
     );
 
-
-  document
-    .querySelectorAll(
-      '[data-description-filter]'
-    )
-    .forEach(
-      function(check) {
-
-        check.checked =
-          false;
-
-      }
-    );
-
-
-  applyFilters();
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 27 - RUTAS
- * =============================================================
- ***************************************************************/
-
-
-function createRoute() {
-
-  const name =
-    prompt(
-      'Nombre de la ruta:',
-      'Ruta ' +
-      (
-        routes.length +
-        1
-      )
-    );
-
-
-  if (!name) {
     return;
+
   }
 
 
-  const route = {
-
-    id:
-      'route_' +
-      Date.now(),
-
-    name:
-      name,
-
-    points:
-      [],
-
-    startCoordinate:
-      '',
-
-    addReturn:
-      false
-
-  };
-
-
-  routes.push(route);
-
-
-  activeRouteId =
-    route.id;
-
-
-  renderRoutes();
-
-  switchTab('route');
-
-}
-
-
-/***************************************************************
- * =============================================================
- * OBTENER RUTA ACTIVA
- * =============================================================
- ***************************************************************/
-
-
-function getActiveRoute() {
-
-  return routes.find(
-    r =>
-      r.id ===
-      activeRouteId
+  mostrarEstado(
+    estadoLista,
+    '<span class="cargando"></span> Consultando archivos...',
+    'proceso',
+    true
   );
-
-}
-
-
-/***************************************************************
- * =============================================================
- * SELECCIONAR RUTA
- * =============================================================
- ***************************************************************/
-
-
-function selectRoute(id) {
-
-  activeRouteId =
-    id || null;
-
-
-  routeMode =
-    false;
-
-
-  updateRoutePanel();
-
-  drawMarkers();
-
-}
-
-
-/***************************************************************
- * =============================================================
- * ACTIVAR SELECCIÓN
- * =============================================================
- ***************************************************************/
-
-
-function toggleRouteMode() {
-
-  if (!activeRouteId) {
-
-    showToast(
-      'Primero crea una ruta.'
-    );
-
-    return;
-
-  }
-
-
-  routeMode =
-    !routeMode;
-
-
-  const button =
-    document.getElementById(
-      'route-mode-btn'
-    );
-
-
-  if (routeMode) {
-
-    button.textContent =
-      'SELECCIÓN ACTIVADA';
-
-
-    button.classList
-      .remove(
-        'bg-slate-200'
-      );
-
-
-    button.classList
-      .add(
-        'bg-blue-600',
-        'text-white'
-      );
-
-
-    showToast(
-      'Selecciona los puntos en orden.'
-    );
-
-  } else {
-
-    button.textContent =
-      'Activar selección';
-
-
-    button.classList
-      .remove(
-        'bg-blue-600',
-        'text-white'
-      );
-
-
-    button.classList
-      .add(
-        'bg-slate-200'
-      );
-
-  }
-
-}
-
-
-/***************************************************************
- * =============================================================
- * AGREGAR / QUITAR PUNTO DE RUTA
- * =============================================================
- ***************************************************************/
-
-
-function togglePointInRoute(id) {
-
-  const route =
-    getActiveRoute();
-
-
-  if (!route) {
-    return;
-  }
-
-
-  const index =
-    route.points.indexOf(id);
-
-
-  if (index >= 0) {
-
-    route.points.splice(
-      index,
-      1
-    );
-
-  } else {
-
-    route.points.push(id);
-
-  }
-
-
-  updateRoutePanel();
-
-  drawMarkers();
-
-}
-
-
-/***************************************************************
- * =============================================================
- * COORDENADA INICIAL
- * =============================================================
- ***************************************************************/
-
-
-function updateRouteCoordinateState() {
-
-  const route =
-    getActiveRoute();
-
-
-  if (!route) {
-    return;
-  }
-
-
-  const input =
-    document.getElementById(
-      'route-start-coordinate'
-    );
-
-
-  const returnCheck =
-    document.getElementById(
-      'route-add-return'
-    );
-
-
-  route.startCoordinate =
-    input.value.trim();
-
-
-  route.addReturn =
-    returnCheck.checked;
-
-
-  validateRouteStartCoordinate();
-
-  calculateRouteDistance();
-
-}
-
-
-/***************************************************************
- * =============================================================
- * VALIDAR COORDENADA
- * =============================================================
- ***************************************************************/
-
-
-function parseCoordinate(value) {
-
-  if (!value) {
-    return null;
-  }
-
-
-  const clean =
-    String(value)
-      .trim()
-      .replace(
-        /;/g,
-        ','
-      );
-
-
-  const parts =
-    clean
-      .split(',')
-      .map(
-        item =>
-          parseFloat(
-            item.trim().replace(',', '.')
-          )
-      );
-
-
-  if (
-    parts.length !== 2 ||
-    isNaN(parts[0]) ||
-    isNaN(parts[1])
-  ) {
-
-    return null;
-
-  }
-
-
-  const lat =
-    parts[0];
-
-  const lng =
-    parts[1];
-
-
-  if (
-    lat < -90 ||
-    lat > 90 ||
-    lng < -180 ||
-    lng > 180
-  ) {
-
-    return null;
-
-  }
-
-
-  return {
-
-    lat:
-      lat,
-
-    lng:
-      lng
-
-  };
-
-}
-
-
-/***************************************************************
- * =============================================================
- * ESTADO COORDENADA
- * =============================================================
- ***************************************************************/
-
-
-function validateRouteStartCoordinate() {
-
-  const input =
-    document.getElementById(
-      'route-start-coordinate'
-    );
-
-
-  const status =
-    document.getElementById(
-      'route-coordinate-status'
-    );
-
-
-  if (!input.value.trim()) {
-
-    status.textContent =
-      'La coordenada inicial es opcional.';
-
-    status.className =
-      'text-[10px] text-slate-500 mt-1';
-
-    return null;
-
-  }
-
-
-  const coordinate =
-    parseCoordinate(
-      input.value
-    );
-
-
-  if (!coordinate) {
-
-    status.textContent =
-      'Coordenada no válida. Usa: Latitud, Longitud';
-
-    status.className =
-      'text-[10px] text-red-600 mt-1';
-
-    return null;
-
-  }
-
-
-  status.textContent =
-    'Coordenada válida ✓';
-
-
-  status.className =
-    'text-[10px] text-emerald-600 mt-1';
-
-
-  return coordinate;
-
-}
-
-
-/***************************************************************
- * =============================================================
- * ACTUALIZAR PANEL DE RUTA
- * =============================================================
- ***************************************************************/
-
-
-function updateRoutePanel() {
-
-  const route =
-    getActiveRoute();
-
-
-  const panel =
-    document.getElementById(
-      'route-panel'
-    );
-
-
-  if (!route) {
-
-    panel.classList.add(
-      'hidden'
-    );
-
-    return;
-
-  }
-
-
-  panel.classList.remove(
-    'hidden'
-  );
-
-
-  /*
-   * Recuperar datos de la ruta
-   */
-
-  document
-    .getElementById(
-      'route-start-coordinate'
-    )
-    .value =
-      route.startCoordinate || '';
-
-
-  document
-    .getElementById(
-      'route-add-return'
-    )
-    .checked =
-      !!route.addReturn;
-
-
-  validateRouteStartCoordinate();
-
-
-  document
-    .getElementById(
-      'route-points'
-    )
-    .textContent =
-      route.points.length;
-
-
-  const list =
-    document.getElementById(
-      'route-list'
-    );
-
-
-  list.innerHTML =
-    '';
-
-
-  /*
-   * Mostrar coordenada inicial
-   * si existe
-   */
-
-  if (route.startCoordinate) {
-
-    const coordinate =
-      parseCoordinate(
-        route.startCoordinate
-      );
-
-
-    if (coordinate) {
-
-      list.innerHTML += `
-
-        <div
-          class="
-            flex
-            items-center
-            gap-2
-            p-2
-            border-b
-            bg-slate-50
-          "
-        >
-
-          <span
-            class="
-              w-6
-              h-6
-              rounded-full
-              bg-emerald-600
-              text-white
-              flex
-              items-center
-              justify-center
-              font-bold
-              text-xs
-            "
-          >
-            I
-          </span>
-
-          <span
-            class="
-              flex-1
-              text-xs
-            "
-          >
-            Coordenada inicial
-            <br>
-            <span class="text-[10px] text-slate-400">
-              ${coordinate.lat}, ${coordinate.lng}
-            </span>
-          </span>
-
-        </div>
-
-      `;
-
-    }
-
-  }
-
-
-  /*
-   * Puntos de archivo
-   */
-
-  route.points.forEach(
-    function(id, index) {
-
-      const point =
-        markersData.find(
-          p =>
-            p.id === id
-        );
-
-
-      if (!point) {
-        return;
-      }
-
-
-      list.innerHTML += `
-
-        <div
-          class="
-            flex
-            items-center
-            gap-2
-            p-2
-            border-b
-          "
-        >
-
-          <span
-            class="
-              w-6
-              h-6
-              rounded-full
-              bg-blue-600
-              text-white
-              flex
-              items-center
-              justify-center
-              font-bold
-              text-xs
-            "
-          >
-            ${index + 1}
-          </span>
-
-
-          <span
-            class="
-              flex-1
-              text-xs
-            "
-          >
-            ${escapeHtml(point.nombre)}
-          </span>
-
-        </div>
-
-      `;
-
-    }
-  );
-
-
-  /*
-   * Mostrar regreso en la lista
-   */
-
-  if (
-    route.startCoordinate &&
-    route.addReturn
-  ) {
-
-    const coordinate =
-      parseCoordinate(
-        route.startCoordinate
-      );
-
-
-    if (coordinate) {
-
-      list.innerHTML += `
-
-        <div
-          class="
-            flex
-            items-center
-            gap-2
-            p-2
-            bg-emerald-50
-          "
-        >
-
-          <span
-            class="
-              w-6
-              h-6
-              rounded-full
-              bg-emerald-600
-              text-white
-              flex
-              items-center
-              justify-center
-              font-bold
-              text-xs
-            "
-          >
-            F
-          </span>
-
-          <span
-            class="
-              flex-1
-              text-xs
-              font-bold
-            "
-          >
-            Regreso al inicio
-          </span>
-
-        </div>
-
-      `;
-
-    }
-
-  }
-
-
-  calculateRouteDistance();
-
-}
-
-
-/***************************************************************
- * =============================================================
- * LIMPIAR RUTA
- * =============================================================
- ***************************************************************/
-
-
-function clearRoute() {
-
-  const route =
-    getActiveRoute();
-
-
-  if (!route) {
-    return;
-  }
-
-
-  route.points = [];
-
-  updateRoutePanel();
-
-  drawMarkers();
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 28 - DISTANCIA
- * =============================================================
- ***************************************************************/
-
-
-function calculateRouteDistance() {
-
-  const route =
-    getActiveRoute();
-
-
-  if (!route) {
-
-    document
-      .getElementById(
-        'route-distance'
-      )
-      .textContent =
-        '0 km';
-
-    return;
-
-  }
-
-
-  let total = 0;
-
-
-  /*
-   * Construir lista de coordenadas
-   */
-
-  const routeCoordinates = [];
-
-
-  /*
-   * Coordenada inicial
-   */
-
-  if (route.startCoordinate) {
-
-    const start =
-      parseCoordinate(
-        route.startCoordinate
-      );
-
-
-    if (start) {
-
-      routeCoordinates.push({
-
-        lat:
-          start.lat,
-
-        lng:
-          start.lng
-
-      });
-
-    }
-
-  }
-
-
-  /*
-   * Puntos del archivo
-   */
-
-  route.points.forEach(
-    function(id) {
-
-      const point =
-        markersData.find(
-          p =>
-            p.id === id
-        );
-
-
-      if (!point) {
-        return;
-      }
-
-
-      routeCoordinates.push({
-
-        lat:
-          point.latitud,
-
-        lng:
-          point.longitud
-
-      });
-
-    }
-  );
-
-
-  /*
-   * Regreso al inicio
-   */
-
-  if (
-    route.startCoordinate &&
-    route.addReturn
-  ) {
-
-    const start =
-      parseCoordinate(
-        route.startCoordinate
-      );
-
-
-    if (start) {
-
-      routeCoordinates.push({
-
-        lat:
-          start.lat,
-
-        lng:
-          start.lng
-
-      });
-
-    }
-
-  }
-
-
-  if (
-    routeCoordinates.length < 2
-  ) {
-
-    document
-      .getElementById(
-        'route-distance'
-      )
-      .textContent =
-        '0 km';
-
-    return;
-
-  }
-
-
-  for (
-    let i = 1;
-    i < routeCoordinates.length;
-    i++
-  ) {
-
-    total +=
-      distanceKm(
-
-        routeCoordinates[i - 1].lat,
-        routeCoordinates[i - 1].lng,
-
-        routeCoordinates[i].lat,
-        routeCoordinates[i].lng
-
-      );
-
-  }
-
-
-  document
-    .getElementById(
-      'route-distance'
-    )
-    .textContent =
-      total.toFixed(2) +
-      ' km';
-
-}
-
-
-function distanceKm(
-  lat1,
-  lon1,
-  lat2,
-  lon2
-) {
-
-  const R =
-    6371;
-
-
-  const dLat =
-    (
-      lat2 -
-      lat1
-    ) *
-    Math.PI /
-    180;
-
-
-  const dLon =
-    (
-      lon2 -
-      lon1
-    ) *
-    Math.PI /
-    180;
-
-
-  const a =
-    Math.sin(
-      dLat / 2
-    ) ** 2 +
-
-    Math.cos(
-      lat1 *
-      Math.PI /
-      180
-    ) *
-
-    Math.cos(
-      lat2 *
-      Math.PI /
-      180
-    ) *
-
-    Math.sin(
-      dLon / 2
-    ) ** 2;
-
-
-  return 2 *
-    R *
-    Math.atan2(
-      Math.sqrt(a),
-      Math.sqrt(
-        1 - a
-      )
-    );
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 29 - GOOGLE MAPS
- * =============================================================
- *
- * CAMBIO:
- *
- * Se incorpora la coordenada inicial opcional.
- *
- * SIN REGRESO:
- *
- * INICIO -> PUNTOS
- *
- * CON REGRESO:
- *
- * INICIO -> PUNTOS -> INICIO
- * =============================================================
- ***************************************************************/
-
-
-function openGoogleRoute() {
-
-  const route =
-    getActiveRoute();
-
-
-  if (!route) {
-
-    showToast(
-      'No hay una ruta seleccionada.'
-    );
-
-    return;
-
-  }
-
-
-  /*
-   * Obtener puntos del archivo
-   */
-
-  const points =
-    route.points
-      .map(
-        id =>
-          markersData.find(
-            p =>
-              p.id === id
-          )
-      )
-      .filter(Boolean);
-
-
-  /*
-   * Obtener coordenada inicial
-   */
-
-  let startCoordinate =
-    null;
-
-
-  if (
-    route.startCoordinate
-  ) {
-
-    startCoordinate =
-      parseCoordinate(
-        route.startCoordinate
-      );
-
-
-    if (!startCoordinate) {
-
-      showToast(
-        'La coordenada inicial no es válida.'
-      );
-
-      return;
-
-    }
-
-  }
-
-
-  /*
-   * Debe existir alguna forma de iniciar la ruta.
-   */
-
-  if (
-    !startCoordinate &&
-    points.length < 2
-  ) {
-
-    showToast(
-      'La ruta necesita al menos 2 puntos o una coordenada inicial válida.'
-    );
-
-    return;
-
-  }
-
-
-  /*
-   * CASO 1:
-   *
-   * EXISTE COORDENADA INICIAL
-   *
-   * Inicio -> puntos
-   */
-
-  let origin;
-
-  let destination;
-
-  let waypoints = [];
-
-
-  if (startCoordinate) {
-
-    origin =
-      startCoordinate.lat +
-      ',' +
-      startCoordinate.lng;
-
-
-    /*
-     * Si hay puntos:
-     *
-     * El último punto es destino,
-     * los anteriores son waypoints.
-     */
-
-    if (points.length > 0) {
-
-      if (
-        route.addReturn
-      ) {
-
-        /*
-         * REGRESO:
-         *
-         * Inicio
-         * ->
-         * puntos
-         * ->
-         * Inicio
-         *
-         * Por lo tanto:
-         *
-         * origin = Inicio
-         * destination = Inicio
-         *
-         * Todos los puntos son waypoints.
-         */
-
-        destination =
-          origin;
-
-
-        waypoints =
-          points.map(
-            p =>
-              p.latitud +
-              ',' +
-              p.longitud
-          );
-
-      } else {
-
-        /*
-         * SIN REGRESO:
-         *
-         * Inicio -> puntos
-         */
-
-        destination =
-          points[
-            points.length - 1
-          ].latitud +
-          ',' +
-          points[
-            points.length - 1
-          ].longitud;
-
-
-        waypoints =
-          points
-            .slice(
-              0,
-              -1
-            )
-            .map(
-              p =>
-                p.latitud +
-                ',' +
-                p.longitud
-            );
-
-      }
-
-    } else {
-
-      /*
-       * Si solamente existe coordenada inicial
-       * no es posible crear una ruta de ida y vuelta.
-       */
-
-      showToast(
-        'Agrega al menos un punto a la ruta.'
-      );
-
-      return;
-
-    }
-
-  } else {
-
-    /*
-     * CASO 2:
-     *
-     * NO EXISTE COORDENADA INICIAL.
-     *
-     * Se utilizan solamente los puntos
-     * del archivo.
-     */
-
-    origin =
-      points[0].latitud +
-      ',' +
-      points[0].longitud;
-
-
-    if (
-      route.addReturn
-    ) {
-
-      /*
-       * No hay coordenada inicial,
-       * por lo que "Agregar regreso"
-       * no tiene una coordenada externa
-       * a la cual regresar.
-       *
-       * Se regresa al primer punto.
-       */
-
-      destination =
-        origin;
-
-
-      waypoints =
-        points
-          .slice(1)
-          .map(
-            p =>
-              p.latitud +
-              ',' +
-              p.longitud
-          );
-
-    } else {
-
-      destination =
-        points[
-          points.length - 1
-        ].latitud +
-        ',' +
-        points[
-          points.length - 1
-        ].longitud;
-
-
-      waypoints =
-        points
-          .slice(
-            1,
-            -1
-          )
-          .map(
-            p =>
-              p.latitud +
-              ',' +
-              p.longitud
-          );
-
-    }
-
-  }
-
-
-  let url =
-    'https://www.google.com/maps/dir/?api=1';
-
-
-  url +=
-    '&origin=' +
-    encodeURIComponent(
-      origin
-    );
-
-
-  url +=
-    '&destination=' +
-    encodeURIComponent(
-      destination
-    );
-
-
-  if (
-    waypoints.length
-  ) {
-
-    url +=
-      '&waypoints=' +
-      encodeURIComponent(
-        waypoints.join('|')
-      );
-
-  }
-
-
-  url +=
-    '&travelmode=driving';
-
-
-  window.open(
-    url,
-    '_blank'
-  );
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 30 - KML
- * =============================================================
- ***************************************************************/
-
-
-function processKML(
-  fileName,
-  xmlText
-) {
-
-  const parser =
-    new DOMParser();
-
-
-  const xml =
-    parser.parseFromString(
-      xmlText,
-      'text/xml'
-    );
-
-
-  const placemarks =
-    xml.getElementsByTagName(
-      'Placemark'
-    );
-
-
-  if (
-    !placemarks.length
-  ) {
-
-    showToast(
-      'No se encontraron puntos.'
-    );
-
-    return;
-
-  }
-
-
-  clearMap();
-
-  markersData = [];
-
-
-  for (
-    let i = 0;
-    i < placemarks.length;
-    i++
-  ) {
-
-    const placemark =
-      placemarks[i];
-
-
-    const point =
-      placemark.getElementsByTagName(
-        'Point'
-      )[0];
-
-
-    if (!point) {
-      continue;
-    }
-
-
-    const coordinates =
-      point.getElementsByTagName(
-        'coordinates'
-      )[0];
-
-
-    if (!coordinates) {
-      continue;
-    }
-
-
-    const values =
-      coordinates
-        .textContent
-        .trim()
-        .split(',');
-
-
-    const longitud =
-      parseFloat(
-        values[0]
-      );
-
-
-    const latitud =
-      parseFloat(
-        values[1]
-      );
-
-
-    if (
-      isNaN(latitud) ||
-      isNaN(longitud)
-    ) {
-
-      continue;
-
-    }
-
-
-    const nameNode =
-      placemark.getElementsByTagName(
-        'name'
-      )[0];
-
-
-    const nombre =
-      nameNode
-        ? nameNode.textContent.trim()
-        : 'Punto ' +
-          (i + 1);
-
-
-    const descNode =
-      placemark.getElementsByTagName(
-        'description'
-      )[0];
-
-
-    const description =
-      descNode
-        ? descNode.textContent
-        : '';
-
-
-    const descriptions =
-      splitDescription(
-        description
-      );
-
-
-    let color = null;
-
-
-    const styleUrl =
-      placemark.getElementsByTagName(
-        'styleUrl'
-      )[0];
-
-
-    if (styleUrl) {
-
-      const styleId =
-        styleUrl
-          .textContent
-          .trim()
-          .replace(
-            '#',
-            ''
-          );
-
-
-      const style =
-        xml.getElementById(
-          styleId
-        );
-
-
-      if (style) {
-
-        const colorNode =
-          style.getElementsByTagName(
-            'color'
-          )[0];
-
-
-        if (colorNode) {
-
-          color =
-            kmlColorToHex(
-              colorNode
-                .textContent
-                .trim()
-            );
-
-        }
-
-      }
-
-    }
-
-
-    if (!color) {
-
-      color =
-        DEFAULT_COLORS[
-          i %
-          DEFAULT_COLORS.length
-        ];
-
-    }
-
-
-    markersData.push({
-
-      id:
-        'kml_' +
-        Date.now() +
-        '_' +
-        i,
-
-      row:
-        i + 1,
-
-      orden:
-        markersData.length + 1,
-
-      nombre:
-        nombre,
-
-      latitud:
-        latitud,
-
-      longitud:
-        longitud,
-
-      desc1:
-        descriptions[0] ||
-        '',
-
-      desc2:
-        descriptions[1] ||
-        '',
-
-      desc3:
-        descriptions[2] ||
-        '',
-
-      color:
-        color,
-
-      marker:
-        null
-
-    });
-
-  }
-
-
-  currentFile =
-    fileName;
-
-
-  currentFileType =
-    'kml';
-
-
-  currentSheetId =
-    '';
-
-
-  drawMarkers();
-
-  refreshInterface();
-
-  zoomAll();
-
-
-  showToast(
-    markersData.length +
-    ' puntos cargados.'
-  );
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 31 - ABRIR ARCHIVO DRIVE
- * =============================================================
- ***************************************************************/
-
-
-function openSelectedFile() {
-
-  const fileId =
-    document
-      .getElementById(
-        'file-select'
-      )
-      .value;
-
-
-  if (!fileId) {
-    return;
-  }
-
-
-  currentFileId =
-    fileId;
 
 
   google.script.run
 
     .withSuccessHandler(
-      function(info) {
+      function(resultado) {
 
-        if (
-          info.success &&
-          info.rows
-        ) {
-
-          processExcel(
-            info.fileName,
-            info.rows
-          );
-
-
-          currentFileId =
-            fileId;
-
-
-          currentFile =
-            info.fileName;
-
-
-          currentFileType =
-            'excel';
-
-
-          currentSheetId =
-            info.sheetId;
-
-
-          document
-            .getElementById(
-              'export-box'
-            )
-            .classList
-            .remove('hidden');
-
-
-          showToast(
-            'Excel abierto.'
-          );
-
-
-          return;
-
-        }
-
-
-        google.script.run
-
-          .withSuccessHandler(
-            function(kml) {
-
-              if (
-                kml &&
-                kml.content
-              ) {
-
-                originalKML =
-                  kml.content;
-
-
-                currentFileId =
-                  fileId;
-
-
-                processKML(
-                  kml.fileName,
-                  kml.content
-                );
-
-              }
-
-            }
-          )
-
-          .withFailureHandler(
-            function(error) {
-
-              console.error(error);
-
-              showToast(
-                'No se pudo abrir el archivo.'
-              );
-
-            }
-          )
-
-          .getKMLContent(
-            fileId
-          );
+        renderizarArchivos(
+          resultado
+        );
 
       }
     )
@@ -5602,69 +1127,533 @@ function openSelectedFile() {
     .withFailureHandler(
       function(error) {
 
-        console.error(error);
-
-        showToast(
-          'Error al abrir archivo.'
+        mostrarEstado(
+          estadoLista,
+          error.message,
+          'error'
         );
 
       }
     )
 
-    .getExcelData(
+    .listarExcels();
+
+}
+
+
+/* ============================================================
+ * MÓDULO 15 - MOSTRAR ARCHIVOS
+ * ============================================================ */
+
+function renderizarArchivos(
+  resultado
+) {
+
+  tablaArchivos.innerHTML =
+    '';
+
+
+  if (
+    !resultado.archivos ||
+    resultado.archivos.length === 0
+  ) {
+
+    mostrarEstado(
+      estadoLista,
+      'No hay archivos Excel en la carpeta seleccionada.',
+      ''
+    );
+
+    return;
+
+  }
+
+
+  mostrarEstado(
+    estadoLista,
+    'Carpeta: <strong>' +
+    escapeHtml(
+      resultado.folderName
+    ) +
+    '</strong> — ' +
+    resultado.archivos.length +
+    ' archivo(s).',
+    'ok',
+    true
+  );
+
+
+  resultado.archivos.forEach(
+    function(archivo) {
+
+      const fila =
+        document.createElement(
+          'tr'
+        );
+
+
+      fila.innerHTML =
+
+        '<td>' +
+          '<strong>' +
+          escapeHtml(
+            archivo.nombre
+          ) +
+          '</strong>' +
+        '</td>' +
+
+        '<td>' +
+          escapeHtml(
+            archivo.fechaTexto
+          ) +
+        '</td>' +
+
+        '<td>' +
+          formatearBytes(
+            archivo.tamaño
+          ) +
+        '</td>' +
+
+        '<td>' +
+
+          '<div class="acciones">' +
+
+            '<button ' +
+              'type="button" ' +
+              'class="btn-secundario" ' +
+              'data-accion="ver" ' +
+              'data-id="' +
+                escapeHtml(
+                  archivo.id
+                ) +
+              '">' +
+              '👁 Ver' +
+            '</button>' +
+
+            '<button ' +
+              'type="button" ' +
+              'class="btn-verde" ' +
+              'data-accion="procesar" ' +
+              'data-id="' +
+                escapeHtml(
+                  archivo.id
+                ) +
+              '">' +
+              '⚙ Procesar' +
+            '</button>' +
+
+          '</div>' +
+
+        '</td>';
+
+
+      tablaArchivos.appendChild(
+        fila
+      );
+
+    }
+  );
+
+
+  /*
+   * Eventos de botones.
+   */
+
+  tablaArchivos
+    .querySelectorAll(
+      'button[data-accion="ver"]'
+    )
+    .forEach(
+      function(boton) {
+
+        boton.addEventListener(
+          'click',
+          function() {
+
+            verArchivo(
+              boton.dataset.id
+            );
+
+          }
+        );
+
+      }
+    );
+
+
+  tablaArchivos
+    .querySelectorAll(
+      'button[data-accion="procesar"]'
+    )
+    .forEach(
+      function(boton) {
+
+        boton.addEventListener(
+          'click',
+          function() {
+
+            procesarArchivo(
+              boton.dataset.id,
+              boton
+            );
+
+          }
+        );
+
+      }
+    );
+
+}
+
+
+/* ============================================================
+ * MÓDULO 16 - VISUALIZAR ARCHIVO
+ * ============================================================ */
+
+function verArchivo(
+  fileId
+) {
+
+  google.script.run
+
+    .withSuccessHandler(
+      function(archivo) {
+
+        /*
+         * Abrimos el archivo original en Google Drive.
+         *
+         * Drive se encargará de mostrar su vista previa.
+         */
+
+        window.open(
+          archivo.url,
+          '_blank'
+        );
+
+      }
+    )
+
+    .withFailureHandler(
+      function(error) {
+
+        alert(
+          error.message
+        );
+
+      }
+    )
+
+    .obtenerArchivo(
       fileId
     );
 
 }
 
 
-/***************************************************************
- * =============================================================
- * MÓDULO 32 - LISTA DRIVE
- * =============================================================
- ***************************************************************/
+/* ============================================================
+ * MÓDULO 17 - PROCESAR ARCHIVO EXISTENTE
+ * ============================================================ */
+
+function procesarArchivo(
+  fileId,
+  boton
+) {
+
+  const confirmar =
+    confirm(
+      '¿Deseas procesar este Excel y actualizar la hoja BASE?\n\n' +
+      'Solamente se modificarán las columnas B y C de las filas encontradas.'
+    );
 
 
-function refreshFiles() {
+  if (!confirmar) {
+
+    return;
+
+  }
+
+
+  boton.disabled =
+    true;
+
+
+  boton.innerHTML =
+    '<span class="cargando"></span> Procesando';
+
+
+  mostrarEstado(
+    estadoLista,
+    '<span class="cargando"></span> Procesando Excel contra BASE. Esto puede tardar dependiendo de la cantidad de registros...',
+    'proceso',
+    true
+  );
+
+
+  panelResultado.classList.add(
+    'oculto'
+  );
+
 
   google.script.run
 
     .withSuccessHandler(
-      function(files) {
+      function(resultado) {
 
-        const select =
-          document
-            .getElementById(
-              'file-select'
+        boton.disabled =
+          false;
+
+
+        boton.innerHTML =
+          '⚙ Procesar';
+
+
+        mostrarEstado(
+          estadoLista,
+          '✓ Proceso terminado correctamente.',
+          'ok'
+        );
+
+
+        mostrarResultado(
+          resultado
+        );
+
+
+        cargarLista();
+
+      }
+    )
+
+    .withFailureHandler(
+      function(error) {
+
+        boton.disabled =
+          false;
+
+
+        boton.innerHTML =
+          '⚙ Procesar';
+
+
+        mostrarEstado(
+          estadoLista,
+          error.message,
+          'error'
+        );
+
+      }
+    )
+
+    .procesarExcelDesdeDrive(
+      fileId
+    );
+
+}
+
+
+/* ============================================================
+ * MÓDULO 18 - MOSTRAR RESULTADO
+ * ============================================================ */
+
+function mostrarResultado(
+  resultado
+) {
+
+  panelResultado.classList.remove(
+    'oculto'
+  );
+
+
+  mensajeResultado.innerHTML =
+    '✓ ' +
+    escapeHtml(
+      resultado.mensaje
+    );
+
+
+  resultadoGrid.innerHTML = '';
+
+
+  agregarResultado(
+    'Archivo',
+    resultado.archivo
+  );
+
+
+  agregarResultado(
+    'Filas Excel',
+    resultado.filasExcel
+  );
+
+
+  agregarResultado(
+    'Claves Excel',
+    resultado.clavesExcel
+  );
+
+
+  agregarResultado(
+    'Duplicados Excel',
+    resultado.duplicadosExcel
+  );
+
+
+  agregarResultado(
+    'Filas BASE',
+    resultado.filasBase
+  );
+
+
+  agregarResultado(
+    'Coincidencias',
+    resultado.coincidencias
+  );
+
+
+  agregarResultado(
+    'Filas actualizadas',
+    resultado.filasActualizadas
+  );
+
+
+  agregarResultado(
+    'Modo',
+    resultado.modoCoincidencia
+  );
+
+
+  agregarResultado(
+    'Tiempo',
+    resultado.tiempoSegundos +
+    ' segundos'
+  );
+
+
+  panelResultado.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  });
+
+}
+
+
+function agregarResultado(
+  etiqueta,
+  valor
+) {
+
+  const div =
+    document.createElement(
+      'div'
+    );
+
+
+  div.className =
+    'resultado-item';
+
+
+  div.innerHTML =
+
+    '<span>' +
+      escapeHtml(
+        String(etiqueta)
+      ) +
+    '</span>' +
+
+    '<strong>' +
+      escapeHtml(
+        String(valor)
+      ) +
+    '</strong>';
+
+
+  resultadoGrid.appendChild(
+    div
+  );
+
+}
+
+
+/* ============================================================
+ * MÓDULO 19 - ESTADO DEL SISTEMA
+ * ============================================================ */
+
+function cargarEstadoSistema() {
+
+  google.script.run
+
+    .withSuccessHandler(
+      function(resultado) {
+
+        let html = '';
+
+
+        if (
+          resultado.baseOK
+        ) {
+
+          html +=
+            '✓ BASE: ' +
+            escapeHtml(
+              resultado.baseMensaje
             );
 
+        } else {
 
-        select.innerHTML =
-          '<option value="">-- Seleccionar --</option>';
-
-
-        files.forEach(
-          function(file) {
-
-            const option =
-              document.createElement(
-                'option'
-              );
-
-
-            option.value =
-              file.id;
-
-
-            option.textContent =
-              file.name;
-
-
-            select.appendChild(
-              option
+          html +=
+            '✗ BASE: ' +
+            escapeHtml(
+              resultado.baseMensaje
             );
 
-          }
+        }
+
+
+        html +=
+          '<br>';
+
+
+        if (
+          resultado.carpetaOK
+        ) {
+
+          html +=
+            '✓ Drive: ' +
+            escapeHtml(
+              resultado.carpetaNombre
+            );
+
+        } else {
+
+          html +=
+            '✗ Drive: ' +
+            escapeHtml(
+              resultado.carpetaNombre
+            );
+
+        }
+
+
+        html +=
+          '<br>';
+
+
+        html +=
+          'Modo de coincidencia: <strong>' +
+          escapeHtml(
+            resultado.modoCoincidencia
+          ) +
+          '</strong>';
+
+
+        mostrarEstado(
+          estadoSistema,
+          html,
+          resultado.baseOK &&
+          resultado.carpetaOK
+            ? 'ok'
+            : 'error',
+          true
         );
 
       }
@@ -5673,843 +1662,106 @@ function refreshFiles() {
     .withFailureHandler(
       function(error) {
 
-        console.error(error);
-
-        showToast(
-          'No se pudo consultar Drive.'
+        mostrarEstado(
+          estadoSistema,
+          error.message,
+          'error'
         );
 
       }
     )
 
-    .getDriveFiles();
+    .obtenerEstadoSistema();
 
 }
 
 
-/***************************************************************
- * =============================================================
- * MÓDULO 33 - ACTUALIZAR INTERFAZ
- * =============================================================
- ***************************************************************/
+/* ============================================================
+ * MÓDULO 20 - UTILIDADES
+ * ============================================================ */
+
+function mostrarEstado(
+  elemento,
+  mensaje,
+  tipo,
+  permitirHTML
+) {
+
+  elemento.className =
+    'estado';
 
 
-function refreshInterface() {
+  if (tipo) {
 
-  document
-    .getElementById(
-      'marker-count'
-    )
-    .textContent =
-      markersData.length +
-      ' puntos';
-
-
-  renderPointsList();
-
-  renderTable();
-
-  buildFilters();
-
-  renderRoutes();
-
-
-  /*
-   * IMPORTANTE:
-   *
-   * Como los filtros empiezan vacíos,
-   * applyFilters interpreta vacío
-   * como "no aplicar filtro".
-   */
-
-  applyFilters();
-
-}
-
-
-/***************************************************************
- * =============================================================
- * LISTA DE PUNTOS
- * =============================================================
- ***************************************************************/
-
-
-function renderPointsList() {
-
-  const container =
-    document
-      .getElementById(
-        'points-list'
-      );
-
-
-  container.innerHTML =
-    '';
-
-
-  markersData.forEach(
-    function(point) {
-
-      container.innerHTML += `
-
-        <button
-          onclick="focusPoint('${point.id}')"
-          class="
-            w-full
-            flex
-            items-center
-            gap-2
-            p-2
-            text-left
-            border-b
-            hover:bg-slate-50
-          "
-        >
-
-          <span
-            style="
-              width:12px;
-              height:12px;
-              background:${escapeHtml(point.color)};
-              border-radius:50%;
-              display:inline-block;
-            "
-          ></span>
-
-          <span
-            class="
-              flex-1
-              truncate
-              text-xs
-            "
-          >
-            ${escapeHtml(point.nombre)}
-          </span>
-
-          <span
-            class="
-              text-[10px]
-              text-slate-400
-            "
-          >
-            #${point.orden}
-          </span>
-
-        </button>
-
-      `;
-
-    }
-  );
-
-}
-
-
-/***************************************************************
- * =============================================================
- * ENFOCAR PUNTO
- * =============================================================
- ***************************************************************/
-
-
-function focusPoint(id) {
-
-  const point =
-    markersData.find(
-      p =>
-        p.id === id
+    elemento.classList.add(
+      tipo
     );
 
-
-  if (!point) {
-    return;
   }
 
 
-  if (
-    point.marker &&
-    !map.hasLayer(point.marker)
-  ) {
+  if (permitirHTML) {
 
-    point.marker.addTo(map);
-
-  }
-
-
-  map.setView(
-
-    [
-      point.latitud,
-      point.longitud
-    ],
-
-    18,
-
-    {
-      animate:
-        true
-    }
-
-  );
-
-
-  setTimeout(
-    function() {
-
-      openPointEditor(point);
-
-    },
-    250
-  );
-
-}
-
-
-/***************************************************************
- * =============================================================
- * ZOOM GENERAL
- * =============================================================
- ***************************************************************/
-
-
-function zoomAll() {
-
-  const coordinates =
-    markersData.map(
-      p =>
-        [
-          p.latitud,
-          p.longitud
-        ]
-    );
-
-
-  if (
-    !coordinates.length
-  ) {
-
-    return;
-
-  }
-
-
-  map.fitBounds(
-    coordinates,
-    {
-      padding:
-        [40, 40]
-    }
-  );
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 34 - REDIBUJAR
- * =============================================================
- ***************************************************************/
-
-
-function redrawPoint(point) {
-
-  if (point.marker) {
-
-    try {
-
-      map.removeLayer(
-        point.marker
-      );
-
-    } catch (e) {}
-
-  }
-
-
-  point.marker =
-    createMarker(point);
-
-}
-
-
-/***************************************************************
- * =============================================================
- * LIMPIAR MAPA
- * =============================================================
- ***************************************************************/
-
-
-function clearMap() {
-
-  markerLayer.forEach(
-    function(marker) {
-
-      try {
-
-        map.removeLayer(
-          marker
-        );
-
-      } catch (e) {}
-
-    }
-  );
-
-
-  markerLayer = [];
-
-
-  markersData.forEach(
-    function(point) {
-
-      point.marker =
-        null;
-
-    }
-  );
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 35 - GUARDAR EXCEL ACTUALIZADO
- * =============================================================
- ***************************************************************/
-
-
-function saveCurrentExcel() {
-
-  if (!currentSheetId) {
-
-    showToast(
-      'No hay un Excel editable.'
-    );
-
-    return;
-
-  }
-
-
-  showToast(
-    'Generando Excel actualizado...'
-  );
-
-
-  google.script.run
-
-    .withSuccessHandler(
-      function(result) {
-
-        currentFileId =
-          result.fileId;
-
-
-        currentFile =
-          result.fileName;
-
-
-        refreshFiles();
-
-
-        showToast(
-          'Excel actualizado y guardado en Drive.'
-        );
-
-      }
-    )
-
-    .withFailureHandler(
-      function(error) {
-
-        console.error(error);
-
-        showToast(
-          'Error al guardar Excel.'
-        );
-
-      }
-    )
-
-    .exportWorkingSheetToExcel({
-
-      sheetId:
-        currentSheetId,
-
-      fileId:
-        currentFileId,
-
-      fileName:
-        currentFile
-
-    });
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 36 - EXPORTAR KML
- * =============================================================
- ***************************************************************/
-
-
-function downloadKML() {
-
-  if (!markersData.length) {
-
-    showToast(
-      'No hay puntos.'
-    );
-
-    return;
-
-  }
-
-
-  let placemarks = '';
-
-
-  markersData.forEach(
-    function(point) {
-
-      placemarks += `
-
-        <Placemark>
-
-          <name>
-            ${escapeXml(point.nombre)}
-          </name>
-
-          <description>
-            <![CDATA[
-              ${escapeHtml(point.desc1)}
-              <br>
-              ${escapeHtml(point.desc2)}
-              <br>
-              ${escapeHtml(point.desc3)}
-            ]]>
-          </description>
-
-          <Style>
-
-            <IconStyle>
-
-              <color>
-                ${hexToKmlColor(point.color)}
-              </color>
-
-              <scale>
-                1.1
-              </scale>
-
-            </IconStyle>
-
-          </Style>
-
-          <Point>
-
-            <coordinates>
-              ${point.longitud},
-              ${point.latitud},
-              0
-            </coordinates>
-
-          </Point>
-
-        </Placemark>
-
-      `;
-
-    }
-  );
-
-
-  routes.forEach(
-    function(route) {
-
-      if (
-        route.points.length < 2
-      ) {
-
-        return;
-
-      }
-
-
-      const coordinates =
-        route.points
-          .map(
-            id =>
-              markersData.find(
-                p =>
-                  p.id === id
-              )
-          )
-          .filter(Boolean)
-          .map(
-            p =>
-              p.longitud +
-              ',' +
-              p.latitud +
-              ',0'
-          )
-          .join(' ');
-
-
-      placemarks += `
-
-        <Placemark>
-
-          <name>
-            ${escapeXml(route.name)}
-          </name>
-
-          <Style>
-
-            <LineStyle>
-
-              <color>
-                ff2563eb
-              </color>
-
-              <width>
-                5
-              </width>
-
-            </LineStyle>
-
-          </Style>
-
-          <LineString>
-
-            <tessellate>
-              1
-            </tessellate>
-
-            <coordinates>
-              ${coordinates}
-            </coordinates>
-
-          </LineString>
-
-        </Placemark>
-
-      `;
-
-    }
-  );
-
-
-  const kml = `
-
-<?xml version="1.0" encoding="UTF-8"?>
-
-<kml
-  xmlns="http://www.opengis.net/kml/2.2"
->
-
-<Document>
-
-  <name>
-    Visualizador
-  </name>
-
-  ${placemarks}
-
-</Document>
-
-</kml>
-
-`;
-
-
-  const blob =
-    new Blob(
-      [kml],
-      {
-        type:
-          'application/vnd.google-earth.kml+xml'
-      }
-    );
-
-
-  const url =
-    URL.createObjectURL(blob);
-
-
-  const a =
-    document.createElement('a');
-
-
-  a.href =
-    url;
-
-
-  a.download =
-    'mapa_actualizado.kml';
-
-
-  document.body.appendChild(a);
-
-  a.click();
-
-  a.remove();
-
-
-  URL.revokeObjectURL(url);
-
-
-  showToast(
-    'KML generado.'
-  );
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 37 - DESCRIPCIONES KML
- * =============================================================
- ***************************************************************/
-
-
-function splitDescription(description) {
-
-  if (!description) {
-    return [];
-  }
-
-
-  let text =
-    description
-      .replace(
-        /<br\s*\/?>/gi,
-        '\n'
-      )
-      .replace(
-        /<\/p>/gi,
-        '\n'
-      )
-      .replace(
-        /<[^>]*>/g,
-        ''
-      );
-
-
-  text =
-    decodeHtml(text);
-
-
-  let parts;
-
-
-  if (text.includes('\n')) {
-
-    parts =
-      text.split(
-        /\n+/
-      );
-
-  } else if (
-    text.includes('|')
-  ) {
-
-    parts =
-      text.split('|');
-
-  } else if (
-    text.includes(';')
-  ) {
-
-    parts =
-      text.split(';');
+    elemento.innerHTML =
+      mensaje;
 
   } else {
 
-    parts =
-      [text];
+    elemento.textContent =
+      mensaje;
 
   }
-
-
-  return parts
-    .map(
-      p =>
-        p.trim()
-    )
-    .filter(Boolean);
 
 }
 
 
-/***************************************************************
- * =============================================================
- * MÓDULO 38 - COLORES KML
- * =============================================================
- ***************************************************************/
+function formatearBytes(
+  bytes
+) {
 
+  if (
+    bytes === 0
+  ) {
 
-function kmlColorToHex(value) {
-
-  let color =
-    value
-      .replace(
-        '#',
-        ''
-      )
-      .trim();
-
-
-  if (color.length === 8) {
-
-    const rr =
-      color.substring(6, 8);
-
-    const gg =
-      color.substring(4, 6);
-
-    const bb =
-      color.substring(2, 4);
-
-
-    return '#' +
-      rr +
-      gg +
-      bb;
+    return '0 B';
 
   }
 
 
-  if (color.length === 6) {
-
-    return '#' +
-      color;
-
-  }
-
-
-  return '#FF0000';
-
-}
+  const unidades =
+    [
+      'B',
+      'KB',
+      'MB',
+      'GB'
+    ];
 
 
-function hexToKmlColor(hex) {
-
-  let color =
-    String(
-      hex ||
-      '#FF0000'
-    )
-      .replace(
-        '#',
-        ''
-      );
-
-
-  if (color.length !== 6) {
-
-    color =
-      'FF0000';
-
-  }
-
-
-  const rr =
-    color.substring(0, 2);
-
-  const gg =
-    color.substring(2, 4);
-
-  const bb =
-    color.substring(4, 6);
-
-
-  return 'ff' +
-    bb +
-    gg +
-    rr;
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 39 - RUTAS - RENDERIZAR
- * =============================================================
- ***************************************************************/
-
-
-function renderRoutes() {
-
-  const select =
-    document.getElementById(
-      'route-select'
+  const i =
+    Math.floor(
+      Math.log(bytes) /
+      Math.log(1024)
     );
 
 
-  if (!select) {
-    return;
-  }
-
-
-  select.innerHTML =
-    '<option value="">-- Sin ruta --</option>';
-
-
-  routes.forEach(
-    function(route) {
-
-      const option =
-        document.createElement(
-          'option'
-        );
-
-
-      option.value =
-        route.id;
-
-
-      option.textContent =
-        route.name;
-
-
-      if (
-        route.id ===
-        activeRouteId
-      ) {
-
-        option.selected =
-          true;
-
-      }
-
-
-      select.appendChild(
-        option
-      );
-
-    }
-  );
-
-
-  updateRoutePanel();
+  return (
+    bytes /
+    Math.pow(
+      1024,
+      i
+    )
+  ).toFixed(2) +
+  ' ' +
+  unidades[i];
 
 }
 
 
-/***************************************************************
- * =============================================================
- * MÓDULO 40 - UTILIDADES
- * =============================================================
- ***************************************************************/
+function escapeHtml(
+  texto
+) {
 
-
-function escapeHtml(value) {
-
-  return String(
-    value ?? ''
-  )
+  return String(texto)
     .replace(
       /&/g,
       '&amp;'
@@ -6532,106 +1784,6 @@ function escapeHtml(value) {
     );
 
 }
-
-
-function escapeXml(value) {
-
-  return String(
-    value ?? ''
-  )
-    .replace(
-      /&/g,
-      '&amp;'
-    )
-    .replace(
-      /</g,
-      '&lt;'
-    )
-    .replace(
-      />/g,
-      '&gt;'
-    )
-    .replace(
-      /"/g,
-      '&quot;'
-    )
-    .replace(
-      /'/g,
-      '&apos;'
-    );
-
-}
-
-
-function decodeHtml(value) {
-
-  const textarea =
-    document.createElement(
-      'textarea'
-    );
-
-
-  textarea.innerHTML =
-    value;
-
-
-  return textarea.value;
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 41 - TOAST
- * =============================================================
- ***************************************************************/
-
-
-let toastTimer;
-
-
-function showToast(message) {
-
-  const toast =
-    document.getElementById(
-      'toast'
-    );
-
-
-  const text =
-    document.getElementById(
-      'toast-text'
-    );
-
-
-  text.textContent =
-    message;
-
-
-  toast.classList.add(
-    'show'
-  );
-
-
-  clearTimeout(
-    toastTimer
-  );
-
-
-  toastTimer =
-    setTimeout(
-      function() {
-
-        toast.classList.remove(
-          'show'
-        );
-
-      },
-      3000
-    );
-
-}
-
 
 </script>
 
