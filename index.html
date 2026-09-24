@@ -192,6 +192,150 @@ body {
 }
 
 
+/*
+ * CAMPOS PROTEGIDOS
+ */
+
+.readonly-field {
+
+  width: 100%;
+
+  background:
+    #f1f5f9;
+
+  border:
+    1px solid #cbd5e1;
+
+  border-radius:
+    6px;
+
+  padding:
+    5px;
+
+  font-size:
+    12px;
+
+  color:
+    #475569;
+
+  cursor:
+    not-allowed;
+
+}
+
+
+.table-point-name {
+
+  color:
+    #2563eb;
+
+  cursor:
+    pointer;
+
+  text-decoration:
+    underline;
+
+  font-weight:
+    600;
+
+}
+
+
+.table-point-name:hover {
+
+  color:
+    #1d4ed8;
+
+  background:
+    #eff6ff;
+
+}
+
+
+.filter-panel {
+
+  border:
+    1px solid #e2e8f0;
+
+  border-radius:
+    8px;
+
+  background:
+    #ffffff;
+
+}
+
+
+.filter-panel-header {
+
+  background:
+    #f8fafc;
+
+  border-bottom:
+    1px solid #e2e8f0;
+
+}
+
+
+.filter-values {
+
+  max-height:
+    180px;
+
+  overflow-y:
+    auto;
+
+}
+
+
+.filter-option {
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    6px;
+
+  padding:
+    4px 5px;
+
+  border-radius:
+    5px;
+
+  font-size:
+    11px;
+
+}
+
+
+.filter-option:hover {
+
+  background:
+    #f1f5f9;
+
+}
+
+
+.filter-option-text {
+
+  flex:
+    1;
+
+  overflow:
+    hidden;
+
+  text-overflow:
+    ellipsis;
+
+  white-space:
+    nowrap;
+
+}
+
+
 .toast {
 
   position:
@@ -463,8 +607,6 @@ Rutas
 >
 
 
-<!-- ARCHIVOS DRIVE -->
-
 <div>
 
 <label
@@ -499,8 +641,6 @@ Archivos en Drive
 
 </div>
 
-
-<!-- SUBIR -->
 
 <div
   class="
@@ -564,8 +704,6 @@ El Excel será guardado en Drive
 </div>
 
 
-<!-- EXPORTAR -->
-
 <div
   id="export-box"
   class="hidden space-y-2"
@@ -606,8 +744,6 @@ Descargar KML
 
 </div>
 
-
-<!-- LISTA -->
 
 <div>
 
@@ -747,6 +883,8 @@ Ver todos
 >
 
 
+<!-- BÚSQUEDA GENERAL -->
+
 <div>
 
 <label
@@ -777,13 +915,21 @@ Buscar
 </div>
 
 
-<div>
+<!-- =======================================================
+     FILTRO POR COLOR
+     ======================================================= -->
+
+<div
+  class="filter-panel"
+>
 
 <div
   class="
+    filter-panel-header
+    p-2
     flex
     justify-between
-    mb-2
+    items-center
   "
 >
 
@@ -813,13 +959,158 @@ Todos
 <div
   id="color-filters"
   class="
-    border
-    rounded-lg
     p-2
     max-h-60
     overflow-y-auto
     space-y-1
   "
+></div>
+
+</div>
+
+
+<!-- =======================================================
+     FILTRO DESCRIPCIÓN 1
+     ======================================================= -->
+
+<div
+  class="filter-panel"
+>
+
+<div
+  class="
+    filter-panel-header
+    p-2
+    flex
+    justify-between
+    items-center
+  "
+>
+
+<span
+  class="
+    text-xs
+    font-bold
+  "
+>
+Descripción 1
+</span>
+
+
+<button
+  onclick="selectAllDescriptionValues('desc1', true)"
+  class="
+    text-xs
+    text-blue-600
+  "
+>
+Todos
+</button>
+
+</div>
+
+
+<div
+  id="desc1-filters"
+  class="filter-values p-2"
+></div>
+
+</div>
+
+
+<!-- =======================================================
+     FILTRO DESCRIPCIÓN 2
+     ======================================================= -->
+
+<div
+  class="filter-panel"
+>
+
+<div
+  class="
+    filter-panel-header
+    p-2
+    flex
+    justify-between
+    items-center
+  "
+>
+
+<span
+  class="
+    text-xs
+    font-bold
+  "
+>
+Descripción 2
+</span>
+
+
+<button
+  onclick="selectAllDescriptionValues('desc2', true)"
+  class="
+    text-xs
+    text-blue-600
+  "
+>
+Todos
+</button>
+
+</div>
+
+
+<div
+  id="desc2-filters"
+  class="filter-values p-2"
+></div>
+
+</div>
+
+
+<!-- =======================================================
+     FILTRO DESCRIPCIÓN 3
+     ======================================================= -->
+
+<div
+  class="filter-panel"
+>
+
+<div
+  class="
+    filter-panel-header
+    p-2
+    flex
+    justify-between
+    items-center
+  "
+>
+
+<span
+  class="
+    text-xs
+    font-bold
+  "
+>
+Descripción 3
+</span>
+
+
+<button
+  onclick="selectAllDescriptionValues('desc3', true)"
+  class="
+    text-xs
+    text-blue-600
+  "
+>
+Todos
+</button>
+
+</div>
+
+
+<div
+  id="desc3-filters"
+  class="filter-values p-2"
 ></div>
 
 </div>
@@ -1102,16 +1393,32 @@ let selectedColors =
   new Set();
 
 
+/*
+ * NUEVO:
+ * Valores seleccionados de cada descripción.
+ *
+ * Un Set vacío significa:
+ * "no aplicar filtro para ese campo".
+ */
+
+let selectedDescriptionFilters = {
+
+  desc1:
+    new Set(),
+
+  desc2:
+    new Set(),
+
+  desc3:
+    new Set()
+
+};
+
+
 /***************************************************************
  * =============================================================
  * MÓDULO 09 - COLORES
  * =============================================================
- *
- * Se incluyen muchos colores.
- * El usuario también puede utilizar:
- *
- * #RRGGBB
- *
  ***************************************************************/
 
 
@@ -1209,6 +1516,9 @@ const DEFAULT_COLORS = [
 ];
 
 
+let automaticColorIndex = 0;
+
+
 /***************************************************************
  * =============================================================
  * MÓDULO 10 - INICIO
@@ -1250,12 +1560,6 @@ function initializeMap() {
     );
 
 
-  /*
-   * GOOGLE HÍBRIDO
-   *
-   * SIN API KEY
-   */
-
   googleHybrid =
     L.tileLayer(
       'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
@@ -1266,10 +1570,6 @@ function initializeMap() {
       }
     );
 
-
-  /*
-   * GOOGLE SATÉLITE
-   */
 
   googleSatellite =
     L.tileLayer(
@@ -1282,10 +1582,6 @@ function initializeMap() {
     );
 
 
-  /*
-   * GOOGLE CALLES
-   */
-
   googleStreets =
     L.tileLayer(
       'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
@@ -1296,10 +1592,6 @@ function initializeMap() {
       }
     );
 
-
-  /*
-   * GOOGLE TERRENO
-   */
 
   googleTerrain =
     L.tileLayer(
@@ -1530,7 +1822,6 @@ function handleUpload(
       file
     );
 
-
     return;
 
   }
@@ -1581,19 +1872,11 @@ function handleUpload(
             );
 
 
-          /*
-           * Procesar Excel.
-           */
-
           processExcel(
             file.name,
             rows
           );
 
-
-          /*
-           * Guardar Excel en Drive.
-           */
 
           saveExcelToDrive(
             file,
@@ -1629,17 +1912,6 @@ function handleUpload(
  * =============================================================
  * MÓDULO 14 - PROCESAR EXCEL
  * =============================================================
- *
- * ESTRUCTURA:
- *
- * A = NOMBRE
- * B = LATITUD
- * C = LONGITUD
- * D = DESCRIPCIÓN 1
- * E = DESCRIPCIÓN 2
- * F = DESCRIPCIÓN 3
- * G = COLOR
- *
  ***************************************************************/
 
 
@@ -1664,14 +1936,8 @@ function processExcel(
 
   clearMap();
 
-
   markersData = [];
 
-
-  /*
-   * Saltamos la fila 1 porque
-   * se considera encabezado.
-   */
 
   let order = 1;
 
@@ -1701,21 +1967,11 @@ function processExcel(
     }
 
 
-    /***********************************************************
-     * COLUMNA A
-     * NOMBRE
-     ***********************************************************/
-
     const nombre =
       String(
         row[0] ?? ''
       ).trim();
 
-
-    /***********************************************************
-     * COLUMNA B
-     * LATITUD
-     ***********************************************************/
 
     const latitud =
       parseFloat(
@@ -1729,11 +1985,6 @@ function processExcel(
       );
 
 
-    /***********************************************************
-     * COLUMNA C
-     * LONGITUD
-     ***********************************************************/
-
     const longitud =
       parseFloat(
         String(
@@ -1746,11 +1997,6 @@ function processExcel(
       );
 
 
-    /*
-     * Si no hay coordenadas,
-     * no se crea marcador.
-     */
-
     if (
       isNaN(latitud) ||
       isNaN(longitud)
@@ -1761,53 +2007,29 @@ function processExcel(
     }
 
 
-    /***********************************************************
-     * COLUMNA D
-     * DESCRIPCIÓN 1
-     ***********************************************************/
-
     const desc1 =
       String(
         row[3] ?? ''
-      );
+      ).trim();
 
-
-    /***********************************************************
-     * COLUMNA E
-     * DESCRIPCIÓN 2
-     ***********************************************************/
 
     const desc2 =
       String(
         row[4] ?? ''
-      );
+      ).trim();
 
-
-    /***********************************************************
-     * COLUMNA F
-     * DESCRIPCIÓN 3
-     ***********************************************************/
 
     const desc3 =
       String(
         row[5] ?? ''
-      );
+      ).trim();
 
-
-    /***********************************************************
-     * COLUMNA G
-     * COLOR
-     ***********************************************************/
 
     const color =
       normalizeColor(
         row[6]
       );
 
-
-    /***********************************************************
-     * CREAR REGISTRO
-     ***********************************************************/
 
     markersData.push({
 
@@ -1864,9 +2086,7 @@ function processExcel(
 
   drawMarkers();
 
-
   refreshInterface();
-
 
   zoomAll();
 
@@ -1893,26 +2113,6 @@ function processExcel(
  * =============================================================
  * MÓDULO 15 - COLORES
  * =============================================================
- *
- * El Excel puede contener:
- *
- * #FF0000
- * #00FF00
- * #0000FF
- *
- * También nombres:
- *
- * rojo
- * verde
- * azul
- * amarillo
- * naranja
- * morado
- * rosa
- * negro
- * blanco
- * etc.
- *
  ***************************************************************/
 
 
@@ -1945,10 +2145,6 @@ function normalizeColor(
   }
 
 
-  /*
-   * HEX
-   */
-
   if (
     /^#[0-9a-f]{6}$/i.test(
       color
@@ -1972,10 +2168,6 @@ function normalizeColor(
   }
 
 
-  /*
-   * RGB
-   */
-
   const rgb =
     color.match(
       /^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i
@@ -1992,10 +2184,6 @@ function normalizeColor(
 
   }
 
-
-  /*
-   * NOMBRES
-   */
 
   const namedColors = {
 
@@ -2119,22 +2307,9 @@ function normalizeColor(
   }
 
 
-  /*
-   * Si el usuario puso un color
-   * que no reconocemos, asignamos
-   * automáticamente uno de la
-   * paleta amplia.
-   */
-
   return getAutomaticColor();
 
 }
-
-
-/**
- * Generar color automático.
- */
-let automaticColorIndex = 0;
 
 
 function getAutomaticColor() {
@@ -2154,9 +2329,6 @@ function getAutomaticColor() {
 }
 
 
-/**
- * RGB -> HEX
- */
 function rgbToHex(
   r,
   g,
@@ -2345,9 +2517,6 @@ function drawMarkers() {
 }
 
 
-/**
- * Crear marcador.
- */
 function createMarker(
   point
 ) {
@@ -2408,9 +2577,6 @@ function createMarker(
 }
 
 
-/**
- * Icono marcador.
- */
 function createMarkerIcon(
   point
 ) {
@@ -2482,6 +2648,10 @@ function createMarkerIcon(
  * =============================================================
  * MÓDULO 18 - EDITAR PUNTO
  * =============================================================
+ *
+ * CAMBIO:
+ * Nombre, Latitud y Longitud quedan bloqueados.
+ * =============================================================
  ***************************************************************/
 
 
@@ -2494,7 +2664,7 @@ function openPointEditor(
     <div style="width:280px">
 
       <strong>
-        Editar punto #${point.orden}
+        Información del punto #${point.orden}
       </strong>
 
 
@@ -2505,37 +2675,27 @@ function openPointEditor(
         Nombre
       </label>
 
-      <input
-        id="edit-name-${point.id}"
-        class="edit-input"
-        value="${escapeHtml(point.nombre)}"
-      >
+      <div class="readonly-field">
+        ${escapeHtml(point.nombre)}
+      </div>
 
 
       <label>
         Latitud
       </label>
 
-      <input
-        id="edit-lat-${point.id}"
-        class="edit-input"
-        type="number"
-        step="any"
-        value="${point.latitud}"
-      >
+      <div class="readonly-field">
+        ${point.latitud}
+      </div>
 
 
       <label>
         Longitud
       </label>
 
-      <input
-        id="edit-lng-${point.id}"
-        class="edit-input"
-        type="number"
-        step="any"
-        value="${point.longitud}"
-      >
+      <div class="readonly-field">
+        ${point.longitud}
+      </div>
 
 
       <label>
@@ -2596,7 +2756,7 @@ function openPointEditor(
           font-weight:bold;
         "
       >
-        Guardar
+        Guardar cambios
       </button>
 
     </div>
@@ -2619,9 +2779,13 @@ function openPointEditor(
 }
 
 
-/**
- * Guardar edición.
- */
+/***************************************************************
+ * =============================================================
+ * MÓDULO 19 - GUARDADO AUTOMÁTICO
+ * =============================================================
+ ***************************************************************/
+
+
 function savePointEdit(
   id
 ) {
@@ -2638,32 +2802,16 @@ function savePointEdit(
   }
 
 
-  point.nombre =
-    document
-      .getElementById(
-        'edit-name-' + id
-      )
-      .value;
-
-
-  point.latitud =
-    parseFloat(
-      document
-        .getElementById(
-          'edit-lat-' + id
-        )
-        .value
-    );
-
-
-  point.longitud =
-    parseFloat(
-      document
-        .getElementById(
-          'edit-lng-' + id
-        )
-        .value
-    );
+  /*
+   * IMPORTANTE:
+   *
+   * NO se leen ni modifican:
+   * nombre
+   * latitud
+   * longitud
+   *
+   * porque son campos protegidos.
+   */
 
 
   point.desc1 =
@@ -2698,20 +2846,6 @@ function savePointEdit(
       .value;
 
 
-  if (
-    isNaN(point.latitud) ||
-    isNaN(point.longitud)
-  ) {
-
-    showToast(
-      'Coordenadas inválidas.'
-    );
-
-    return;
-
-  }
-
-
   redrawPoint(
     point
   );
@@ -2744,7 +2878,7 @@ function savePointEdit(
 
 /***************************************************************
  * =============================================================
- * MÓDULO 19 - GUARDADO AUTOMÁTICO
+ * MÓDULO 20 - GUARDADO AUTOMÁTICO
  * =============================================================
  ***************************************************************/
 
@@ -2809,7 +2943,12 @@ function autoSaveExcelPoint(
 
 /***************************************************************
  * =============================================================
- * MÓDULO 20 - TABLA
+ * MÓDULO 21 - TABLA
+ * =============================================================
+ *
+ * Nombre, Latitud y Longitud NO son editables.
+ *
+ * El nombre es clickeable.
  * =============================================================
  ***************************************************************/
 
@@ -2878,42 +3017,44 @@ function renderTable() {
         </td>
 
 
+        <!-- NOMBRE PROTEGIDO Y CLICKEABLE -->
+
         <td class="p-1">
 
-          <input
-            class="edit-input"
-            value="${escapeHtml(point.nombre)}"
-            onchange="changeTableValue('${point.id}','nombre',this.value)"
+          <div
+            class="table-point-name p-1"
+            title="Ir al punto en el mapa"
+            onclick="focusPoint('${point.id}')"
           >
+            ${escapeHtml(point.nombre)}
+          </div>
 
         </td>
 
 
-        <td class="p-1">
+        <!-- LATITUD PROTEGIDA -->
 
-          <input
-            class="edit-input"
-            type="number"
-            step="any"
-            value="${point.latitud}"
-            onchange="changeTableValue('${point.id}','latitud',this.value)"
-          >
+        <td class="p-1 text-center">
+
+          <div class="readonly-field">
+            ${point.latitud}
+          </div>
 
         </td>
 
 
-        <td class="p-1">
+        <!-- LONGITUD PROTEGIDA -->
 
-          <input
-            class="edit-input"
-            type="number"
-            step="any"
-            value="${point.longitud}"
-            onchange="changeTableValue('${point.id}','longitud',this.value)"
-          >
+        <td class="p-1 text-center">
+
+          <div class="readonly-field">
+            ${point.longitud}
+          </div>
 
         </td>
 
+
+        <!-- DESCRIPCIÓN 1 EDITABLE -->
 
         <td class="p-1">
 
@@ -2926,6 +3067,8 @@ function renderTable() {
         </td>
 
 
+        <!-- DESCRIPCIÓN 2 EDITABLE -->
+
         <td class="p-1">
 
           <input
@@ -2937,6 +3080,8 @@ function renderTable() {
         </td>
 
 
+        <!-- DESCRIPCIÓN 3 EDITABLE -->
+
         <td class="p-1">
 
           <input
@@ -2947,6 +3092,8 @@ function renderTable() {
 
         </td>
 
+
+        <!-- COLOR EDITABLE -->
 
         <td class="p-1">
 
@@ -2973,7 +3120,7 @@ function renderTable() {
 
 /***************************************************************
  * =============================================================
- * MÓDULO 21 - CAMBIOS TABLA
+ * MÓDULO 22 - CAMBIOS TABLA
  * =============================================================
  ***************************************************************/
 
@@ -2983,6 +3130,26 @@ function changeTableValue(
   field,
   value
 ) {
+
+  /*
+   * SEGURIDAD:
+   *
+   * No permitir modificar
+   * nombre, latitud ni longitud.
+   */
+
+  if (
+    field === 'nombre' ||
+    field === 'latitud' ||
+    field === 'longitud'
+  ) {
+
+    renderTable();
+
+    return;
+
+  }
+
 
   const point =
     markersData.find(
@@ -2996,22 +3163,8 @@ function changeTableValue(
   }
 
 
-  if (
-    field === 'latitud' ||
-    field === 'longitud'
-  ) {
-
-    point[field] =
-      parseFloat(
-        value
-      );
-
-  } else {
-
-    point[field] =
-      value;
-
-  }
+  point[field] =
+    value;
 
 
   redrawPoint(
@@ -3027,6 +3180,22 @@ function changeTableValue(
     autoSaveExcelPoint(
       point
     );
+
+  }
+
+
+  /*
+   * Si se modificó una descripción,
+   * reconstruimos los filtros.
+   */
+
+  if (
+    field === 'desc1' ||
+    field === 'desc2' ||
+    field === 'desc3'
+  ) {
+
+    buildDescriptionFilters();
 
   }
 
@@ -3078,12 +3247,28 @@ function changeTableColor(
 
 /***************************************************************
  * =============================================================
- * MÓDULO 22 - FILTROS POR COLOR
+ * MÓDULO 23 - FILTROS POR COLOR
  * =============================================================
  ***************************************************************/
 
 
 function buildFilters() {
+
+  buildColorFilters();
+
+  buildDescriptionFilters();
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 24 - CONSTRUIR FILTROS DE COLOR
+ * =============================================================
+ ***************************************************************/
+
+
+function buildColorFilters() {
 
   const colors =
     [
@@ -3119,17 +3304,14 @@ function buildFilters() {
 
         <label
           class="
-            flex
-            items-center
-            gap-2
-            text-xs
+            filter-option
           "
         >
 
           <input
             type="checkbox"
             checked
-            value="${color}"
+            value="${escapeHtml(color)}"
             data-color-filter
             onchange="applyFilters()"
           >
@@ -3141,14 +3323,17 @@ function buildFilters() {
               height:16px;
               display:inline-block;
               border-radius:50%;
-              background:${color};
+              background:${escapeHtml(color)};
               border:1px solid #999;
+              flex-shrink:0;
             "
           ></span>
 
 
-          <span>
-            ${color}
+          <span
+            class="filter-option-text"
+          >
+            ${escapeHtml(color)}
           </span>
 
         </label>
@@ -3161,9 +3346,185 @@ function buildFilters() {
 }
 
 
-/**
- * Aplicar filtros.
- */
+/***************************************************************
+ * =============================================================
+ * MÓDULO 25 - FILTROS DE DESCRIPCIONES
+ * =============================================================
+ ***************************************************************/
+
+
+function buildDescriptionFilters() {
+
+  const fields = [
+
+    {
+      field:
+        'desc1',
+
+      container:
+        'desc1-filters'
+    },
+
+    {
+      field:
+        'desc2',
+
+      container:
+        'desc2-filters'
+    },
+
+    {
+      field:
+        'desc3',
+
+      container:
+        'desc3-filters'
+    }
+
+  ];
+
+
+  fields.forEach(
+    function(config) {
+
+      const values =
+        [
+          ...new Set(
+
+            markersData
+              .map(
+                p =>
+                  String(
+                    p[
+                      config.field
+                    ] ??
+                    ''
+                  ).trim()
+              )
+              .filter(
+                value =>
+                  value !== ''
+              )
+
+          )
+        ]
+          .sort(
+            function(a, b) {
+
+              return a.localeCompare(
+                b,
+                'es',
+                {
+                  sensitivity:
+                    'base'
+                }
+              );
+
+            }
+          );
+
+
+      const box =
+        document.getElementById(
+          config.container
+        );
+
+
+      box.innerHTML =
+        '';
+
+
+      /*
+       * Si no existen valores.
+       */
+
+      if (
+        !values.length
+      ) {
+
+        box.innerHTML = `
+
+          <div
+            class="
+              text-[11px]
+              text-slate-400
+              p-1
+            "
+          >
+            Sin valores disponibles
+          </div>
+
+        `;
+
+
+        selectedDescriptionFilters[
+          config.field
+        ] =
+          new Set();
+
+
+        return;
+
+      }
+
+
+      /*
+       * Al reconstruir los filtros,
+       * todos los valores quedan seleccionados.
+       */
+
+      selectedDescriptionFilters[
+        config.field
+      ] =
+        new Set(
+          values
+        );
+
+
+      values.forEach(
+        function(value) {
+
+          box.innerHTML += `
+
+            <label
+              class="filter-option"
+            >
+
+              <input
+                type="checkbox"
+                checked
+                data-description-filter="${config.field}"
+                value="${escapeHtml(value)}"
+                onchange="applyFilters()"
+              >
+
+              <span
+                class="filter-option-text"
+                title="${escapeHtml(value)}"
+              >
+                ${escapeHtml(value)}
+              </span>
+
+            </label>
+
+          `;
+
+        }
+      );
+
+    }
+  );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 26 - APLICAR FILTROS
+ * =============================================================
+ ***************************************************************/
+
+
 function applyFilters() {
 
   const search =
@@ -3175,6 +3536,10 @@ function applyFilters() {
       .toLowerCase()
       .trim();
 
+
+  /*
+   * COLOR
+   */
 
   selectedColors =
     new Set(
@@ -3191,6 +3556,31 @@ function applyFilters() {
         )
 
     );
+
+
+  /*
+   * DESCRIPCIONES
+   */
+
+  selectedDescriptionFilters =
+    {
+
+      desc1:
+        getSelectedDescriptionValues(
+          'desc1'
+        ),
+
+      desc2:
+        getSelectedDescriptionValues(
+          'desc2'
+        ),
+
+      desc3:
+        getSelectedDescriptionValues(
+          'desc3'
+        )
+
+    };
 
 
   let visible =
@@ -3211,16 +3601,74 @@ function applyFilters() {
           .toLowerCase();
 
 
-      const visiblePoint =
+      /*
+       * FILTRO DE BÚSQUEDA
+       */
+
+      const matchSearch =
         (
           !search ||
           text.includes(
             search
           )
-        ) &&
+        );
+
+
+      /*
+       * FILTRO COLOR
+       */
+
+      const matchColor =
         selectedColors.has(
           point.color
         );
+
+
+      /*
+       * FILTRO DESCRIPCIÓN 1
+       */
+
+      const matchDesc1 =
+        matchesDescriptionFilter(
+          point.desc1,
+          selectedDescriptionFilters.desc1
+        );
+
+
+      /*
+       * FILTRO DESCRIPCIÓN 2
+       */
+
+      const matchDesc2 =
+        matchesDescriptionFilter(
+          point.desc2,
+          selectedDescriptionFilters.desc2
+        );
+
+
+      /*
+       * FILTRO DESCRIPCIÓN 3
+       */
+
+      const matchDesc3 =
+        matchesDescriptionFilter(
+          point.desc3,
+          selectedDescriptionFilters.desc3
+        );
+
+
+      /*
+       * TODOS LOS FILTROS
+       *
+       * AND entre grupos.
+       */
+
+      const visiblePoint =
+        matchSearch &&
+        matchColor &&
+        matchDesc1 &&
+        matchDesc2 &&
+        matchDesc3;
 
 
       if (
@@ -3275,9 +3723,119 @@ function applyFilters() {
 }
 
 
-/**
- * Todos los colores.
- */
+/***************************************************************
+ * =============================================================
+ * OBTENER VALORES SELECCIONADOS
+ * =============================================================
+ ***************************************************************/
+
+
+function getSelectedDescriptionValues(
+  field
+) {
+
+  return new Set(
+
+    [
+      ...
+      document.querySelectorAll(
+        '[data-description-filter="' +
+        field +
+        '"]:checked'
+      )
+    ]
+      .map(
+        element =>
+          element.value
+      )
+
+  );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * COMPROBAR FILTRO DE DESCRIPCIÓN
+ * =============================================================
+ ***************************************************************/
+
+
+function matchesDescriptionFilter(
+  value,
+  selectedValues
+) {
+
+  /*
+   * Si no hay nada seleccionado,
+   * ese filtro no restringe.
+   */
+
+  if (
+    !selectedValues ||
+    selectedValues.size === 0
+  ) {
+
+    return true;
+
+  }
+
+
+  const normalizedValue =
+    String(
+      value ??
+      ''
+    )
+      .trim();
+
+
+  return selectedValues.has(
+    normalizedValue
+  );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * SELECCIONAR TODOS LOS VALORES
+ * =============================================================
+ ***************************************************************/
+
+
+function selectAllDescriptionValues(
+  field,
+  value
+) {
+
+  document
+    .querySelectorAll(
+      '[data-description-filter="' +
+      field +
+      '"]'
+    )
+    .forEach(
+      function(check) {
+
+        check.checked =
+          value;
+
+      }
+    );
+
+
+  applyFilters();
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * TODOS LOS COLORES
+ * =============================================================
+ ***************************************************************/
+
+
 function selectAllColors(
   value
 ) {
@@ -3301,9 +3859,13 @@ function selectAllColors(
 }
 
 
-/**
- * Restablecer.
- */
+/***************************************************************
+ * =============================================================
+ * RESTABLECER FILTROS
+ * =============================================================
+ ***************************************************************/
+
+
 function resetFilters() {
 
   document
@@ -3318,12 +3880,32 @@ function resetFilters() {
     true
   );
 
+
+  [
+    'desc1',
+    'desc2',
+    'desc3'
+  ]
+    .forEach(
+      function(field) {
+
+        selectAllDescriptionValues(
+          field,
+          true
+        );
+
+      }
+    );
+
+
+  applyFilters();
+
 }
 
 
 /***************************************************************
  * =============================================================
- * MÓDULO 23 - RUTAS
+ * MÓDULO 27 - RUTAS
  * =============================================================
  ***************************************************************/
 
@@ -3380,9 +3962,6 @@ function createRoute() {
 }
 
 
-/**
- * Obtener ruta activa.
- */
 function getActiveRoute() {
 
   return routes.find(
@@ -3394,9 +3973,6 @@ function getActiveRoute() {
 }
 
 
-/**
- * Seleccionar ruta.
- */
 function selectRoute(
   id
 ) {
@@ -3416,9 +3992,6 @@ function selectRoute(
 }
 
 
-/**
- * Activar selección.
- */
 function toggleRouteMode() {
 
   if (
@@ -3492,9 +4065,6 @@ function toggleRouteMode() {
 }
 
 
-/**
- * Agregar/quitar punto.
- */
 function togglePointInRoute(
   id
 ) {
@@ -3539,9 +4109,6 @@ function togglePointInRoute(
 }
 
 
-/**
- * Actualizar panel.
- */
 function updateRoutePanel() {
 
   const route =
@@ -3655,9 +4222,6 @@ function updateRoutePanel() {
 }
 
 
-/**
- * Limpiar ruta.
- */
 function clearRoute() {
 
   const route =
@@ -3682,7 +4246,7 @@ function clearRoute() {
 
 /***************************************************************
  * =============================================================
- * MÓDULO 24 - DISTANCIA
+ * MÓDULO 28 - DISTANCIA
  * =============================================================
  ***************************************************************/
 
@@ -3768,9 +4332,6 @@ function calculateRouteDistance() {
 }
 
 
-/**
- * Haversine.
- */
 function distanceKm(
   lat1,
   lon1,
@@ -3836,7 +4397,7 @@ function distanceKm(
 
 /***************************************************************
  * =============================================================
- * MÓDULO 25 - GOOGLE MAPS
+ * MÓDULO 29 - GOOGLE MAPS
  * =============================================================
  ***************************************************************/
 
@@ -3949,7 +4510,7 @@ function openGoogleRoute() {
 
 /***************************************************************
  * =============================================================
- * MÓDULO 26 - KML
+ * MÓDULO 30 - KML
  * =============================================================
  ***************************************************************/
 
@@ -4087,10 +4648,6 @@ function processKML(
         description
       );
 
-
-    /*
-     * Buscar color KML.
-     */
 
     let color =
       null;
@@ -4239,7 +4796,7 @@ function processKML(
 
 /***************************************************************
  * =============================================================
- * MÓDULO 27 - ABRIR ARCHIVO DRIVE
+ * MÓDULO 31 - ABRIR ARCHIVO DRIVE
  * =============================================================
  ***************************************************************/
 
@@ -4315,11 +4872,6 @@ function openSelectedFile() {
         }
 
 
-        /*
-         * Si no existe hoja asociada,
-         * intentamos como KML.
-         */
-
         google.script.run
 
           .withSuccessHandler(
@@ -4392,7 +4944,7 @@ function openSelectedFile() {
 
 /***************************************************************
  * =============================================================
- * MÓDULO 28 - LISTA DRIVE
+ * MÓDULO 32 - LISTA DRIVE
  * =============================================================
  ***************************************************************/
 
@@ -4463,7 +5015,7 @@ function refreshFiles() {
 
 /***************************************************************
  * =============================================================
- * MÓDULO 29 - ACTUALIZAR INTERFAZ
+ * MÓDULO 33 - ACTUALIZAR INTERFAZ
  * =============================================================
  ***************************************************************/
 
@@ -4487,12 +5039,23 @@ function refreshInterface() {
 
   renderRoutes();
 
+  /*
+   * Después de construir filtros,
+   * mostrar todos los puntos.
+   */
+
+  applyFilters();
+
 }
 
 
-/**
- * Lista de puntos.
- */
+/***************************************************************
+ * =============================================================
+ * LISTA DE PUNTOS
+ * =============================================================
+ ***************************************************************/
+
+
 function renderPointsList() {
 
   const container =
@@ -4529,7 +5092,7 @@ function renderPointsList() {
             style="
               width:12px;
               height:12px;
-              background:${point.color};
+              background:${escapeHtml(point.color)};
               border-radius:50%;
               display:inline-block;
             "
@@ -4566,9 +5129,16 @@ function renderPointsList() {
 }
 
 
-/**
- * Enfocar punto.
- */
+/***************************************************************
+ * =============================================================
+ * ENFOCAR PUNTO
+ * =============================================================
+ *
+ * TAMBIÉN ES UTILIZADO POR EL NOMBRE DE LA TABLA.
+ * =============================================================
+ ***************************************************************/
+
+
 function focusPoint(
   id
 ) {
@@ -4585,25 +5155,65 @@ function focusPoint(
   }
 
 
+  /*
+   * Si el punto estaba oculto por filtros,
+   * lo hacemos visible solamente para poder
+   * localizarlo.
+   */
+
+  if (
+    point.marker &&
+    !map.hasLayer(
+      point.marker
+    )
+  ) {
+
+    point.marker.addTo(
+      map
+    );
+
+  }
+
+
   map.setView(
     [
       point.latitud,
       point.longitud
     ],
-    18
+    18,
+    {
+      animate:
+        true
+    }
   );
 
 
-  openPointEditor(
-    point
+  /*
+   * Pequeño retraso para que el mapa
+   * termine de desplazarse antes de abrir popup.
+   */
+
+  setTimeout(
+    function() {
+
+      openPointEditor(
+        point
+      );
+
+    },
+    250
   );
 
 }
 
 
-/**
- * Zoom general.
- */
+/***************************************************************
+ * =============================================================
+ * ZOOM GENERAL
+ * =============================================================
+ ***************************************************************/
+
+
 function zoomAll() {
 
   const coordinates =
@@ -4638,7 +5248,7 @@ function zoomAll() {
 
 /***************************************************************
  * =============================================================
- * MÓDULO 30 - REDIBUJAR
+ * MÓDULO 34 - REDIBUJAR
  * =============================================================
  ***************************************************************/
 
@@ -4670,9 +5280,13 @@ function redrawPoint(
 }
 
 
-/**
- * Limpiar mapa.
- */
+/***************************************************************
+ * =============================================================
+ * LIMPIAR MAPA
+ * =============================================================
+ ***************************************************************/
+
+
 function clearMap() {
 
   markerLayer.forEach(
@@ -4693,12 +5307,22 @@ function clearMap() {
   markerLayer =
     [];
 
+
+  markersData.forEach(
+    function(point) {
+
+      point.marker =
+        null;
+
+    }
+  );
+
 }
 
 
 /***************************************************************
  * =============================================================
- * MÓDULO 31 - GUARDAR EXCEL ACTUALIZADO
+ * MÓDULO 35 - GUARDAR EXCEL ACTUALIZADO
  * =============================================================
  ***************************************************************/
 
@@ -4779,7 +5403,7 @@ function saveCurrentExcel() {
 
 /***************************************************************
  * =============================================================
- * MÓDULO 32 - EXPORTAR KML
+ * MÓDULO 36 - EXPORTAR KML
  * =============================================================
  ***************************************************************/
 
@@ -4857,10 +5481,6 @@ function downloadKML() {
     }
   );
 
-
-  /*
-   * RUTAS
-   */
 
   routes.forEach(
     function(route) {
@@ -5018,7 +5638,7 @@ function downloadKML() {
 
 /***************************************************************
  * =============================================================
- * MÓDULO 33 - DESCRIPCIONES
+ * MÓDULO 37 - DESCRIPCIONES KML
  * =============================================================
  ***************************************************************/
 
@@ -5102,7 +5722,7 @@ function splitDescription(
 
 /***************************************************************
  * =============================================================
- * MÓDULO 34 - COLORES KML
+ * MÓDULO 38 - COLORES KML
  * =============================================================
  ***************************************************************/
 
@@ -5119,10 +5739,6 @@ function kmlColorToHex(
       )
       .trim();
 
-
-  /*
-   * KML = AABBGGRR
-   */
 
   if (
     color.length === 8
@@ -5228,7 +5844,72 @@ function hexToKmlColor(
 
 /***************************************************************
  * =============================================================
- * MÓDULO 35 - UTILIDADES
+ * MÓDULO 39 - RUTAS - RENDERIZAR
+ * =============================================================
+ ***************************************************************/
+
+
+function renderRoutes() {
+
+  const select =
+    document.getElementById(
+      'route-select'
+    );
+
+
+  if (!select) {
+    return;
+  }
+
+
+  select.innerHTML =
+    '<option value="">-- Sin ruta --</option>';
+
+
+  routes.forEach(
+    function(route) {
+
+      const option =
+        document.createElement(
+          'option'
+        );
+
+
+      option.value =
+        route.id;
+
+
+      option.textContent =
+        route.name;
+
+
+      if (
+        route.id ===
+        activeRouteId
+      ) {
+
+        option.selected =
+          true;
+
+      }
+
+
+      select.appendChild(
+        option
+      );
+
+    }
+  );
+
+
+  updateRoutePanel();
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 40 - UTILIDADES
  * =============================================================
  ***************************************************************/
 
@@ -5316,7 +5997,7 @@ function decodeHtml(
 
 /***************************************************************
  * =============================================================
- * MÓDULO 36 - TOAST
+ * MÓDULO 41 - TOAST
  * =============================================================
  ***************************************************************/
 
