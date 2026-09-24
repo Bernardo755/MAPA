@@ -37,10 +37,6 @@
 </script>
 
 
-<!-- =========================================================
-     MÓDULO 02 - ESTILOS
-     ========================================================= -->
-
 <style>
 
 html,
@@ -55,11 +51,7 @@ body {
   overflow: hidden;
 
   font-family:
-    Inter,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
+    Arial,
     sans-serif;
 }
 
@@ -73,43 +65,29 @@ body {
 }
 
 
-::-webkit-scrollbar {
-
-  width: 6px;
-  height: 6px;
-}
-
-
-::-webkit-scrollbar-thumb {
-
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-
-
 .custom-marker {
 
   position: relative;
 
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
 
   display: flex;
-
   align-items: center;
   justify-content: center;
+
 }
 
 
 .marker-pin {
 
-  width: 28px;
-  height: 28px;
+  width: 29px;
+  height: 29px;
 
   position: absolute;
 
   left: 3px;
-  top: 2px;
+  top: 3px;
 
   border-radius:
     50% 50% 50% 0;
@@ -121,7 +99,8 @@ body {
     2px solid white;
 
   box-shadow:
-    0 3px 8px rgba(0,0,0,.35);
+    0 3px 9px rgba(0,0,0,.4);
+
 }
 
 
@@ -140,6 +119,7 @@ body {
 
   top: 7px;
   left: 7px;
+
 }
 
 
@@ -147,47 +127,38 @@ body {
 
   position: absolute;
 
-  top: -9px;
-  right: -9px;
+  top: -8px;
+  right: -7px;
 
-  min-width: 22px;
-  height: 22px;
-
-  padding: 0 5px;
+  min-width: 23px;
+  height: 23px;
 
   display: flex;
-  align-items: center;
+
   justify-content: center;
+  align-items: center;
 
-  background: #2563eb;
+  background:
+    #2563eb;
 
-  color: white;
+  color:
+    white;
 
-  font-size: 11px;
-  font-weight: 800;
+  font-size:
+    11px;
 
-  border-radius: 999px;
+  font-weight:
+    bold;
 
-  border: 2px solid white;
+  border-radius:
+    50%;
 
-  box-shadow:
-    0 2px 5px rgba(0,0,0,.4);
+  border:
+    2px solid white;
 
-  z-index: 20;
-}
+  z-index:
+    10;
 
-
-.selected-route-marker .marker-pin {
-
-  box-shadow:
-    0 0 0 4px rgba(37,99,235,.35),
-    0 3px 8px rgba(0,0,0,.35);
-}
-
-
-.leaflet-popup-content-wrapper {
-
-  border-radius: 12px;
 }
 
 
@@ -198,78 +169,76 @@ body {
   border:
     1px solid #cbd5e1;
 
-  border-radius: 6px;
+  border-radius:
+    6px;
 
-  padding: 5px 7px;
+  padding:
+    5px;
 
-  font-size: 12px;
+  font-size:
+    12px;
+
 }
 
 
 .edit-input:focus {
 
-  outline: none;
+  outline:
+    none;
 
-  border-color: #2563eb;
+  border-color:
+    #2563eb;
 
-  box-shadow:
-    0 0 0 2px rgba(37,99,235,.15);
 }
 
 
 .toast {
 
-  position: absolute;
+  position:
+    absolute;
 
-  top: 16px;
-  left: 50%;
+  top:
+    15px;
+
+  left:
+    50%;
 
   transform:
-    translateX(-50%)
-    translateY(-20px);
+    translateX(-50%);
 
-  z-index: 5000;
+  background:
+    #0f172a;
 
-  opacity: 0;
+  color:
+    white;
 
-  pointer-events: none;
+  padding:
+    10px 18px;
+
+  border-radius:
+    20px;
+
+  z-index:
+    5000;
+
+  opacity:
+    0;
 
   transition:
-    .25s ease;
+    .3s;
 
-  background: #0f172a;
+  pointer-events:
+    none;
 
-  color: white;
-
-  padding: 10px 18px;
-
-  border-radius: 999px;
-
-  font-size: 12px;
-
-  font-weight: 600;
-
-  box-shadow:
-    0 10px 30px rgba(0,0,0,.25);
 }
 
 
 .toast.show {
 
-  opacity: 1;
-
-  transform:
-    translateX(-50%)
-    translateY(0);
-}
-
-
-.route-line {
-
-  stroke-dasharray: 10 8;
+  opacity:
+    1;
 
 }
-
 
 </style>
 
@@ -277,12 +246,19 @@ body {
 
 
 <body
-  class="flex flex-col md:flex-row w-full h-screen bg-slate-100"
+  class="
+    flex
+    flex-col
+    md:flex-row
+    w-full
+    h-screen
+    bg-slate-100
+  "
 >
 
 
 <!-- =========================================================
-     MÓDULO 03 - PANEL LATERAL
+     MÓDULO 02 - PANEL
      ========================================================= -->
 
 <aside
@@ -293,7 +269,6 @@ body {
     md:h-full
     bg-white
     border-r
-    border-slate-200
     shadow-xl
     z-20
     flex
@@ -315,24 +290,6 @@ body {
   "
 >
 
-<div class="flex items-center gap-3">
-
-<div
-  class="
-    w-10
-    h-10
-    rounded-xl
-    bg-blue-600
-    flex
-    items-center
-    justify-center
-  "
->
-
-<i class="fa-solid fa-map-location-dot"></i>
-
-</div>
-
 <div>
 
 <h1
@@ -346,14 +303,12 @@ Visualizador KML & Excel
 
 <p
   class="
-    text-[11px]
+    text-xs
     text-slate-400
   "
 >
-Mapa, edición, filtros y rutas
+KML + Excel + Google Maps
 </p>
-
-</div>
 
 </div>
 
@@ -362,7 +317,6 @@ Mapa, edición, filtros y rutas
   id="marker-count"
   class="
     bg-slate-800
-    text-slate-300
     px-3
     py-1
     rounded-full
@@ -380,42 +334,37 @@ Mapa, edición, filtros y rutas
 <div
   class="
     bg-slate-800
-    text-slate-300
-    px-3
-    py-2
+    text-white
+    p-2
     text-xs
     flex
     justify-between
-    items-center
   "
 >
 
 <span
   id="drive-status"
 >
-Drive listo
+Drive conectado
 </span>
+
 
 <button
   onclick="refreshFiles()"
   class="
-    bg-slate-700
-    hover:bg-slate-600
     px-2
-    py-1
+    bg-slate-700
     rounded
   "
 >
-
 <i class="fa-solid fa-rotate"></i>
-
 </button>
 
 </div>
 
 
 <!-- =========================================================
-     MÓDULO 04 - PESTAÑAS
+     PESTAÑAS
      ========================================================= -->
 
 <div
@@ -423,8 +372,6 @@ Drive listo
     flex
     border-b
     bg-slate-50
-    text-xs
-    font-semibold
   "
 >
 
@@ -434,12 +381,13 @@ Drive listo
   class="
     flex-1
     py-3
+    text-xs
+    font-bold
     border-b-2
     border-blue-600
     text-blue-600
   "
 >
-<i class="fa-solid fa-folder"></i>
 Archivos
 </button>
 
@@ -450,11 +398,12 @@ Archivos
   class="
     flex-1
     py-3
+    text-xs
+    font-bold
     border-b-2
     border-transparent
   "
 >
-<i class="fa-solid fa-table"></i>
 Tabla
 </button>
 
@@ -465,11 +414,12 @@ Tabla
   class="
     flex-1
     py-3
+    text-xs
+    font-bold
     border-b-2
     border-transparent
   "
 >
-<i class="fa-solid fa-filter"></i>
 Filtros
 </button>
 
@@ -480,18 +430,19 @@ Filtros
   class="
     flex-1
     py-3
+    text-xs
+    font-bold
     border-b-2
     border-transparent
   "
 >
-<i class="fa-solid fa-route"></i>
 Rutas
 </button>
 
 </div>
 
 
-<!-- CONTENEDOR -->
+<!-- CONTENIDO -->
 
 <div
   class="
@@ -503,7 +454,7 @@ Rutas
 
 
 <!-- =========================================================
-     MÓDULO 05 - ARCHIVOS
+     MÓDULO 03 - ARCHIVOS
      ========================================================= -->
 
 <section
@@ -512,25 +463,19 @@ Rutas
 >
 
 
-<div
-  class="
-    bg-blue-50
-    border
-    border-blue-200
-    rounded-xl
-    p-3
-  "
->
+<!-- ARCHIVOS DRIVE -->
+
+<div>
 
 <label
   class="
+    block
     text-xs
     font-bold
-    block
-    mb-2
+    mb-1
   "
 >
-Archivo existente
+Archivos en Drive
 </label>
 
 
@@ -539,16 +484,15 @@ Archivo existente
   onchange="openSelectedFile()"
   class="
     w-full
-    p-2
-    rounded-lg
     border
-    border-slate-300
+    rounded-lg
+    p-2
     text-xs
   "
 >
 
 <option value="">
--- Seleccionar archivo --
+-- Seleccionar --
 </option>
 
 </select>
@@ -563,7 +507,6 @@ Archivo existente
     border-2
     border-dashed
     border-slate-300
-    hover:border-blue-500
     rounded-xl
     p-5
     text-center
@@ -571,31 +514,18 @@ Archivo existente
 >
 
 <input
-  id="file-input"
   type="file"
-  accept=".kml,.xml,.xlsx,.xls"
+  id="file-input"
   class="hidden"
+  accept=".xlsx,.xls,.kml,.xml"
   onchange="handleUpload(event)"
 >
 
 
 <label
   for="file-input"
-  class="cursor-pointer"
->
-
-<div
   class="
-    w-12
-    h-12
-    mx-auto
-    mb-2
-    rounded-full
-    bg-blue-50
-    text-blue-600
-    flex
-    items-center
-    justify-center
+    cursor-pointer
   "
 >
 
@@ -603,20 +533,20 @@ Archivo existente
   class="
     fa-solid
     fa-cloud-arrow-up
-    text-xl
+    text-3xl
+    text-blue-600
   "
 ></i>
-
-</div>
 
 
 <div
   class="
-    text-sm
     font-bold
+    text-sm
+    mt-2
   "
 >
-Subir KML o Excel
+Cargar KML o Excel
 </div>
 
 
@@ -624,10 +554,9 @@ Subir KML o Excel
   class="
     text-xs
     text-slate-400
-    mt-1
   "
 >
-El archivo se guardará directamente en Drive
+El Excel será guardado en Drive
 </div>
 
 </label>
@@ -635,18 +564,11 @@ El archivo se guardará directamente en Drive
 </div>
 
 
-<!-- EXPORTACIÓN -->
+<!-- EXPORTAR -->
 
 <div
   id="export-box"
-  class="
-    hidden
-    bg-slate-50
-    border
-    rounded-xl
-    p-3
-    space-y-2
-  "
+  class="hidden space-y-2"
 >
 
 <button
@@ -654,7 +576,6 @@ El archivo se guardará directamente en Drive
   class="
     w-full
     bg-emerald-600
-    hover:bg-emerald-700
     text-white
     py-2
     rounded-lg
@@ -662,11 +583,8 @@ El archivo se guardará directamente en Drive
     font-bold
   "
 >
-
 <i class="fa-solid fa-file-excel"></i>
-
 Guardar Excel actualizado
-
 </button>
 
 
@@ -675,7 +593,6 @@ Guardar Excel actualizado
   class="
     w-full
     bg-blue-600
-    hover:bg-blue-700
     text-white
     py-2
     rounded-lg
@@ -683,17 +600,14 @@ Guardar Excel actualizado
     font-bold
   "
 >
-
 <i class="fa-solid fa-earth-americas"></i>
-
-Descargar KML actualizado
-
+Descargar KML
 </button>
 
 </div>
 
 
-<!-- PUNTOS -->
+<!-- LISTA -->
 
 <div>
 
@@ -701,21 +615,19 @@ Descargar KML actualizado
   class="
     flex
     justify-between
-    items-center
     mb-2
   "
 >
 
-<h3
+<span
   class="
     text-xs
     font-bold
-    uppercase
     text-slate-500
   "
 >
-Puntos
-</h3>
+PUNTOS
+</span>
 
 
 <button
@@ -733,11 +645,7 @@ Ver todos
 
 <div
   id="points-list"
-  class="
-    space-y-1
-    max-h-60
-    overflow-y-auto
-  "
+  class="space-y-1"
 ></div>
 
 </div>
@@ -747,47 +655,13 @@ Ver todos
 
 
 <!-- =========================================================
-     MÓDULO 06 - TABLA
+     MÓDULO 04 - TABLA
      ========================================================= -->
 
 <section
   id="content-table"
   class="hidden space-y-3"
 >
-
-<div
-  class="
-    flex
-    justify-between
-  "
->
-
-<h3
-  class="
-    text-xs
-    uppercase
-    font-bold
-    text-slate-500
-  "
->
-Datos editables
-</h3>
-
-
-<span
-  id="table-count"
-  class="
-    text-xs
-    bg-blue-50
-    text-blue-600
-    px-2
-    rounded
-  "
->
-0
-</span>
-
-</div>
 
 
 <input
@@ -796,9 +670,9 @@ Datos editables
   placeholder="Buscar..."
   class="
     w-full
-    p-2
-    rounded-lg
     border
+    rounded-lg
+    p-2
     text-xs
   "
 >
@@ -807,7 +681,7 @@ Datos editables
 <div
   class="
     overflow-auto
-    max-h-[480px]
+    max-h-[550px]
     border
     rounded-lg
   "
@@ -817,7 +691,6 @@ Datos editables
   class="
     w-full
     text-xs
-    border-collapse
   "
 >
 
@@ -826,21 +699,26 @@ Datos editables
     bg-slate-100
     sticky
     top-0
-    z-10
   "
 >
 
 <tr>
 
-<th class="p-2">Color</th>
 <th class="p-2">Orden</th>
+
 <th class="p-2">Nombre</th>
+
 <th class="p-2">Latitud</th>
+
 <th class="p-2">Longitud</th>
-<th class="p-2">Descripción 1</th>
-<th class="p-2">Descripción 2</th>
-<th class="p-2">Descripción 3</th>
-<th class="p-2">Descripción 4</th>
+
+<th class="p-2">Desc. 1</th>
+
+<th class="p-2">Desc. 2</th>
+
+<th class="p-2">Desc. 3</th>
+
+<th class="p-2">Color</th>
 
 </tr>
 
@@ -855,11 +733,12 @@ Datos editables
 
 </div>
 
+
 </section>
 
 
 <!-- =========================================================
-     MÓDULO 07 - FILTROS
+     MÓDULO 05 - FILTROS
      ========================================================= -->
 
 <section
@@ -872,14 +751,15 @@ Datos editables
 
 <label
   class="
+    block
     text-xs
     font-bold
-    block
     mb-1
   "
 >
 Buscar
 </label>
+
 
 <input
   id="general-search"
@@ -887,9 +767,9 @@ Buscar
   placeholder="Nombre o descripción..."
   class="
     w-full
-    p-2
     border
     rounded-lg
+    p-2
     text-xs
   "
 >
@@ -903,37 +783,29 @@ Buscar
   class="
     flex
     justify-between
-    items-center
     mb-2
   "
 >
 
-<label
+<span
   class="
     text-xs
     font-bold
   "
 >
 Colores
-</label>
+</span>
 
-<div class="flex gap-2">
 
 <button
   onclick="selectAllColors(true)"
-  class="text-xs text-blue-600"
+  class="
+    text-xs
+    text-blue-600
+  "
 >
 Todos
 </button>
-
-<button
-  onclick="selectAllColors(false)"
-  class="text-xs text-red-600"
->
-Ninguno
-</button>
-
-</div>
 
 </div>
 
@@ -941,41 +813,10 @@ Ninguno
 <div
   id="color-filters"
   class="
-    bg-slate-50
     border
     rounded-lg
     p-2
-    max-h-40
-    overflow-y-auto
-    space-y-1
-  "
-></div>
-
-</div>
-
-
-<div>
-
-<label
-  class="
-    text-xs
-    font-bold
-    block
-    mb-2
-  "
->
-Descripción 3
-</label>
-
-
-<div
-  id="desc3-filters"
-  class="
-    bg-slate-50
-    border
-    rounded-lg
-    p-2
-    max-h-48
+    max-h-60
     overflow-y-auto
     space-y-1
   "
@@ -989,14 +830,13 @@ Descripción 3
   class="
     w-full
     bg-slate-200
-    hover:bg-slate-300
     py-2
     rounded-lg
     text-xs
     font-bold
   "
 >
-Restablecer filtros
+Restablecer
 </button>
 
 
@@ -1004,8 +844,8 @@ Restablecer filtros
   id="filter-info"
   class="
     bg-slate-100
-    rounded-lg
     p-2
+    rounded-lg
     text-xs
   "
 >
@@ -1017,7 +857,7 @@ Restablecer filtros
 
 
 <!-- =========================================================
-     MÓDULO 08 - RUTAS
+     MÓDULO 06 - RUTAS
      ========================================================= -->
 
 <section
@@ -1030,20 +870,17 @@ Restablecer filtros
   class="
     flex
     justify-between
-    items-center
   "
 >
 
-<h3
+<span
   class="
     text-xs
-    uppercase
     font-bold
-    text-slate-500
   "
 >
-Rutas
-</h3>
+RUTAS
+</span>
 
 
 <button
@@ -1052,14 +889,12 @@ Rutas
     bg-blue-600
     text-white
     px-3
-    py-1.5
-    rounded-lg
+    py-1
+    rounded
     text-xs
-    font-bold
   "
 >
-+
-Nueva ruta
++ Nueva
 </button>
 
 </div>
@@ -1070,9 +905,9 @@ Nueva ruta
   onchange="selectRoute(this.value)"
   class="
     w-full
-    p-2
     border
     rounded-lg
+    p-2
     text-xs
   "
 >
@@ -1090,108 +925,42 @@ Nueva ruta
 >
 
 
-<div
-  class="
-    bg-blue-50
-    border
-    border-blue-200
-    rounded-xl
-    p-3
-  "
->
-
-<div
-  class="
-    flex
-    justify-between
-    items-center
-  "
->
-
-<span
-  class="
-    text-xs
-    font-bold
-  "
->
-Modo selección
-</span>
-
-
 <button
   id="route-mode-btn"
   onclick="toggleRouteMode()"
   class="
+    w-full
     bg-slate-200
-    px-3
-    py-1
-    rounded
+    py-2
+    rounded-lg
     text-xs
     font-bold
   "
 >
-Desactivado
+Activar selección
 </button>
 
-</div>
-
 
 <div
   class="
-    grid
-    grid-cols-2
-    gap-2
-    mt-3
-  "
->
-
-<div
-  class="
-    bg-white
+    bg-slate-50
+    border
+    rounded-lg
     p-2
-    rounded
-    text-center
+    text-xs
   "
 >
 
-<span
-  class="
-    block
-    text-[10px]
-    text-slate-400
-  "
->
-PUNTOS
-</span>
-
+Puntos:
 <strong
   id="route-points"
 >
 0
 </strong>
 
-</div>
+<br>
 
-
-<div
-  class="
-    bg-white
-    p-2
-    rounded
-    text-center
-  "
->
-
-<span
-  class="
-    block
-    text-[10px]
-    text-slate-400
-  "
->
-DISTANCIA
-</span>
-
+Distancia:
 <strong
   id="route-distance"
 >
@@ -1200,58 +969,17 @@ DISTANCIA
 
 </div>
 
-</div>
-
-</div>
-
-
-<div>
-
-<div
-  class="
-    flex
-    justify-between
-    mb-2
-  "
->
-
-<span
-  class="
-    text-xs
-    font-bold
-  "
->
-Secuencia
-</span>
-
-
-<button
-  onclick="clearRoute()"
-  class="
-    text-xs
-    text-red-600
-  "
->
-Limpiar
-</button>
-
-</div>
-
 
 <div
   id="route-list"
   class="
-    bg-white
     border
     rounded-lg
     p-2
-    max-h-52
+    max-h-60
     overflow-y-auto
-    space-y-1
   "
 ></div>
-
-</div>
 
 
 <button
@@ -1259,7 +987,6 @@ Limpiar
   class="
     w-full
     bg-green-600
-    hover:bg-green-700
     text-white
     py-2
     rounded-lg
@@ -1267,32 +994,24 @@ Limpiar
     font-bold
   "
 >
-
-<i class="fa-solid fa-map-location-dot"></i>
-
-Abrir ruta en Google Maps
-
+Abrir en Google Maps
 </button>
 
 
 <button
-  onclick="deleteRoute()"
+  onclick="clearRoute()"
   class="
     w-full
     bg-red-50
     text-red-600
-    border
-    border-red-200
     py-2
     rounded-lg
     text-xs
-    font-bold
   "
 >
-
-Eliminar ruta
-
+Limpiar ruta
 </button>
+
 
 </div>
 
@@ -1305,81 +1024,72 @@ Eliminar ruta
 
 
 <!-- =========================================================
-     MÓDULO 09 - MAPA
+     MÓDULO 07 - MAPA
      ========================================================= -->
 
 <main
   class="
     flex-1
     relative
-    h-[57%]
-    md:h-full
   "
 >
 
-<div id="map"></div>
+<div
+  id="map"
+></div>
 
 
 <div
   id="toast"
   class="toast"
 >
-<span id="toast-text"></span>
-</div>
 
+<span
+  id="toast-text"
+></span>
+
+</div>
 
 </main>
 
-
-
-<!-- =========================================================
-     MÓDULO 10 - JAVASCRIPT
-     ========================================================= -->
 
 <script>
 
 
 /***************************************************************
  * =============================================================
- * 01 - CONFIGURACIÓN
+ * MÓDULO 08 - VARIABLES
  * =============================================================
  ***************************************************************/
 
-const PRESET_COLORS = [
 
-  '#ef4444',
-  '#3b82f6',
-  '#10b981',
-  '#f59e0b',
-  '#8b5cf6',
-  '#ec4899',
-  '#06b6d4',
-  '#f97316',
-  '#a855f7',
-  '#14b8a6'
+let map;
 
-];
+let googleHybrid;
 
+let googleSatellite;
 
-let map = null;
+let googleStreets;
 
-let googleHybrid = null;
-let googleSatellite = null;
-let googleStreets = null;
-let googleTerrain = null;
+let googleTerrain;
 
 
 let markersData = [];
 
 let markerLayer = [];
 
-let currentFile = null;
 
-let currentFileType = null;
+let currentFile = '';
 
-let currentSheetId = null;
+let currentFileType = '';
 
-let originalKML = null;
+let currentSheetId = '';
+
+let currentFileId = '';
+
+
+let originalKML = '';
+
 
 let routes = [];
 
@@ -1387,18 +1097,124 @@ let activeRouteId = null;
 
 let routeMode = false;
 
-let selectedColors = new Set();
 
-let selectedDesc3 = new Set();
-
-let colorCounter = 0;
+let selectedColors =
+  new Set();
 
 
 /***************************************************************
  * =============================================================
- * 02 - INICIO
+ * MÓDULO 09 - COLORES
+ * =============================================================
+ *
+ * Se incluyen muchos colores.
+ * El usuario también puede utilizar:
+ *
+ * #RRGGBB
+ *
+ ***************************************************************/
+
+
+const DEFAULT_COLORS = [
+
+  '#FF0000',
+  '#00FF00',
+  '#0000FF',
+  '#FFFF00',
+  '#00FFFF',
+  '#FF00FF',
+
+  '#800000',
+  '#008000',
+  '#000080',
+  '#808000',
+  '#800080',
+  '#008080',
+  '#C0C0C0',
+  '#808080',
+
+  '#FFA500',
+  '#A52A2A',
+  '#FFC0CB',
+  '#FFD700',
+  '#4B0082',
+  '#EE82EE',
+
+  '#DC143C',
+  '#FF6347',
+  '#FF4500',
+  '#FF1493',
+  '#FF69B4',
+  '#F0E68C',
+
+  '#7CFC00',
+  '#32CD32',
+  '#228B22',
+  '#006400',
+
+  '#40E0D0',
+  '#00CED1',
+  '#1E90FF',
+  '#4169E1',
+  '#00008B',
+
+  '#9932CC',
+  '#8A2BE2',
+  '#9400D3',
+  '#DA70D6',
+
+  '#D2691E',
+  '#CD853F',
+  '#DEB887',
+  '#F4A460',
+
+  '#2F4F4F',
+  '#708090',
+  '#696969',
+  '#D3D3D3',
+
+  '#7FFFD4',
+  '#66CDAA',
+  '#3CB371',
+  '#98FB98',
+
+  '#B22222',
+  '#FA8072',
+  '#E9967A',
+
+  '#B8860B',
+  '#DAA520',
+  '#EEE8AA',
+
+  '#191970',
+  '#483D8B',
+  '#6A5ACD',
+
+  '#556B2F',
+  '#6B8E23',
+  '#808000',
+
+  '#4682B4',
+  '#5F9EA0',
+  '#87CEEB',
+  '#87CEFA',
+
+  '#F5F5DC',
+  '#FFFFF0',
+  '#FAF0E6',
+
+  '#000000',
+  '#FFFFFF'
+
+];
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 10 - INICIO
  * =============================================================
  ***************************************************************/
+
 
 window.addEventListener(
   'load',
@@ -1417,13 +1233,17 @@ function initializeApp() {
 
 /***************************************************************
  * =============================================================
- * 03 - MAPA
+ * MÓDULO 11 - MAPA
  * =============================================================
  ***************************************************************/
 
+
 function initializeMap() {
 
-  map = L.map('map')
+  map =
+    L.map(
+      'map'
+    )
     .setView(
       [19.4326, -99.1332],
       6
@@ -1433,7 +1253,7 @@ function initializeMap() {
   /*
    * GOOGLE HÍBRIDO
    *
-   * NO API KEY
+   * SIN API KEY
    */
 
   googleHybrid =
@@ -1441,7 +1261,8 @@ function initializeMap() {
       'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
       {
         maxZoom: 20,
-        attribution: '&copy; Google Maps'
+        attribution:
+          '&copy; Google Maps'
       }
     );
 
@@ -1455,7 +1276,8 @@ function initializeMap() {
       'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
       {
         maxZoom: 20,
-        attribution: '&copy; Google Maps'
+        attribution:
+          '&copy; Google Maps'
       }
     );
 
@@ -1469,7 +1291,8 @@ function initializeMap() {
       'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
       {
         maxZoom: 20,
-        attribution: '&copy; Google Maps'
+        attribution:
+          '&copy; Google Maps'
       }
     );
 
@@ -1483,12 +1306,15 @@ function initializeMap() {
       'https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',
       {
         maxZoom: 20,
-        attribution: '&copy; Google Maps'
+        attribution:
+          '&copy; Google Maps'
       }
     );
 
 
-  googleHybrid.addTo(map);
+  googleHybrid.addTo(
+    map
+  );
 
 
   L.control.layers({
@@ -1505,18 +1331,23 @@ function initializeMap() {
     'Google Terreno':
       googleTerrain
 
-  }).addTo(map);
+  }).addTo(
+    map
+  );
 
 }
 
 
 /***************************************************************
  * =============================================================
- * 04 - PESTAÑAS
+ * MÓDULO 12 - PESTAÑAS
  * =============================================================
  ***************************************************************/
 
-function switchTab(tab) {
+
+function switchTab(
+  tab
+) {
 
   const tabs = [
     'data',
@@ -1526,68 +1357,90 @@ function switchTab(tab) {
   ];
 
 
-  tabs.forEach(function(t) {
+  tabs.forEach(
+    function(item) {
 
-    document
-      .getElementById(
-        'content-' + t
-      )
-      .classList.add('hidden');
+      document
+        .getElementById(
+          'content-' +
+          item
+        )
+        .classList
+        .add(
+          'hidden'
+        );
 
 
-    const button =
-      document.getElementById(
-        'tab-' + t
-      );
+      const button =
+        document.getElementById(
+          'tab-' +
+          item
+        );
 
 
-    button.classList.remove(
-      'border-blue-600',
-      'text-blue-600'
-    );
+      button.classList
+        .remove(
+          'border-blue-600',
+          'text-blue-600'
+        );
 
-    button.classList.add(
-      'border-transparent'
-    );
 
-  });
+      button.classList
+        .add(
+          'border-transparent'
+        );
+
+    }
+  );
 
 
   document
     .getElementById(
-      'content-' + tab
+      'content-' +
+      tab
     )
-    .classList.remove('hidden');
+    .classList
+    .remove(
+      'hidden'
+    );
 
 
   const button =
     document.getElementById(
-      'tab-' + tab
+      'tab-' +
+      tab
     );
 
 
-  button.classList.remove(
-    'border-transparent'
-  );
+  button.classList
+    .remove(
+      'border-transparent'
+    );
 
-  button.classList.add(
-    'border-blue-600',
-    'text-blue-600'
-  );
+
+  button.classList
+    .add(
+      'border-blue-600',
+      'text-blue-600'
+    );
 
 }
 
 
 /***************************************************************
  * =============================================================
- * 05 - SUBIR ARCHIVO
+ * MÓDULO 13 - CARGAR ARCHIVO
  * =============================================================
  ***************************************************************/
 
-function handleUpload(event) {
+
+function handleUpload(
+  event
+) {
 
   const file =
     event.target.files[0];
+
 
   if (!file) {
     return;
@@ -1602,7 +1455,7 @@ function handleUpload(event) {
 
 
   showToast(
-    'Procesando ' + file.name + '...'
+    'Procesando archivo...'
   );
 
 
@@ -1618,27 +1471,68 @@ function handleUpload(event) {
     reader.onload =
       function(e) {
 
-        const text =
+        const content =
           e.target.result;
 
-        originalKML = text;
+
+        originalKML =
+          content;
+
 
         processKML(
           file.name,
-          text
+          content
         );
 
-        saveKMLToDrive(
-          file.name,
-          text
-        );
+
+        google.script.run
+
+          .withSuccessHandler(
+            function() {
+
+              refreshFiles();
+
+              showToast(
+                'KML guardado en Drive.'
+              );
+
+            }
+          )
+
+          .withFailureHandler(
+            function(error) {
+
+              console.error(
+                error
+              );
+
+              showToast(
+                'Error al guardar KML.'
+              );
+
+            }
+          )
+
+          .saveKMLFile({
+
+            fileName:
+              file.name,
+
+            content:
+              content
+
+          });
 
       };
 
 
-    reader.readAsText(file);
+    reader.readAsText(
+      file
+    );
+
 
     return;
+
   }
 
 
@@ -1662,18 +1556,15 @@ function handleUpload(event) {
                 e.target.result
               ),
               {
-                type: 'array'
+                type:
+                  'array'
               }
             );
 
 
-          const sheetName =
-            workbook.SheetNames[0];
-
-
           const sheet =
             workbook.Sheets[
-              sheetName
+              workbook.SheetNames[0]
             ];
 
 
@@ -1681,17 +1572,28 @@ function handleUpload(event) {
             XLSX.utils.sheet_to_json(
               sheet,
               {
-                header: 1,
-                defval: ''
+                header:
+                  1,
+
+                defval:
+                  ''
               }
             );
 
+
+          /*
+           * Procesar Excel.
+           */
 
           processExcel(
             file.name,
             rows
           );
 
+
+          /*
+           * Guardar Excel en Drive.
+           */
 
           saveExcelToDrive(
             file,
@@ -1701,10 +1603,12 @@ function handleUpload(event) {
 
         } catch (error) {
 
-          console.error(error);
+          console.error(
+            error
+          );
 
           showToast(
-            'Error al leer el Excel.'
+            'Error al leer Excel.'
           );
 
         }
@@ -1712,7 +1616,9 @@ function handleUpload(event) {
       };
 
 
-    reader.readAsArrayBuffer(file);
+    reader.readAsArrayBuffer(
+      file
+    );
 
   }
 
@@ -1721,310 +1627,21 @@ function handleUpload(event) {
 
 /***************************************************************
  * =============================================================
- * 06 - KML
+ * MÓDULO 14 - PROCESAR EXCEL
  * =============================================================
- */
+ *
+ * ESTRUCTURA:
+ *
+ * A = NOMBRE
+ * B = LATITUD
+ * C = LONGITUD
+ * D = DESCRIPCIÓN 1
+ * E = DESCRIPCIÓN 2
+ * F = DESCRIPCIÓN 3
+ * G = COLOR
+ *
+ ***************************************************************/
 
-function processKML(
-  fileName,
-  xmlText
-) {
-
-  const parser =
-    new DOMParser();
-
-
-  const xml =
-    parser.parseFromString(
-      xmlText,
-      'text/xml'
-    );
-
-
-  const placemarks =
-    xml.getElementsByTagName(
-      'Placemark'
-    );
-
-
-  if (!placemarks.length) {
-
-    showToast(
-      'No se encontraron puntos.'
-    );
-
-    return;
-  }
-
-
-  const styleMap = {};
-
-
-  const styles =
-    xml.getElementsByTagName(
-      'Style'
-    );
-
-
-  for (
-    let i = 0;
-    i < styles.length;
-    i++
-  ) {
-
-    const style =
-      styles[i];
-
-
-    const id =
-      style.getAttribute('id');
-
-
-    const iconStyle =
-      style.getElementsByTagName(
-        'IconStyle'
-      )[0];
-
-
-    if (!iconStyle) {
-      continue;
-    }
-
-
-    const color =
-      iconStyle.getElementsByTagName(
-        'color'
-      )[0];
-
-
-    if (color) {
-
-      styleMap[id] =
-        kmlColorToHex(
-          color.textContent.trim()
-        );
-
-    }
-
-  }
-
-
-  clearMap();
-
-
-  markersData = [];
-
-  colorCounter = 0;
-
-
-  for (
-    let i = 0;
-    i < placemarks.length;
-    i++
-  ) {
-
-    const placemark =
-      placemarks[i];
-
-
-    const point =
-      placemark.getElementsByTagName(
-        'Point'
-      )[0];
-
-
-    if (!point) {
-      continue;
-    }
-
-
-    const coordinates =
-      point.getElementsByTagName(
-        'coordinates'
-      )[0];
-
-
-    if (!coordinates) {
-      continue;
-    }
-
-
-    const values =
-      coordinates
-        .textContent
-        .trim()
-        .split(',');
-
-
-    const lng =
-      parseFloat(values[0]);
-
-
-    const lat =
-      parseFloat(values[1]);
-
-
-    if (
-      isNaN(lat) ||
-      isNaN(lng)
-    ) {
-      continue;
-    }
-
-
-    const nameNode =
-      placemark.getElementsByTagName(
-        'name'
-      )[0];
-
-
-    const name =
-      nameNode
-        ? nameNode.textContent.trim()
-        : 'Punto ' + (i + 1);
-
-
-    const descNode =
-      placemark.getElementsByTagName(
-        'description'
-      )[0];
-
-
-    const description =
-      descNode
-        ? descNode.textContent.trim()
-        : '';
-
-
-    const descriptions =
-      splitDescription(
-        description
-      );
-
-
-    let color =
-      null;
-
-
-    const styleUrl =
-      placemark.getElementsByTagName(
-        'styleUrl'
-      )[0];
-
-
-    if (styleUrl) {
-
-      const id =
-        styleUrl
-          .textContent
-          .trim()
-          .replace('#', '');
-
-
-      color =
-        styleMap[id] ||
-        null;
-
-    }
-
-
-    if (!color) {
-
-      color =
-        PRESET_COLORS[
-          colorCounter %
-          PRESET_COLORS.length
-        ];
-
-      colorCounter++;
-
-    }
-
-
-    const pointData = {
-
-      id:
-        'kml_' +
-        Date.now() +
-        '_' +
-        i,
-
-      row:
-        i + 1,
-
-      orden:
-        i + 1,
-
-      nombre:
-        name,
-
-      latitud:
-        lat,
-
-      longitud:
-        lng,
-
-      desc1:
-        descriptions[0] || '',
-
-      desc2:
-        descriptions[1] || '',
-
-      desc3:
-        descriptions[2] || '',
-
-      desc4:
-        descriptions[3] || '',
-
-      color:
-        color,
-
-      originalDescription:
-        description,
-
-      marker:
-        null
-
-    };
-
-
-    markersData.push(
-      pointData
-    );
-
-  }
-
-
-  currentFile =
-    fileName;
-
-  currentFileType =
-    'kml';
-
-  currentSheetId =
-    null;
-
-
-  drawMarkers();
-
-  refreshInterface();
-
-  zoomAll();
-
-
-  showToast(
-    markersData.length +
-    ' puntos cargados.'
-  );
-
-}
-
-
-/***************************************************************
- * =============================================================
- * 07 - EXCEL
- * =============================================================
- */
 
 function processExcel(
   fileName,
@@ -2033,14 +1650,15 @@ function processExcel(
 
   if (
     !rows ||
-    rows.length === 0
+    rows.length < 2
   ) {
 
     showToast(
-      'El Excel está vacío.'
+      'El Excel no contiene registros.'
     );
 
     return;
+
   }
 
 
@@ -2051,19 +1669,11 @@ function processExcel(
 
 
   /*
-   * La primera fila se considera encabezado.
+   * Saltamos la fila 1 porque
+   * se considera encabezado.
    */
 
-  const headers =
-    rows[0].map(function(h) {
-
-      return String(
-        h || ''
-      )
-        .trim()
-        .toLowerCase();
-
-    });
+  let order = 1;
 
 
   for (
@@ -2079,43 +1689,127 @@ function processExcel(
     if (
       !row ||
       row.every(
-        v =>
-          String(v || '').trim() === ''
+        value =>
+          String(
+            value || ''
+          ).trim() === ''
       )
     ) {
+
       continue;
+
     }
 
 
-    const orden =
-      row[0] ?? '';
-
+    /***********************************************************
+     * COLUMNA A
+     * NOMBRE
+     ***********************************************************/
 
     const nombre =
-      row[1] ?? '';
+      String(
+        row[0] ?? ''
+      ).trim();
 
 
-    const lat =
+    /***********************************************************
+     * COLUMNA B
+     * LATITUD
+     ***********************************************************/
+
+    const latitud =
       parseFloat(
-        row[2]
+        String(
+          row[1] ?? ''
+        )
+          .replace(
+            ',',
+            '.'
+          )
       );
 
 
-    const lng =
+    /***********************************************************
+     * COLUMNA C
+     * LONGITUD
+     ***********************************************************/
+
+    const longitud =
       parseFloat(
-        row[3]
+        String(
+          row[2] ?? ''
+        )
+          .replace(
+            ',',
+            '.'
+          )
       );
 
+
+    /*
+     * Si no hay coordenadas,
+     * no se crea marcador.
+     */
 
     if (
-      isNaN(lat) ||
-      isNaN(lng)
+      isNaN(latitud) ||
+      isNaN(longitud)
     ) {
+
       continue;
+
     }
 
 
-    const point = {
+    /***********************************************************
+     * COLUMNA D
+     * DESCRIPCIÓN 1
+     ***********************************************************/
+
+    const desc1 =
+      String(
+        row[3] ?? ''
+      );
+
+
+    /***********************************************************
+     * COLUMNA E
+     * DESCRIPCIÓN 2
+     ***********************************************************/
+
+    const desc2 =
+      String(
+        row[4] ?? ''
+      );
+
+
+    /***********************************************************
+     * COLUMNA F
+     * DESCRIPCIÓN 3
+     ***********************************************************/
+
+    const desc3 =
+      String(
+        row[5] ?? ''
+      );
+
+
+    /***********************************************************
+     * COLUMNA G
+     * COLOR
+     ***********************************************************/
+
+    const color =
+      normalizeColor(
+        row[6]
+      );
+
+
+    /***********************************************************
+     * CREAR REGISTRO
+     ***********************************************************/
+
+    markersData.push({
 
       id:
         'excel_' +
@@ -2127,45 +1821,36 @@ function processExcel(
         i + 1,
 
       orden:
-        orden,
+        order,
 
       nombre:
         nombre,
 
       latitud:
-        lat,
+        latitud,
 
       longitud:
-        lng,
+        longitud,
 
       desc1:
-        row[4] ?? '',
+        desc1,
 
       desc2:
-        row[5] ?? '',
+        desc2,
 
       desc3:
-        row[6] ?? '',
-
-      desc4:
-        row[7] ?? '',
+        desc3,
 
       color:
-        getColorForDesc3(
-          String(
-            row[6] ?? ''
-          )
-        ),
+        color,
 
       marker:
         null
 
-    };
+    });
 
 
-    markersData.push(
-      point
-    );
+    order++;
 
   }
 
@@ -2179,7 +1864,9 @@ function processExcel(
 
   drawMarkers();
 
+
   refreshInterface();
+
 
   zoomAll();
 
@@ -2188,12 +1875,15 @@ function processExcel(
     .getElementById(
       'export-box'
     )
-    .classList.remove('hidden');
+    .classList
+    .remove(
+      'hidden'
+    );
 
 
   showToast(
     markersData.length +
-    ' registros cargados.'
+    ' puntos cargados.'
   );
 
 }
@@ -2201,9 +1891,311 @@ function processExcel(
 
 /***************************************************************
  * =============================================================
- * 08 - GUARDAR EXCEL
+ * MÓDULO 15 - COLORES
  * =============================================================
+ *
+ * El Excel puede contener:
+ *
+ * #FF0000
+ * #00FF00
+ * #0000FF
+ *
+ * También nombres:
+ *
+ * rojo
+ * verde
+ * azul
+ * amarillo
+ * naranja
+ * morado
+ * rosa
+ * negro
+ * blanco
+ * etc.
+ *
+ ***************************************************************/
+
+
+function normalizeColor(
+  value
+) {
+
+  if (
+    value === null ||
+    value === undefined
+  ) {
+
+    return DEFAULT_COLORS[0];
+
+  }
+
+
+  let color =
+    String(
+      value
+    )
+      .trim()
+      .toLowerCase();
+
+
+  if (!color) {
+
+    return DEFAULT_COLORS[0];
+
+  }
+
+
+  /*
+   * HEX
+   */
+
+  if (
+    /^#[0-9a-f]{6}$/i.test(
+      color
+    )
+  ) {
+
+    return color;
+
+  }
+
+
+  if (
+    /^[0-9a-f]{6}$/i.test(
+      color
+    )
+  ) {
+
+    return '#' +
+      color;
+
+  }
+
+
+  /*
+   * RGB
+   */
+
+  const rgb =
+    color.match(
+      /^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i
+    );
+
+
+  if (rgb) {
+
+    return rgbToHex(
+      Number(rgb[1]),
+      Number(rgb[2]),
+      Number(rgb[3])
+    );
+
+  }
+
+
+  /*
+   * NOMBRES
+   */
+
+  const namedColors = {
+
+    rojo:
+      '#FF0000',
+
+    red:
+      '#FF0000',
+
+    verde:
+      '#00A000',
+
+    green:
+      '#008000',
+
+    azul:
+      '#0000FF',
+
+    blue:
+      '#0000FF',
+
+    amarillo:
+      '#FFFF00',
+
+    yellow:
+      '#FFFF00',
+
+    naranja:
+      '#FFA500',
+
+    orange:
+      '#FFA500',
+
+    morado:
+      '#800080',
+
+    purple:
+      '#800080',
+
+    rosa:
+      '#FF69B4',
+
+    pink:
+      '#FFC0CB',
+
+    negro:
+      '#000000',
+
+    black:
+      '#000000',
+
+    blanco:
+      '#FFFFFF',
+
+    white:
+      '#FFFFFF',
+
+    gris:
+      '#808080',
+
+    gray:
+      '#808080',
+
+    cyan:
+      '#00FFFF',
+
+    turquesa:
+      '#40E0D0',
+
+    cafe:
+      '#8B4513',
+
+    marron:
+      '#8B4513',
+
+    dorado:
+      '#FFD700',
+
+    oro:
+      '#FFD700',
+
+    plata:
+      '#C0C0C0',
+
+    vino:
+      '#800000',
+
+    verdeoscuro:
+      '#006400',
+
+    verdeclaro:
+      '#90EE90',
+
+    azuloscuro:
+      '#00008B',
+
+    azulclaro:
+      '#87CEEB',
+
+    moradooscuro:
+      '#4B0082',
+
+    lila:
+      '#C8A2C8',
+
+    beige:
+      '#F5F5DC',
+
+    oliva:
+      '#808000'
+
+  };
+
+
+  if (
+    namedColors[color]
+  ) {
+
+    return namedColors[color];
+
+  }
+
+
+  /*
+   * Si el usuario puso un color
+   * que no reconocemos, asignamos
+   * automáticamente uno de la
+   * paleta amplia.
+   */
+
+  return getAutomaticColor();
+
+}
+
+
+/**
+ * Generar color automático.
  */
+let automaticColorIndex = 0;
+
+
+function getAutomaticColor() {
+
+  const color =
+    DEFAULT_COLORS[
+      automaticColorIndex %
+      DEFAULT_COLORS.length
+    ];
+
+
+  automaticColorIndex++;
+
+
+  return color;
+
+}
+
+
+/**
+ * RGB -> HEX
+ */
+function rgbToHex(
+  r,
+  g,
+  b
+) {
+
+  return '#' +
+
+    [r, g, b]
+      .map(
+        function(value) {
+
+          return Math
+            .max(
+              0,
+              Math.min(
+                255,
+                value
+              )
+            )
+            .toString(16)
+            .padStart(
+              2,
+              '0'
+            );
+
+        }
+      )
+      .join('');
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 16 - GUARDAR EXCEL EN DRIVE
+ * =============================================================
+ ***************************************************************/
+
 
 function saveExcelToDrive(
   file,
@@ -2235,6 +2227,10 @@ function saveExcelToDrive(
         .withSuccessHandler(
           function(result) {
 
+            currentFileId =
+              result.fileId;
+
+
             currentSheetId =
               result.sheetId;
 
@@ -2247,6 +2243,14 @@ function saveExcelToDrive(
               'excel';
 
 
+            document
+              .getElementById(
+                'drive-status'
+              )
+              .textContent =
+                'Excel guardado en Drive ✓';
+
+
             refreshFiles();
 
 
@@ -2254,32 +2258,28 @@ function saveExcelToDrive(
               'Excel guardado en Drive.'
             );
 
-
-            document
-              .getElementById(
-                'drive-status'
-              )
-              .textContent =
-                'Excel sincronizado ✓';
-
           }
         )
 
         .withFailureHandler(
           function(error) {
 
-            console.error(error);
-
-            showToast(
-              'Error al guardar Excel.'
+            console.error(
+              error
             );
+
 
             document
               .getElementById(
                 'drive-status'
               )
               .textContent =
-                'Error de Drive';
+                'Error al guardar';
+
+
+            showToast(
+              'Error al guardar Excel.'
+            );
 
           }
         )
@@ -2303,73 +2303,23 @@ function saveExcelToDrive(
     };
 
 
-  reader.readAsDataURL(file);
+  reader.readAsDataURL(
+    file
+  );
 
 }
 
 
 /***************************************************************
  * =============================================================
- * 09 - GUARDAR KML
+ * MÓDULO 17 - MAPA
  * =============================================================
- */
+ ***************************************************************/
 
-function saveKMLToDrive(
-  fileName,
-  content
-) {
-
-  google.script.run
-
-    .withSuccessHandler(
-      function() {
-
-        refreshFiles();
-
-        showToast(
-          'KML guardado en Drive.'
-        );
-
-      }
-    )
-
-    .withFailureHandler(
-      function(error) {
-
-        console.error(error);
-
-        showToast(
-          'No fue posible guardar el KML.'
-        );
-
-      }
-    )
-
-    .saveKMLFile({
-
-      fileName:
-        fileName,
-
-      content:
-        content
-
-    });
-
-}
-
-
-/***************************************************************
- * =============================================================
- * 10 - MARCADORES
- * =============================================================
- */
 
 function drawMarkers() {
 
   clearMap();
-
-
-  const bounds = [];
 
 
   markersData.forEach(
@@ -2389,57 +2339,42 @@ function drawMarkers() {
         marker
       );
 
-
-      bounds.push([
-        point.latitud,
-        point.longitud
-      ]);
-
     }
   );
-
-
-  if (bounds.length) {
-
-    map.fitBounds(
-      bounds,
-      {
-        padding: [40, 40]
-      }
-    );
-
-  }
 
 }
 
 
 /**
- * Crea marcador Leaflet.
+ * Crear marcador.
  */
 function createMarker(
   point
 ) {
 
-  const icon =
-    createMarkerIcon(
-      point
-    );
-
-
   const marker =
     L.marker(
+
       [
         point.latitud,
         point.longitud
       ],
+
       {
+
         icon:
-          icon
+          createMarkerIcon(
+            point
+          )
+
       }
+
     );
 
 
-  marker.addTo(map);
+  marker.addTo(
+    map
+  );
 
 
   marker.on(
@@ -2456,6 +2391,7 @@ function createMarker(
         );
 
         return;
+
       }
 
 
@@ -2473,7 +2409,7 @@ function createMarker(
 
 
 /**
- * Icono.
+ * Icono marcador.
  */
 function createMarkerIcon(
   point
@@ -2495,7 +2431,9 @@ function createMarkerIcon(
       );
 
 
-    if (index >= 0) {
+    if (
+      index >= 0
+    ) {
 
       badge =
         '<span class="route-badge">' +
@@ -2507,41 +2445,33 @@ function createMarkerIcon(
   }
 
 
-  const html =
-
-    '<div class="custom-marker">' +
-
-      '<div ' +
-        'class="marker-pin" ' +
-        'style="background:' +
-        escapeHtml(
-          point.color ||
-          '#ef4444'
-        ) +
-        ';">' +
-      '</div>' +
-
-      badge +
-
-    '</div>';
-
-
   return L.divIcon({
 
     className:
       '',
 
     html:
-      html,
+
+      '<div class="custom-marker">' +
+
+        '<div ' +
+        'class="marker-pin" ' +
+        'style="background:' +
+        escapeHtml(
+          point.color
+        ) +
+        ';">' +
+        '</div>' +
+
+        badge +
+
+      '</div>',
 
     iconSize:
-      [34, 34],
+      [36, 36],
 
     iconAnchor:
-      [17, 30],
-
-    popupAnchor:
-      [0, -30]
+      [18, 32]
 
   });
 
@@ -2550,9 +2480,10 @@ function createMarkerIcon(
 
 /***************************************************************
  * =============================================================
- * 11 - EDITOR DEL PUNTO
+ * MÓDULO 18 - EDITAR PUNTO
  * =============================================================
- */
+ ***************************************************************/
+
 
 function openPointEditor(
   point
@@ -2562,18 +2493,17 @@ function openPointEditor(
 
     <div style="width:280px">
 
-      <div
-        style="
-          font-weight:800;
-          margin-bottom:8px;
-          font-size:14px;
-        "
-      >
-        Editar punto
-      </div>
+      <strong>
+        Editar punto #${point.orden}
+      </strong>
 
 
-      <label>Nombre</label>
+      <br><br>
+
+
+      <label>
+        Nombre
+      </label>
 
       <input
         id="edit-name-${point.id}"
@@ -2582,7 +2512,9 @@ function openPointEditor(
       >
 
 
-      <label>Latitud</label>
+      <label>
+        Latitud
+      </label>
 
       <input
         id="edit-lat-${point.id}"
@@ -2593,7 +2525,9 @@ function openPointEditor(
       >
 
 
-      <label>Longitud</label>
+      <label>
+        Longitud
+      </label>
 
       <input
         id="edit-lng-${point.id}"
@@ -2604,102 +2538,98 @@ function openPointEditor(
       >
 
 
-      <label>Descripción 1</label>
+      <label>
+        Descripción 1
+      </label>
 
       <input
-        id="edit-desc1-${point.id}"
+        id="edit-d1-${point.id}"
         class="edit-input"
         value="${escapeHtml(point.desc1)}"
       >
 
 
-      <label>Descripción 2</label>
+      <label>
+        Descripción 2
+      </label>
 
       <input
-        id="edit-desc2-${point.id}"
+        id="edit-d2-${point.id}"
         class="edit-input"
         value="${escapeHtml(point.desc2)}"
       >
 
 
-      <label>Descripción 3</label>
+      <label>
+        Descripción 3
+      </label>
 
       <input
-        id="edit-desc3-${point.id}"
+        id="edit-d3-${point.id}"
         class="edit-input"
         value="${escapeHtml(point.desc3)}"
       >
 
 
-      <label>Descripción 4</label>
-
-      <input
-        id="edit-desc4-${point.id}"
-        class="edit-input"
-        value="${escapeHtml(point.desc4)}"
-      >
-
-
-      <label>Color</label>
+      <label>
+        Color
+      </label>
 
       <input
         id="edit-color-${point.id}"
-        class="w-full h-8"
         type="color"
-        value="${point.color || '#ef4444'}"
+        class="w-full h-8"
+        value="${point.color}"
       >
 
 
       <button
         onclick="savePointEdit('${point.id}')"
         style="
-          margin-top:10px;
           width:100%;
-          background:#2563eb;
-          color:white;
+          margin-top:10px;
+          padding:8px;
           border:0;
           border-radius:7px;
-          padding:8px;
-          font-weight:700;
-          cursor:pointer;
+          background:#2563eb;
+          color:white;
+          font-weight:bold;
         "
       >
-        Guardar cambios
+        Guardar
       </button>
 
     </div>
+
   `;
 
 
   L.popup()
-
     .setLatLng([
       point.latitud,
       point.longitud
     ])
-
     .setContent(
       html
     )
-
-    .openOn(map);
+    .openOn(
+      map
+    );
 
 }
 
 
-/***************************************************************
- * =============================================================
- * 12 - GUARDAR EDICIÓN
- * =============================================================
+/**
+ * Guardar edición.
  */
-
 function savePointEdit(
-  pointId
+  id
 ) {
 
   const point =
     markersData.find(
-      p => p.id === pointId
+      p =>
+        p.id === id
     );
 
 
@@ -2709,55 +2639,63 @@ function savePointEdit(
 
 
   point.nombre =
-    document.getElementById(
-      'edit-name-' + pointId
-    ).value;
+    document
+      .getElementById(
+        'edit-name-' + id
+      )
+      .value;
 
 
   point.latitud =
     parseFloat(
-      document.getElementById(
-        'edit-lat-' + pointId
-      ).value
+      document
+        .getElementById(
+          'edit-lat-' + id
+        )
+        .value
     );
 
 
   point.longitud =
     parseFloat(
-      document.getElementById(
-        'edit-lng-' + pointId
-      ).value
+      document
+        .getElementById(
+          'edit-lng-' + id
+        )
+        .value
     );
 
 
   point.desc1 =
-    document.getElementById(
-      'edit-desc1-' + pointId
-    ).value;
+    document
+      .getElementById(
+        'edit-d1-' + id
+      )
+      .value;
 
 
   point.desc2 =
-    document.getElementById(
-      'edit-desc2-' + pointId
-    ).value;
+    document
+      .getElementById(
+        'edit-d2-' + id
+      )
+      .value;
 
 
   point.desc3 =
-    document.getElementById(
-      'edit-desc3-' + pointId
-    ).value;
-
-
-  point.desc4 =
-    document.getElementById(
-      'edit-desc4-' + pointId
-    ).value;
+    document
+      .getElementById(
+        'edit-d3-' + id
+      )
+      .value;
 
 
   point.color =
-    document.getElementById(
-      'edit-color-' + pointId
-    ).value;
+    document
+      .getElementById(
+        'edit-color-' + id
+      )
+      .value;
 
 
   if (
@@ -2770,6 +2708,7 @@ function savePointEdit(
     );
 
     return;
+
   }
 
 
@@ -2777,17 +2716,6 @@ function savePointEdit(
     point
   );
 
-
-  refreshInterface();
-
-
-  map.closePopup();
-
-
-  /*
-   * Si es Excel,
-   * guardar automáticamente.
-   */
 
   if (
     currentFileType === 'excel' &&
@@ -2801,6 +2729,12 @@ function savePointEdit(
   }
 
 
+  refreshInterface();
+
+
+  map.closePopup();
+
+
   showToast(
     'Punto actualizado.'
   );
@@ -2810,63 +2744,14 @@ function savePointEdit(
 
 /***************************************************************
  * =============================================================
- * 13 - REDIBUJAR PUNTO
+ * MÓDULO 19 - GUARDADO AUTOMÁTICO
  * =============================================================
- */
+ ***************************************************************/
 
-function redrawPoint(
-  point
-) {
-
-  if (point.marker) {
-
-    map.removeLayer(
-      point.marker
-    );
-
-  }
-
-
-  const marker =
-    createMarker(
-      point
-    );
-
-
-  point.marker =
-    marker;
-
-}
-
-
-/***************************************************************
- * =============================================================
- * 14 - GUARDADO AUTOMÁTICO EXCEL
- * =============================================================
- */
 
 function autoSaveExcelPoint(
   point
 ) {
-
-  if (!currentSheetId) {
-    return;
-  }
-
-
-  const values = [
-
-    point.orden,
-    point.nombre,
-    point.latitud,
-    point.longitud,
-    point.desc1,
-    point.desc2,
-    point.desc3,
-    point.desc4
-
-  ];
-
 
   google.script.run
 
@@ -2886,10 +2771,12 @@ function autoSaveExcelPoint(
     .withFailureHandler(
       function(error) {
 
-        console.error(error);
+        console.error(
+          error
+        );
 
         showToast(
-          'Error al guardar el cambio.'
+          'Error al guardar cambio.'
         );
 
       }
@@ -2903,8 +2790,17 @@ function autoSaveExcelPoint(
       rowNumber:
         point.row,
 
-      values:
-        values
+      values: [
+
+        point.nombre,
+        point.latitud,
+        point.longitud,
+        point.desc1,
+        point.desc2,
+        point.desc3,
+        point.color
+
+      ]
 
     });
 
@@ -2913,194 +2809,10 @@ function autoSaveExcelPoint(
 
 /***************************************************************
  * =============================================================
- * 15 - ACTUALIZAR LISTA DE DRIVE
+ * MÓDULO 20 - TABLA
  * =============================================================
- */
+ ***************************************************************/
 
-function refreshFiles() {
-
-  google.script.run
-
-    .withSuccessHandler(
-      renderFileList
-    )
-
-    .withFailureHandler(
-      function(error) {
-
-        console.error(error);
-
-        showToast(
-          'No se pudo consultar Drive.'
-        );
-
-      }
-    )
-
-    .getDriveFiles();
-
-}
-
-
-/**
- * Muestra archivos.
- */
-function renderFileList(
-  files
-) {
-
-  const select =
-    document.getElementById(
-      'file-select'
-    );
-
-
-  select.innerHTML =
-    '<option value="">-- Seleccionar archivo --</option>';
-
-
-  files.forEach(
-    function(file) {
-
-      const option =
-        document.createElement(
-          'option'
-        );
-
-
-      option.value =
-        file.id;
-
-
-      option.textContent =
-        file.name +
-        ' — ' +
-        file.type.toUpperCase();
-
-
-      select.appendChild(
-        option
-      );
-
-    }
-  );
-
-}
-
-
-/***************************************************************
- * =============================================================
- * 16 - ABRIR ARCHIVO EXISTENTE
- * =============================================================
- */
-
-function openSelectedFile() {
-
-  const fileId =
-    document.getElementById(
-      'file-select'
-    ).value;
-
-
-  if (!fileId) {
-    return;
-  }
-
-
-  google.script.run
-
-    .withSuccessHandler(
-      function(info) {
-
-        if (
-          info.success &&
-          info.rows
-        ) {
-
-          processExcel(
-            info.fileName,
-            info.rows
-          );
-
-
-          currentFile =
-            info.fileName;
-
-          currentFileType =
-            'excel';
-
-          currentSheetId =
-            info.sheetId;
-
-
-          showToast(
-            'Excel cargado desde Drive.'
-          );
-
-          return;
-
-        }
-
-
-        /*
-         * Si no tiene hoja de trabajo,
-         * intentar leerlo como KML.
-         */
-
-        google.script.run
-
-          .withSuccessHandler(
-            function(kml) {
-
-              if (
-                kml &&
-                kml.content
-              ) {
-
-                originalKML =
-                  kml.content;
-
-                processKML(
-                  kml.fileName,
-                  kml.content
-                );
-
-              }
-
-            }
-          )
-
-          .getKMLContent(
-            fileId
-          );
-
-      }
-    )
-
-    .withFailureHandler(
-      function(error) {
-
-        console.error(error);
-
-        showToast(
-          'Error al abrir archivo.'
-        );
-
-      }
-    )
-
-    .getExcelData(
-      fileId
-    );
-
-}
-
-
-/***************************************************************
- * =============================================================
- * 17 - TABLA
- * =============================================================
- */
 
 function renderTable() {
 
@@ -3110,7 +2822,8 @@ function renderTable() {
     );
 
 
-  tbody.innerHTML = '';
+  tbody.innerHTML =
+    '';
 
 
   const search =
@@ -3122,9 +2835,6 @@ function renderTable() {
       .toLowerCase();
 
 
-  let count = 0;
-
-
   markersData.forEach(
     function(point) {
 
@@ -3133,8 +2843,7 @@ function renderTable() {
           point.nombre,
           point.desc1,
           point.desc2,
-          point.desc3,
-          point.desc4
+          point.desc3
         ]
           .join(' ')
           .toLowerCase();
@@ -3142,13 +2851,14 @@ function renderTable() {
 
       if (
         search &&
-        !text.includes(search)
+        !text.includes(
+          search
+        )
       ) {
+
         return;
+
       }
-
-
-      count++;
 
 
       const tr =
@@ -3158,35 +2868,29 @@ function renderTable() {
 
 
       tr.className =
-        'border-b hover:bg-slate-50';
+        'border-b';
 
 
       tr.innerHTML = `
 
-        <td class="p-1">
-          <input
-            type="color"
-            value="${point.color}"
-            onchange="changeTableColor('${point.id}',this.value)"
-          >
+        <td class="p-1 text-center">
+          ${point.orden}
         </td>
 
 
         <td class="p-1">
-          ${escapeHtml(point.orden)}
-        </td>
 
-
-        <td class="p-1">
           <input
             class="edit-input"
             value="${escapeHtml(point.nombre)}"
             onchange="changeTableValue('${point.id}','nombre',this.value)"
           >
+
         </td>
 
 
         <td class="p-1">
+
           <input
             class="edit-input"
             type="number"
@@ -3194,10 +2898,12 @@ function renderTable() {
             value="${point.latitud}"
             onchange="changeTableValue('${point.id}','latitud',this.value)"
           >
+
         </td>
 
 
         <td class="p-1">
+
           <input
             class="edit-input"
             type="number"
@@ -3205,42 +2911,51 @@ function renderTable() {
             value="${point.longitud}"
             onchange="changeTableValue('${point.id}','longitud',this.value)"
           >
+
         </td>
 
 
         <td class="p-1">
+
           <input
             class="edit-input"
             value="${escapeHtml(point.desc1)}"
             onchange="changeTableValue('${point.id}','desc1',this.value)"
           >
+
         </td>
 
 
         <td class="p-1">
+
           <input
             class="edit-input"
             value="${escapeHtml(point.desc2)}"
             onchange="changeTableValue('${point.id}','desc2',this.value)"
           >
+
         </td>
 
 
         <td class="p-1">
+
           <input
             class="edit-input"
             value="${escapeHtml(point.desc3)}"
             onchange="changeTableValue('${point.id}','desc3',this.value)"
           >
+
         </td>
 
 
         <td class="p-1">
+
           <input
-            class="edit-input"
-            value="${escapeHtml(point.desc4)}"
-            onchange="changeTableValue('${point.id}','desc4',this.value)"
+            type="color"
+            value="${point.color}"
+            onchange="changeTableColor('${point.id}',this.value)"
           >
+
         </td>
 
       `;
@@ -3253,22 +2968,15 @@ function renderTable() {
     }
   );
 
-
-  document
-    .getElementById(
-      'table-count'
-    )
-    .textContent =
-      count + ' registros';
-
 }
 
 
 /***************************************************************
  * =============================================================
- * 18 - CAMBIOS DESDE TABLA
+ * MÓDULO 21 - CAMBIOS TABLA
  * =============================================================
- */
+ ***************************************************************/
+
 
 function changeTableValue(
   id,
@@ -3278,7 +2986,8 @@ function changeTableValue(
 
   const point =
     markersData.find(
-      p => p.id === id
+      p =>
+        p.id === id
     );
 
 
@@ -3293,30 +3002,14 @@ function changeTableValue(
   ) {
 
     point[field] =
-      parseFloat(value);
+      parseFloat(
+        value
+      );
 
   } else {
 
     point[field] =
       value;
-
-  }
-
-
-  /*
-   * DESCRIPCIÓN 3
-   *
-   * Cambiar descripción 3
-   * cambia automáticamente
-   * el color asociado.
-   */
-
-  if (field === 'desc3') {
-
-    point.color =
-      getColorForDesc3(
-        String(value)
-      );
 
   }
 
@@ -3337,15 +3030,9 @@ function changeTableValue(
 
   }
 
-
-  refreshInterface();
-
 }
 
 
-/**
- * Cambiar color desde tabla.
- */
 function changeTableColor(
   id,
   color
@@ -3353,7 +3040,8 @@ function changeTableColor(
 
   const point =
     markersData.find(
-      p => p.id === id
+      p =>
+        p.id === id
     );
 
 
@@ -3383,155 +3071,58 @@ function changeTableColor(
   }
 
 
-  refreshInterface();
+  buildFilters();
 
 }
 
 
 /***************************************************************
  * =============================================================
- * 19 - COLOR SEGÚN DESCRIPCIÓN 3
+ * MÓDULO 22 - FILTROS POR COLOR
  * =============================================================
- */
+ ***************************************************************/
 
-function getColorForDesc3(
-  value
-) {
-
-  const key =
-    String(value || '')
-      .trim()
-      .toLowerCase();
-
-
-  if (!key) {
-
-    return PRESET_COLORS[
-      0
-    ];
-
-  }
-
-
-  /*
-   * Se guarda en localStorage
-   * para mantener el color
-   * durante la sesión del navegador.
-   */
-
-  const storageKey =
-    'desc3_colors';
-
-
-  let mapColors = {};
-
-
-  try {
-
-    mapColors =
-      JSON.parse(
-        localStorage.getItem(
-          storageKey
-        ) || '{}'
-      );
-
-  } catch (e) {
-
-    mapColors = {};
-
-  }
-
-
-  if (
-    mapColors[key]
-  ) {
-
-    return mapColors[key];
-
-  }
-
-
-  const color =
-    PRESET_COLORS[
-      Object.keys(mapColors).length %
-      PRESET_COLORS.length
-    ];
-
-
-  mapColors[key] =
-    color;
-
-
-  localStorage.setItem(
-    storageKey,
-    JSON.stringify(
-      mapColors
-    )
-  );
-
-
-  return color;
-
-}
-
-
-/***************************************************************
- * =============================================================
- * 20 - FILTROS
- * =============================================================
- */
 
 function buildFilters() {
 
   const colors =
-    [...new Set(
-      markersData.map(
-        p => p.color
-      )
-    )];
-
-
-  const desc3 =
-    [...new Set(
-      markersData
-        .map(
-          p => String(
-            p.desc3 || ''
-          ).trim()
+    [
+      ...new Set(
+        markersData.map(
+          p =>
+            p.color
         )
-        .filter(Boolean)
-    )];
+      )
+    ];
 
 
   selectedColors =
-    new Set(colors);
+    new Set(
+      colors
+    );
 
 
-  selectedDesc3 =
-    new Set(desc3);
-
-
-  const colorBox =
+  const box =
     document.getElementById(
       'color-filters'
     );
 
 
-  colorBox.innerHTML =
+  box.innerHTML =
     '';
 
 
   colors.forEach(
     function(color) {
 
-      colorBox.innerHTML += `
+      box.innerHTML += `
 
         <label
           class="
             flex
             items-center
             gap-2
-            cursor-pointer
+            text-xs
           "
         >
 
@@ -3539,66 +3130,25 @@ function buildFilters() {
             type="checkbox"
             checked
             value="${color}"
-            onchange="applyFilters()"
             data-color-filter
+            onchange="applyFilters()"
           >
+
 
           <span
             style="
-              width:14px;
-              height:14px;
+              width:16px;
+              height:16px;
+              display:inline-block;
               border-radius:50%;
               background:${color};
-              display:inline-block;
-              border:1px solid #ccc;
+              border:1px solid #999;
             "
           ></span>
 
+
           <span>
             ${color}
-          </span>
-
-        </label>
-
-      `;
-
-    }
-  );
-
-
-  const descBox =
-    document.getElementById(
-      'desc3-filters'
-    );
-
-
-  descBox.innerHTML =
-    '';
-
-
-  desc3.forEach(
-    function(value) {
-
-      descBox.innerHTML += `
-
-        <label
-          class="
-            flex
-            gap-2
-            items-center
-          "
-        >
-
-          <input
-            type="checkbox"
-            checked
-            value="${escapeHtml(value)}"
-            onchange="applyFilters()"
-            data-desc3-filter
-          >
-
-          <span>
-            ${escapeHtml(value)}
           </span>
 
         </label>
@@ -3612,7 +3162,7 @@ function buildFilters() {
 
 
 /**
- * Aplica filtros.
+ * Aplicar filtros.
  */
 function applyFilters() {
 
@@ -3628,27 +3178,18 @@ function applyFilters() {
 
   selectedColors =
     new Set(
+
       [
-        ...document.querySelectorAll(
-          '[data-color-filter]:checked'
-        )
+        ...document
+          .querySelectorAll(
+            '[data-color-filter]:checked'
+          )
       ]
         .map(
-          e => e.value
+          e =>
+            e.value
         )
-    );
 
-
-  selectedDesc3 =
-    new Set(
-      [
-        ...document.querySelectorAll(
-          '[data-desc3-filter]:checked'
-        )
-      ]
-        .map(
-          e => e.value
-        )
     );
 
 
@@ -3664,43 +3205,27 @@ function applyFilters() {
           point.nombre,
           point.desc1,
           point.desc2,
-          point.desc3,
-          point.desc4
+          point.desc3
         ]
           .join(' ')
           .toLowerCase();
 
 
-      const searchOk =
-        !search ||
-        text.includes(search);
-
-
-      const colorOk =
-        selectedColors.size === 0
-          ? false
-          : selectedColors.has(
-              point.color
-            );
-
-
-      const descOk =
-        selectedDesc3.size === 0
-          ? false
-          : selectedDesc3.has(
-              String(
-                point.desc3 || ''
-              ).trim()
-            );
-
-
       const visiblePoint =
-        searchOk &&
-        colorOk &&
-        descOk;
+        (
+          !search ||
+          text.includes(
+            search
+          )
+        ) &&
+        selectedColors.has(
+          point.color
+        );
 
 
-      if (visiblePoint) {
+      if (
+        visiblePoint
+      ) {
 
         if (
           point.marker &&
@@ -3714,6 +3239,7 @@ function applyFilters() {
           );
 
         }
+
 
         visible++;
 
@@ -3749,14 +3275,11 @@ function applyFilters() {
 }
 
 
-/***************************************************************
- * =============================================================
- * 21 - FILTROS AUXILIARES
- * =============================================================
+/**
+ * Todos los colores.
  */
-
 function selectAllColors(
-  select
+  value
 ) {
 
   document
@@ -3764,9 +3287,11 @@ function selectAllColors(
       '[data-color-filter]'
     )
     .forEach(
-      checkbox => {
-        checkbox.checked =
-          select;
+      function(check) {
+
+        check.checked =
+          value;
+
       }
     );
 
@@ -3776,27 +3301,9 @@ function selectAllColors(
 }
 
 
-function selectAllDesc3(
-  select
-) {
-
-  document
-    .querySelectorAll(
-      '[data-desc3-filter]'
-    )
-    .forEach(
-      checkbox => {
-        checkbox.checked =
-          select;
-      }
-    );
-
-
-  applyFilters();
-
-}
-
-
+/**
+ * Restablecer.
+ */
 function resetFilters() {
 
   document
@@ -3807,26 +3314,30 @@ function resetFilters() {
       '';
 
 
-  selectAllColors(true);
-
-  selectAllDesc3(true);
+  selectAllColors(
+    true
+  );
 
 }
 
 
 /***************************************************************
  * =============================================================
- * 22 - RUTAS
+ * MÓDULO 23 - RUTAS
  * =============================================================
  ***************************************************************/
+
 
 function createRoute() {
 
   const name =
     prompt(
-      'Nombre de la nueva ruta:',
+      'Nombre de la ruta:',
       'Ruta ' +
-      (routes.length + 1)
+      (
+        routes.length +
+        1
+      )
     );
 
 
@@ -3866,22 +3377,18 @@ function createRoute() {
     'route'
   );
 
-
-  showToast(
-    'Ruta creada.'
-  );
-
 }
 
 
 /**
- * Ruta activa.
+ * Obtener ruta activa.
  */
 function getActiveRoute() {
 
   return routes.find(
     r =>
-      r.id === activeRouteId
+      r.id ===
+      activeRouteId
   );
 
 }
@@ -3910,17 +3417,20 @@ function selectRoute(
 
 
 /**
- * Activar modo ruta.
+ * Activar selección.
  */
 function toggleRouteMode() {
 
-  if (!activeRouteId) {
+  if (
+    !activeRouteId
+  ) {
 
     showToast(
-      'Primero crea o selecciona una ruta.'
+      'Primero crea una ruta.'
     );
 
     return;
+
   }
 
 
@@ -3934,38 +3444,48 @@ function toggleRouteMode() {
     );
 
 
-  if (routeMode) {
+  if (
+    routeMode
+  ) {
 
     button.textContent =
-      'ACTIVADO';
+      'SELECCIÓN ACTIVADA';
 
-    button.classList.remove(
-      'bg-slate-200'
-    );
 
-    button.classList.add(
-      'bg-blue-600',
-      'text-white'
-    );
+    button.classList
+      .remove(
+        'bg-slate-200'
+      );
+
+
+    button.classList
+      .add(
+        'bg-blue-600',
+        'text-white'
+      );
 
 
     showToast(
-      'Haz clic en los puntos en el orden deseado.'
+      'Selecciona los puntos en orden.'
     );
 
   } else {
 
     button.textContent =
-      'Desactivado';
+      'Activar selección';
 
-    button.classList.remove(
-      'bg-blue-600',
-      'text-white'
-    );
 
-    button.classList.add(
-      'bg-slate-200'
-    );
+    button.classList
+      .remove(
+        'bg-blue-600',
+        'text-white'
+      );
+
+
+    button.classList
+      .add(
+        'bg-slate-200'
+      );
 
   }
 
@@ -3976,7 +3496,7 @@ function toggleRouteMode() {
  * Agregar/quitar punto.
  */
 function togglePointInRoute(
-  pointId
+  id
 ) {
 
   const route =
@@ -3990,16 +3510,13 @@ function togglePointInRoute(
 
   const index =
     route.points.indexOf(
-      pointId
+      id
     );
 
 
-  if (index >= 0) {
-
-    /*
-     * Si ya estaba seleccionado,
-     * lo quitamos.
-     */
+  if (
+    index >= 0
+  ) {
 
     route.points.splice(
       index,
@@ -4008,14 +3525,8 @@ function togglePointInRoute(
 
   } else {
 
-    /*
-     * Se agrega al final,
-     * por lo que automáticamente
-     * queda 1, 2, 3...
-     */
-
     route.points.push(
-      pointId
+      id
     );
 
   }
@@ -4029,130 +3540,7 @@ function togglePointInRoute(
 
 
 /**
- * Limpiar ruta.
- */
-function clearRoute() {
-
-  const route =
-    getActiveRoute();
-
-
-  if (!route) {
-    return;
-  }
-
-
-  route.points =
-    [];
-
-
-  updateRoutePanel();
-
-  drawMarkers();
-
-}
-
-
-/**
- * Eliminar ruta.
- */
-function deleteRoute() {
-
-  if (!activeRouteId) {
-    return;
-  }
-
-
-  routes =
-    routes.filter(
-      r =>
-        r.id !== activeRouteId
-    );
-
-
-  activeRouteId =
-    routes.length
-      ? routes[0].id
-      : null;
-
-
-  routeMode =
-    false;
-
-
-  renderRoutes();
-
-  updateRoutePanel();
-
-  drawMarkers();
-
-}
-
-
-/***************************************************************
- * =============================================================
- * 23 - RENDER DE RUTAS
- * =============================================================
- */
-
-function renderRoutes() {
-
-  const select =
-    document.getElementById(
-      'route-select'
-    );
-
-
-  select.innerHTML =
-    '<option value="">-- Sin ruta --</option>';
-
-
-  routes.forEach(
-    function(route) {
-
-      const option =
-        document.createElement(
-          'option'
-        );
-
-
-      option.value =
-        route.id;
-
-
-      option.textContent =
-        route.name +
-        ' (' +
-        route.points.length +
-        ')';
-
-
-      if (
-        route.id ===
-        activeRouteId
-      ) {
-
-        option.selected =
-          true;
-
-      }
-
-
-      select.appendChild(
-        option
-      );
-
-    }
-  );
-
-
-  updateRoutePanel();
-
-}
-
-
-/**
- * Actualiza panel.
+ * Actualizar panel.
  */
 function updateRoutePanel() {
 
@@ -4205,7 +3593,8 @@ function updateRoutePanel() {
 
       const point =
         markersData.find(
-          p => p.id === id
+          p =>
+            p.id === id
         );
 
 
@@ -4222,9 +3611,7 @@ function updateRoutePanel() {
             items-center
             gap-2
             p-2
-            bg-slate-50
-            rounded
-            border
+            border-b
           "
         >
 
@@ -4235,11 +3622,11 @@ function updateRoutePanel() {
               rounded-full
               bg-blue-600
               text-white
-              text-xs
-              font-bold
               flex
               items-center
               justify-center
+              font-bold
+              text-xs
             "
           >
             ${index + 1}
@@ -4255,17 +3642,6 @@ function updateRoutePanel() {
             ${escapeHtml(point.nombre)}
           </span>
 
-
-          <button
-            onclick="removeRoutePoint('${point.id}')"
-            class="
-              text-red-500
-              text-xs
-            "
-          >
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-
         </div>
 
       `;
@@ -4280,11 +3656,9 @@ function updateRoutePanel() {
 
 
 /**
- * Quitar punto.
+ * Limpiar ruta.
  */
-function removeRoutePoint(
-  pointId
-) {
+function clearRoute() {
 
   const route =
     getActiveRoute();
@@ -4296,10 +3670,7 @@ function removeRoutePoint(
 
 
   route.points =
-    route.points.filter(
-      id =>
-        id !== pointId
-    );
+    [];
 
 
   updateRoutePanel();
@@ -4311,9 +3682,10 @@ function removeRoutePoint(
 
 /***************************************************************
  * =============================================================
- * 24 - DISTANCIA DE RUTA
+ * MÓDULO 24 - DISTANCIA
  * =============================================================
- */
+ ***************************************************************/
+
 
 function calculateRouteDistance() {
 
@@ -4352,7 +3724,9 @@ function calculateRouteDistance() {
       markersData.find(
         p =>
           p.id ===
-          route.points[i - 1]
+          route.points[
+            i - 1
+          ]
       );
 
 
@@ -4364,7 +3738,10 @@ function calculateRouteDistance() {
       );
 
 
-    if (!a || !b) {
+    if (
+      !a ||
+      !b
+    ) {
       continue;
     }
 
@@ -4406,31 +3783,52 @@ function distanceKm(
 
 
   const dLat =
-    (lat2 - lat1) *
-    Math.PI / 180;
+    (
+      lat2 -
+      lat1
+    ) *
+    Math.PI /
+    180;
 
 
   const dLon =
-    (lon2 - lon1) *
-    Math.PI / 180;
+    (
+      lon2 -
+      lon1
+    ) *
+    Math.PI /
+    180;
 
 
   const a =
-    Math.sin(dLat / 2) ** 2 +
+    Math.sin(
+      dLat / 2
+    ) ** 2 +
+
     Math.cos(
-      lat1 * Math.PI / 180
+      lat1 *
+      Math.PI /
+      180
     ) *
+
     Math.cos(
-      lat2 * Math.PI / 180
+      lat2 *
+      Math.PI /
+      180
     ) *
-    Math.sin(dLon / 2) ** 2;
+
+    Math.sin(
+      dLon / 2
+    ) ** 2;
 
 
   return 2 *
     R *
     Math.atan2(
       Math.sqrt(a),
-      Math.sqrt(1 - a)
+      Math.sqrt(
+        1 - a
+      )
     );
 
 }
@@ -4438,9 +3836,10 @@ function distanceKm(
 
 /***************************************************************
  * =============================================================
- * 25 - GOOGLE MAPS
+ * MÓDULO 25 - GOOGLE MAPS
  * =============================================================
- */
+ ***************************************************************/
+
 
 function openGoogleRoute() {
 
@@ -4471,7 +3870,9 @@ function openGoogleRoute() {
               p.id === id
           )
       )
-      .filter(Boolean);
+      .filter(
+        Boolean
+      );
 
 
   const origin =
@@ -4521,7 +3922,9 @@ function openGoogleRoute() {
     );
 
 
-  if (waypoints) {
+  if (
+    waypoints
+  ) {
 
     url +=
       '&waypoints=' +
@@ -4546,9 +3949,840 @@ function openGoogleRoute() {
 
 /***************************************************************
  * =============================================================
- * 26 - EXPORTAR KML
+ * MÓDULO 26 - KML
  * =============================================================
+ ***************************************************************/
+
+
+function processKML(
+  fileName,
+  xmlText
+) {
+
+  const parser =
+    new DOMParser();
+
+
+  const xml =
+    parser.parseFromString(
+      xmlText,
+      'text/xml'
+    );
+
+
+  const placemarks =
+    xml.getElementsByTagName(
+      'Placemark'
+    );
+
+
+  if (
+    !placemarks.length
+  ) {
+
+    showToast(
+      'No se encontraron puntos.'
+    );
+
+    return;
+
+  }
+
+
+  clearMap();
+
+  markersData = [];
+
+
+  for (
+    let i = 0;
+    i < placemarks.length;
+    i++
+  ) {
+
+    const placemark =
+      placemarks[i];
+
+
+    const point =
+      placemark.getElementsByTagName(
+        'Point'
+      )[0];
+
+
+    if (!point) {
+      continue;
+    }
+
+
+    const coordinates =
+      point.getElementsByTagName(
+        'coordinates'
+      )[0];
+
+
+    if (!coordinates) {
+      continue;
+    }
+
+
+    const values =
+      coordinates
+        .textContent
+        .trim()
+        .split(',');
+
+
+    const longitud =
+      parseFloat(
+        values[0]
+      );
+
+
+    const latitud =
+      parseFloat(
+        values[1]
+      );
+
+
+    if (
+      isNaN(latitud) ||
+      isNaN(longitud)
+    ) {
+
+      continue;
+
+    }
+
+
+    const nameNode =
+      placemark.getElementsByTagName(
+        'name'
+      )[0];
+
+
+    const nombre =
+      nameNode
+        ? nameNode.textContent.trim()
+        : 'Punto ' +
+          (
+            i + 1
+          );
+
+
+    const descNode =
+      placemark.getElementsByTagName(
+        'description'
+      )[0];
+
+
+    const description =
+      descNode
+        ? descNode.textContent
+        : '';
+
+
+    const descriptions =
+      splitDescription(
+        description
+      );
+
+
+    /*
+     * Buscar color KML.
+     */
+
+    let color =
+      null;
+
+
+    const styleUrl =
+      placemark.getElementsByTagName(
+        'styleUrl'
+      )[0];
+
+
+    if (
+      styleUrl
+    ) {
+
+      const styleId =
+        styleUrl
+          .textContent
+          .trim()
+          .replace(
+            '#',
+            ''
+          );
+
+
+      const style =
+        xml.getElementById(
+          styleId
+        );
+
+
+      if (
+        style
+      ) {
+
+        const colorNode =
+          style
+            .getElementsByTagName(
+              'color'
+            )[0];
+
+
+        if (
+          colorNode
+        ) {
+
+          color =
+            kmlColorToHex(
+              colorNode
+                .textContent
+                .trim()
+            );
+
+        }
+
+      }
+
+    }
+
+
+    if (
+      !color
+    ) {
+
+      color =
+        DEFAULT_COLORS[
+          i %
+          DEFAULT_COLORS.length
+        ];
+
+    }
+
+
+    markersData.push({
+
+      id:
+        'kml_' +
+        Date.now() +
+        '_' +
+        i,
+
+      row:
+        i + 1,
+
+      orden:
+        markersData.length + 1,
+
+      nombre:
+        nombre,
+
+      latitud:
+        latitud,
+
+      longitud:
+        longitud,
+
+      desc1:
+        descriptions[0] ||
+        '',
+
+      desc2:
+        descriptions[1] ||
+        '',
+
+      desc3:
+        descriptions[2] ||
+        '',
+
+      color:
+        color,
+
+      marker:
+        null
+
+    });
+
+  }
+
+
+  currentFile =
+    fileName;
+
+
+  currentFileType =
+    'kml';
+
+
+  currentSheetId =
+    '';
+
+
+  drawMarkers();
+
+  refreshInterface();
+
+  zoomAll();
+
+
+  showToast(
+    markersData.length +
+    ' puntos cargados.'
+  );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 27 - ABRIR ARCHIVO DRIVE
+ * =============================================================
+ ***************************************************************/
+
+
+function openSelectedFile() {
+
+  const fileId =
+    document
+      .getElementById(
+        'file-select'
+      )
+      .value;
+
+
+  if (!fileId) {
+    return;
+  }
+
+
+  currentFileId =
+    fileId;
+
+
+  google.script.run
+
+    .withSuccessHandler(
+      function(info) {
+
+        if (
+          info.success &&
+          info.rows
+        ) {
+
+          processExcel(
+            info.fileName,
+            info.rows
+          );
+
+
+          currentFileId =
+            fileId;
+
+
+          currentFile =
+            info.fileName;
+
+
+          currentFileType =
+            'excel';
+
+
+          currentSheetId =
+            info.sheetId;
+
+
+          document
+            .getElementById(
+              'export-box'
+            )
+            .classList
+            .remove(
+              'hidden'
+            );
+
+
+          showToast(
+            'Excel abierto.'
+          );
+
+
+          return;
+
+        }
+
+
+        /*
+         * Si no existe hoja asociada,
+         * intentamos como KML.
+         */
+
+        google.script.run
+
+          .withSuccessHandler(
+            function(kml) {
+
+              if (
+                kml &&
+                kml.content
+              ) {
+
+                originalKML =
+                  kml.content;
+
+
+                currentFileId =
+                  fileId;
+
+
+                processKML(
+                  kml.fileName,
+                  kml.content
+                );
+
+              }
+
+            }
+          )
+
+          .withFailureHandler(
+            function(error) {
+
+              console.error(
+                error
+              );
+
+              showToast(
+                'No se pudo abrir el archivo.'
+              );
+
+            }
+          )
+
+          .getKMLContent(
+            fileId
+          );
+
+      }
+    )
+
+    .withFailureHandler(
+      function(error) {
+
+        console.error(
+          error
+        );
+
+        showToast(
+          'Error al abrir archivo.'
+        );
+
+      }
+    )
+
+    .getExcelData(
+      fileId
+    );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 28 - LISTA DRIVE
+ * =============================================================
+ ***************************************************************/
+
+
+function refreshFiles() {
+
+  google.script.run
+
+    .withSuccessHandler(
+      function(files) {
+
+        const select =
+          document
+            .getElementById(
+              'file-select'
+            );
+
+
+        select.innerHTML =
+          '<option value="">-- Seleccionar --</option>';
+
+
+        files.forEach(
+          function(file) {
+
+            const option =
+              document.createElement(
+                'option'
+              );
+
+
+            option.value =
+              file.id;
+
+
+            option.textContent =
+              file.name;
+
+
+            select.appendChild(
+              option
+            );
+
+          }
+        );
+
+      }
+    )
+
+    .withFailureHandler(
+      function(error) {
+
+        console.error(
+          error
+        );
+
+        showToast(
+          'No se pudo consultar Drive.'
+        );
+
+      }
+    )
+
+    .getDriveFiles();
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 29 - ACTUALIZAR INTERFAZ
+ * =============================================================
+ ***************************************************************/
+
+
+function refreshInterface() {
+
+  document
+    .getElementById(
+      'marker-count'
+    )
+    .textContent =
+      markersData.length +
+      ' puntos';
+
+
+  renderPointsList();
+
+  renderTable();
+
+  buildFilters();
+
+  renderRoutes();
+
+}
+
+
+/**
+ * Lista de puntos.
  */
+function renderPointsList() {
+
+  const container =
+    document
+      .getElementById(
+        'points-list'
+      );
+
+
+  container.innerHTML =
+    '';
+
+
+  markersData.forEach(
+    function(point) {
+
+      container.innerHTML += `
+
+        <button
+          onclick="focusPoint('${point.id}')"
+          class="
+            w-full
+            flex
+            items-center
+            gap-2
+            p-2
+            text-left
+            border-b
+            hover:bg-slate-50
+          "
+        >
+
+          <span
+            style="
+              width:12px;
+              height:12px;
+              background:${point.color};
+              border-radius:50%;
+              display:inline-block;
+            "
+          ></span>
+
+
+          <span
+            class="
+              flex-1
+              truncate
+              text-xs
+            "
+          >
+            ${escapeHtml(point.nombre)}
+          </span>
+
+
+          <span
+            class="
+              text-[10px]
+              text-slate-400
+            "
+          >
+            #${point.orden}
+          </span>
+
+        </button>
+
+      `;
+
+    }
+  );
+
+}
+
+
+/**
+ * Enfocar punto.
+ */
+function focusPoint(
+  id
+) {
+
+  const point =
+    markersData.find(
+      p =>
+        p.id === id
+    );
+
+
+  if (!point) {
+    return;
+  }
+
+
+  map.setView(
+    [
+      point.latitud,
+      point.longitud
+    ],
+    18
+  );
+
+
+  openPointEditor(
+    point
+  );
+
+}
+
+
+/**
+ * Zoom general.
+ */
+function zoomAll() {
+
+  const coordinates =
+    markersData.map(
+      p =>
+        [
+          p.latitud,
+          p.longitud
+        ]
+    );
+
+
+  if (
+    !coordinates.length
+  ) {
+
+    return;
+
+  }
+
+
+  map.fitBounds(
+    coordinates,
+    {
+      padding:
+        [40, 40]
+    }
+  );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 30 - REDIBUJAR
+ * =============================================================
+ ***************************************************************/
+
+
+function redrawPoint(
+  point
+) {
+
+  if (
+    point.marker
+  ) {
+
+    try {
+
+      map.removeLayer(
+        point.marker
+      );
+
+    } catch (e) {}
+
+  }
+
+
+  point.marker =
+    createMarker(
+      point
+    );
+
+}
+
+
+/**
+ * Limpiar mapa.
+ */
+function clearMap() {
+
+  markerLayer.forEach(
+    function(marker) {
+
+      try {
+
+        map.removeLayer(
+          marker
+        );
+
+      } catch (e) {}
+
+    }
+  );
+
+
+  markerLayer =
+    [];
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 31 - GUARDAR EXCEL ACTUALIZADO
+ * =============================================================
+ ***************************************************************/
+
+
+function saveCurrentExcel() {
+
+  if (
+    !currentSheetId
+  ) {
+
+    showToast(
+      'No hay un Excel editable.'
+    );
+
+    return;
+
+  }
+
+
+  showToast(
+    'Generando Excel actualizado...'
+  );
+
+
+  google.script.run
+
+    .withSuccessHandler(
+      function(result) {
+
+        currentFileId =
+          result.fileId;
+
+
+        currentFile =
+          result.fileName;
+
+
+        refreshFiles();
+
+
+        showToast(
+          'Excel actualizado y guardado en Drive.'
+        );
+
+      }
+    )
+
+    .withFailureHandler(
+      function(error) {
+
+        console.error(
+          error
+        );
+
+
+        showToast(
+          'Error al guardar Excel.'
+        );
+
+      }
+    )
+
+    .exportWorkingSheetToExcel({
+
+      sheetId:
+        currentSheetId,
+
+      fileId:
+        currentFileId,
+
+      fileName:
+        currentFile
+
+    });
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 32 - EXPORTAR KML
+ * =============================================================
+ ***************************************************************/
+
 
 function downloadKML() {
 
@@ -4557,7 +4791,7 @@ function downloadKML() {
   ) {
 
     showToast(
-      'No hay puntos para exportar.'
+      'No hay puntos.'
     );
 
     return;
@@ -4565,87 +4799,12 @@ function downloadKML() {
   }
 
 
-  const styles = {};
-
-  let stylesXml =
-    '';
-
-
-  markersData.forEach(
-    function(point, index) {
-
-      const color =
-        point.color ||
-        '#ef4444';
-
-
-      const styleId =
-        'style_' +
-        color
-          .replace('#', '');
-
-
-      if (
-        !styles[styleId]
-      ) {
-
-        styles[styleId] =
-          true;
-
-
-        stylesXml += `
-
-          <Style id="${styleId}">
-
-            <IconStyle>
-
-              <color>
-                ${hexToKmlColor(color)}
-              </color>
-
-              <scale>1.1</scale>
-
-              <Icon>
-
-                <href>
-                  http://maps.google.com/mapfiles/kml/pushpin/red-pushpin.png
-                </href>
-
-              </Icon>
-
-            </IconStyle>
-
-          </Style>
-
-        `;
-
-      }
-
-    }
-  );
-
-
   let placemarks =
     '';
 
 
   markersData.forEach(
-    function(point, index) {
-
-      const styleId =
-        'style_' +
-        (
-          point.color ||
-          '#ef4444'
-        )
-        .replace('#', '');
-
-
-      const description =
-        buildKMLDescription(
-          point
-        );
-
+    function(point) {
 
       placemarks += `
 
@@ -4655,20 +4814,38 @@ function downloadKML() {
             ${escapeXml(point.nombre)}
           </name>
 
-          <styleUrl>
-            #${styleId}
-          </styleUrl>
-
           <description>
             <![CDATA[
-              ${description}
+              ${escapeHtml(point.desc1)}
+              <br>
+              ${escapeHtml(point.desc2)}
+              <br>
+              ${escapeHtml(point.desc3)}
             ]]>
           </description>
+
+          <Style>
+
+            <IconStyle>
+
+              <color>
+                ${hexToKmlColor(point.color)}
+              </color>
+
+              <scale>
+                1.1
+              </scale>
+
+            </IconStyle>
+
+          </Style>
 
           <Point>
 
             <coordinates>
-              ${point.longitud},${point.latitud},0
+              ${point.longitud},
+              ${point.latitud},
+              0
             </coordinates>
 
           </Point>
@@ -4682,7 +4859,7 @@ function downloadKML() {
 
 
   /*
-   * Agregar rutas
+   * RUTAS
    */
 
   routes.forEach(
@@ -4691,7 +4868,9 @@ function downloadKML() {
       if (
         route.points.length < 2
       ) {
+
         return;
+
       }
 
 
@@ -4704,7 +4883,9 @@ function downloadKML() {
                   p.id === id
               )
           )
-          .filter(Boolean)
+          .filter(
+            Boolean
+          )
           .map(
             p =>
               p.longitud +
@@ -4770,10 +4951,8 @@ function downloadKML() {
 <Document>
 
   <name>
-    Visualizador actualizado
+    Visualizador
   </name>
-
-  ${stylesXml}
 
   ${placemarks}
 
@@ -4811,11 +4990,7 @@ function downloadKML() {
 
 
   a.download =
-    getExportName(
-      currentFile ||
-      'mapa'
-    ) +
-    '.kml';
+    'mapa_actualizado.kml';
 
 
   document.body.appendChild(
@@ -4843,322 +5018,10 @@ function downloadKML() {
 
 /***************************************************************
  * =============================================================
- * 27 - GUARDAR EXCEL ACTUALIZADO
+ * MÓDULO 33 - DESCRIPCIONES
  * =============================================================
- */
+ ***************************************************************/
 
-function saveCurrentExcel() {
-
-  if (
-    currentFileType !==
-    'excel' ||
-    !currentSheetId
-  ) {
-
-    showToast(
-      'No hay un Excel editable.'
-    );
-
-    return;
-
-  }
-
-
-  const rows = [
-
-    [
-      'Orden',
-      'Nombre',
-      'Latitud',
-      'Longitud',
-      'Descripción 1',
-      'Descripción 2',
-      'Descripción 3',
-      'Descripción 4'
-    ]
-
-  ];
-
-
-  markersData.forEach(
-    function(point) {
-
-      rows.push([
-
-        point.orden,
-        point.nombre,
-        point.latitud,
-        point.longitud,
-        point.desc1,
-        point.desc2,
-        point.desc3,
-        point.desc4
-
-      ]);
-
-    }
-  );
-
-
-  showToast(
-    'Generando Excel actualizado...'
-  );
-
-
-  google.script.run
-
-    .withSuccessHandler(
-      function(result) {
-
-        currentFile =
-          result.fileName;
-
-
-        refreshFiles();
-
-
-        showToast(
-          'Excel actualizado correctamente.'
-        );
-
-      }
-    )
-
-    .withFailureHandler(
-      function(error) {
-
-        console.error(error);
-
-        showToast(
-          'Error al generar Excel.'
-        );
-
-      }
-    )
-
-    .exportWorkingSheetToExcel({
-
-      sheetId:
-        currentSheetId,
-
-      fileId:
-        getSelectedFileId(),
-
-      fileName:
-        currentFile,
-
-      rows:
-        rows
-
-    });
-
-}
-
-
-/***************************************************************
- * =============================================================
- * 28 - INTERFAZ
- * =============================================================
- */
-
-function refreshInterface() {
-
-  document
-    .getElementById(
-      'marker-count'
-    )
-    .textContent =
-      markersData.length +
-      ' puntos';
-
-
-  renderPointsList();
-
-  renderTable();
-
-  buildFilters();
-
-  renderRoutes();
-
-}
-
-
-/**
- * Lista lateral.
- */
-function renderPointsList() {
-
-  const container =
-    document.getElementById(
-      'points-list'
-    );
-
-
-  container.innerHTML =
-    '';
-
-
-  markersData.forEach(
-    function(point, index) {
-
-      container.innerHTML += `
-
-        <button
-          onclick="focusPoint('${point.id}')"
-          class="
-            w-full
-            text-left
-            flex
-            items-center
-            gap-2
-            p-2
-            rounded
-            hover:bg-slate-100
-            border-b
-          "
-        >
-
-          <span
-            style="
-              width:12px;
-              height:12px;
-              background:${point.color};
-              border-radius:50%;
-              display:inline-block;
-              flex-shrink:0;
-            "
-          ></span>
-
-
-          <span
-            class="
-              flex-1
-              truncate
-              text-xs
-            "
-          >
-            ${escapeHtml(point.nombre)}
-          </span>
-
-
-          <span
-            class="
-              text-[10px]
-              text-slate-400
-            "
-          >
-            ${index + 1}
-          </span>
-
-        </button>
-
-      `;
-
-    }
-  );
-
-}
-
-
-/**
- * Centrar punto.
- */
-function focusPoint(
-  id
-) {
-
-  const point =
-    markersData.find(
-      p => p.id === id
-    );
-
-
-  if (!point) {
-    return;
-  }
-
-
-  map.setView(
-    [
-      point.latitud,
-      point.longitud
-    ],
-    18
-  );
-
-
-  openPointEditor(
-    point
-  );
-
-}
-
-
-/**
- * Zoom general.
- */
-function zoomAll() {
-
-  const bounds =
-    markersData
-      .map(
-        p =>
-          [
-            p.latitud,
-            p.longitud
-          ]
-      );
-
-
-  if (!bounds.length) {
-    return;
-  }
-
-
-  map.fitBounds(
-    bounds,
-    {
-      padding: [40, 40]
-    }
-  );
-
-}
-
-
-/***************************************************************
- * =============================================================
- * 29 - LIMPIAR MAPA
- * =============================================================
- */
-
-function clearMap() {
-
-  markerLayer.forEach(
-    function(marker) {
-
-      try {
-
-        map.removeLayer(
-          marker
-        );
-
-      } catch (e) {}
-
-    }
-  );
-
-
-  markerLayer =
-    [];
-
-}
-
-
-/***************************************************************
- * =============================================================
- * 30 - DESCRIPCIONES KML
- * =============================================================
- */
 
 function splitDescription(
   description
@@ -5168,10 +5031,6 @@ function splitDescription(
     return [];
   }
 
-
-  /*
-   * Primero eliminar etiquetas HTML.
-   */
 
   let text =
     description
@@ -5195,10 +5054,6 @@ function splitDescription(
     );
 
 
-  /*
-   * Detectar separador.
-   */
-
   let parts;
 
 
@@ -5207,8 +5062,9 @@ function splitDescription(
   ) {
 
     parts =
-      text
-        .split(/\n+/);
+      text.split(
+        /\n+/
+      );
 
   } else if (
     text.includes('|')
@@ -5238,8 +5094,7 @@ function splitDescription(
         p.trim()
     )
     .filter(
-      p =>
-        p !== ''
+      Boolean
     );
 
 }
@@ -5247,63 +5102,10 @@ function splitDescription(
 
 /***************************************************************
  * =============================================================
- * 31 - DESCRIPCIÓN KML
+ * MÓDULO 34 - COLORES KML
  * =============================================================
- */
+ ***************************************************************/
 
-function buildKMLDescription(
-  point
-) {
-
-  const parts = [
-
-    point.desc1,
-    point.desc2,
-    point.desc3,
-    point.desc4
-
-  ]
-    .map(
-      p =>
-        String(
-          p || ''
-        ).trim()
-    )
-    .filter(Boolean);
-
-
-  /*
-   * Utilizamos <br>
-   * para conservar las diferentes
-   * secciones.
-   */
-
-  return parts
-    .map(
-      escapeXml
-    )
-    .join(
-      '<br>'
-    );
-
-}
-
-
-/***************************************************************
- * =============================================================
- * 32 - COLORES KML
- * =============================================================
- */
-
-/*
- * KML:
- *
- * AABBGGRR
- *
- * Ejemplo:
- *
- * ff0000ff = rojo
- */
 
 function kmlColorToHex(
   value
@@ -5311,9 +5113,16 @@ function kmlColorToHex(
 
   let color =
     value
-      .replace('#', '')
+      .replace(
+        '#',
+        ''
+      )
       .trim();
 
+
+  /*
+   * KML = AABBGGRR
+   */
 
   if (
     color.length === 8
@@ -5358,58 +5167,56 @@ function kmlColorToHex(
   }
 
 
-  return '#ef4444';
+  return '#FF0000';
 
 }
 
 
-/**
- * HEX -> KML
- */
 function hexToKmlColor(
   hex
 ) {
 
-  let value =
-    hex
-      .replace('#', '');
+  let color =
+    String(
+      hex ||
+      '#FF0000'
+    )
+      .replace(
+        '#',
+        ''
+      );
 
 
   if (
-    value.length !== 6
+    color.length !== 6
   ) {
 
-    value =
-      'ef4444';
+    color =
+      'FF0000';
 
   }
 
 
   const rr =
-    value.substring(
+    color.substring(
       0,
       2
     );
 
 
   const gg =
-    value.substring(
+    color.substring(
       2,
       4
     );
 
 
   const bb =
-    value.substring(
+    color.substring(
       4,
       6
     );
 
-
-  /*
-   * ff = opacidad
-   * + BB + GG + RR
-   */
 
   return 'ff' +
     bb +
@@ -5421,9 +5228,10 @@ function hexToKmlColor(
 
 /***************************************************************
  * =============================================================
- * 33 - UTILIDADES
+ * MÓDULO 35 - UTILIDADES
  * =============================================================
- */
+ ***************************************************************/
+
 
 function escapeHtml(
   value
@@ -5506,43 +5314,14 @@ function decodeHtml(
 }
 
 
-function getExportName(
-  name
-) {
-
-  return String(
-    name || 'mapa'
-  )
-    .replace(
-      /\.[^.]+$/,
-      ''
-    )
-    .replace(
-      /[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_-]+/g,
-      '_'
-    );
-
-}
-
-
-function getSelectedFileId() {
-
-  return document
-    .getElementById(
-      'file-select'
-    )
-    .value;
-
-}
-
-
 /***************************************************************
  * =============================================================
- * 34 - TOAST
+ * MÓDULO 36 - TOAST
  * =============================================================
- */
+ ***************************************************************/
 
-let toastTimer = null;
+
+let toastTimer;
 
 
 function showToast(
@@ -5584,7 +5363,7 @@ function showToast(
         );
 
       },
-      2800
+      3000
     );
 
 }
@@ -5593,4 +5372,5 @@ function showToast(
 </script>
 
 </body>
+
 </html>
