@@ -3,974 +3,909 @@
 
 <head>
 
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
 
-  <title>Gestor de Excel y BASE</title>
+<title>Visualizador KML & Excel</title>
 
 
-  <!-- =======================================================
-       MÓDULO 01 - ESTILOS
-       ======================================================= -->
+<!-- =========================================================
+     MÓDULO 01 - LIBRERÍAS
+     ========================================================= -->
 
-  <style>
+<script src="https://cdn.tailwindcss.com"></script>
 
-    * {
-      box-sizing: border-box;
-    }
+<!-- XLSX -->
+<script
+  src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
+</script>
 
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f3f4f6;
-      color: #1f2937;
-    }
+<!-- JSZip -->
+<script
+  src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js">
+</script>
 
-    .contenedor {
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
 
-    .encabezado {
-      background: #111827;
-      color: white;
-      padding: 22px;
-      border-radius: 12px;
-      margin-bottom: 18px;
-    }
+<!-- =========================================================
+     MÓDULO 02 - ESTILOS
+     ========================================================= -->
 
-    .encabezado h1 {
-      margin: 0 0 7px 0;
-      font-size: 24px;
-    }
+<style>
 
-    .encabezado p {
-      margin: 0;
-      color: #d1d5db;
-      font-size: 14px;
-    }
+* {
+  box-sizing: border-box;
+}
 
-    .panel {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 18px;
-      border: 1px solid #e5e7eb;
-    }
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
 
-    .panel h2 {
-      margin-top: 0;
-      font-size: 18px;
-      color: #111827;
-    }
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f3f4f6;
+  color: #1f2937;
+}
 
-    .campo {
-      margin-bottom: 15px;
-    }
+#app {
+  width: 100%;
+  min-height: 100vh;
+}
 
-    .campo label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 7px;
-      font-size: 14px;
-    }
 
-    input[type="text"],
-    input[type="file"] {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      font-size: 14px;
-      background: white;
-    }
+/* ---------------------------------------------------------
+   BOTONES
+   --------------------------------------------------------- */
 
-    input[type="file"] {
-      padding: 10px;
-    }
+.btn {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: .15s;
+}
 
-    .botones {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 12px;
-    }
+.btn:hover {
+  transform: translateY(-1px);
+}
 
-    button {
-      border: none;
-      border-radius: 8px;
-      padding: 11px 16px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 14px;
-    }
+.btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  transform: none;
+}
 
-    button:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
+.btn-primary {
+  background: #1f2937;
+  color: white;
+}
 
-    .btn-principal {
-      background: #111827;
-      color: white;
-    }
+.btn-secondary {
+  background: #e5e7eb;
+  color: #111827;
+}
 
-    .btn-secundario {
-      background: #e5e7eb;
-      color: #111827;
-    }
+.btn-success {
+  background: #166534;
+  color: white;
+}
 
-    .btn-verde {
-      background: #166534;
-      color: white;
-    }
+.btn-danger {
+  background: #991b1b;
+  color: white;
+}
 
-    .btn-azul {
-      background: #1d4ed8;
-      color: white;
-    }
+.btn-blue {
+  background: #1d4ed8;
+  color: white;
+}
 
-    .btn-rojo {
-      background: #991b1b;
-      color: white;
-    }
 
-    .estado {
-      padding: 12px;
-      border-radius: 8px;
-      margin-top: 15px;
-      background: #f3f4f6;
-      font-size: 14px;
-      line-height: 1.5;
-    }
+/* ---------------------------------------------------------
+   TARJETAS
+   --------------------------------------------------------- */
 
-    .estado.ok {
-      background: #ecfdf5;
-      color: #166534;
-      border: 1px solid #bbf7d0;
-    }
+.card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+}
 
-    .estado.error {
-      background: #fef2f2;
-      color: #991b1b;
-      border: 1px solid #fecaca;
-    }
 
-    .estado.proceso {
-      background: #eff6ff;
-      color: #1e40af;
-      border: 1px solid #bfdbfe;
-    }
+/* ---------------------------------------------------------
+   INPUTS
+   --------------------------------------------------------- */
 
-    .carpeta-info {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-      padding: 12px;
-      background: #f9fafb;
-      border-radius: 8px;
-      margin-top: 10px;
-    }
+input,
+select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  background: white;
+  font-size: 14px;
+}
 
-    .carpeta-nombre {
-      font-weight: bold;
-    }
+input:focus,
+select:focus {
+  outline: 2px solid #93c5fd;
+  border-color: #2563eb;
+}
 
-    .tabla-contenedor {
-      overflow-x: auto;
-    }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 750px;
-    }
+/* ---------------------------------------------------------
+   TABLA
+   --------------------------------------------------------- */
 
-    th,
-    td {
-      border-bottom: 1px solid #e5e7eb;
-      padding: 11px 10px;
-      text-align: left;
-      font-size: 13px;
-    }
+.tabla-contenedor {
+  width: 100%;
+  overflow: auto;
+  max-height: 560px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
 
-    th {
-      background: #f9fafb;
-      font-weight: bold;
-    }
+table {
+  border-collapse: collapse;
+  width: max-content;
+  min-width: 100%;
+}
 
-    tr:hover td {
-      background: #f9fafb;
-    }
+th,
+td {
+  border-bottom: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+  padding: 8px 10px;
+  white-space: nowrap;
+  font-size: 13px;
+}
 
-    .acciones {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
+th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #111827;
+  color: white;
+  cursor: pointer;
+}
 
-    .acciones button {
-      padding: 7px 10px;
-      font-size: 12px;
-    }
+th:hover {
+  background: #374151;
+}
 
-    .resultado-grid {
-      display: grid;
-      grid-template-columns:
-        repeat(auto-fit, minmax(170px, 1fr));
-      gap: 10px;
-      margin-top: 15px;
-    }
+td {
+  background: white;
+}
 
-    .resultado-item {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 12px;
-    }
+tr:hover td {
+  background: #f9fafb;
+}
 
-    .resultado-item span {
-      display: block;
-      color: #6b7280;
-      font-size: 12px;
-      margin-bottom: 5px;
-    }
 
-    .resultado-item strong {
-      font-size: 18px;
-      color: #111827;
-    }
+/* ---------------------------------------------------------
+   PAGINACIÓN
+   --------------------------------------------------------- */
 
-    .oculto {
-      display: none !important;
-    }
+.paginacion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
 
-    .separador {
-      height: 1px;
-      background: #e5e7eb;
-      margin: 18px 0;
-    }
+.pagina {
+  min-width: 38px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: white;
+  cursor: pointer;
+}
 
-    .nota {
-      font-size: 12px;
-      color: #6b7280;
-      line-height: 1.5;
-    }
+.pagina.activa {
+  background: #111827;
+  color: white;
+}
 
-    .cargando {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid #d1d5db;
-      border-top-color: #111827;
-      border-radius: 50%;
-      animation: giro .7s linear infinite;
-      margin-right: 6px;
-      vertical-align: middle;
-    }
 
-    @keyframes giro {
-      to {
-        transform: rotate(360deg);
-      }
-    }
+/* ---------------------------------------------------------
+   MAPA
+   --------------------------------------------------------- */
 
-    @media (max-width: 600px) {
+#mapa {
+  width: 100%;
+  height: 620px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #e5e7eb;
+  position: relative;
+}
 
-      .contenedor {
-        padding: 10px;
-      }
+#mapa iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
 
-      .panel {
-        padding: 15px;
-      }
 
-      .encabezado {
-        padding: 17px;
-      }
+/* ---------------------------------------------------------
+   KML
+   --------------------------------------------------------- */
 
-      .encabezado h1 {
-        font-size: 20px;
-      }
+.kml-info {
+  max-height: 280px;
+  overflow: auto;
+}
 
-      button {
-        width: 100%;
-      }
+.kml-elemento {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 9px;
+  cursor: pointer;
+}
 
-      .acciones button {
-        width: auto;
-      }
+.kml-elemento:hover {
+  background: #f3f4f6;
+}
 
-    }
 
-  </style>
+/* ---------------------------------------------------------
+   ESTADOS
+   --------------------------------------------------------- */
+
+.estado {
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.estado-normal {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.estado-ok {
+  background: #ecfdf5;
+  color: #166534;
+}
+
+.estado-error {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.estado-proceso {
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+
+/* ---------------------------------------------------------
+   INDICADORES
+   --------------------------------------------------------- */
+
+.indicadores {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.indicador {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.indicador-label {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.indicador-valor {
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 3px;
+}
+
+
+/* ---------------------------------------------------------
+   LAYOUT
+   --------------------------------------------------------- */
+
+.grid-principal {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 16px;
+}
+
+.columna {
+  min-width: 0;
+}
+
+@media(max-width: 900px) {
+
+  .grid-principal {
+    grid-template-columns: 1fr;
+  }
+
+  #mapa {
+    height: 500px;
+  }
+
+}
+
+</style>
 
 </head>
 
 
 <body>
 
-<div class="contenedor">
+
+<div id="app">
 
 
   <!-- =======================================================
-       MÓDULO 02 - ENCABEZADO
+       MÓDULO 03 - ENCABEZADO
        ======================================================= -->
 
-  <div class="encabezado">
+  <header class="bg-gray-900 text-white px-5 py-4">
 
-    <h1>
-      Gestor de Excel y actualización de BASE
-    </h1>
+    <div class="max-w-[1600px] mx-auto">
 
-    <p>
-      Los archivos Excel se conservan en Google Drive y
-      pueden volver a visualizarse o procesarse posteriormente.
-    </p>
+      <h1 class="text-xl font-bold">
+        Visualizador KML & Excel
+      </h1>
 
-  </div>
-
-
-  <!-- =======================================================
-       MÓDULO 03 - CARPETA DRIVE
-       ======================================================= -->
-
-  <div class="panel">
-
-    <h2>
-      1. Carpeta de Google Drive
-    </h2>
-
-    <div class="campo">
-
-      <label for="txtCarpeta">
-        Link o ID de la carpeta
-      </label>
-
-      <input
-        type="text"
-        id="txtCarpeta"
-        placeholder="Pega aquí el enlace o ID de la carpeta de Drive"
-      >
+      <p class="text-sm text-gray-300 mt-1">
+        Visualiza archivos Excel y KML directamente desde tu
+        computadora.
+      </p>
 
     </div>
 
-    <div class="botones">
-
-      <button
-        type="button"
-        class="btn-principal"
-        id="btnGuardarCarpeta"
-      >
-        Guardar carpeta
-      </button>
-
-      <button
-        type="button"
-        class="btn-secundario"
-        id="btnCambiarCarpeta"
-      >
-        Cambiar carpeta
-      </button>
-
-    </div>
+  </header>
 
 
-    <div
-      id="carpetaInfo"
-      class="carpeta-info oculto"
-    >
-
-      <div>
-        Carpeta activa:
-        <span
-          id="nombreCarpeta"
-          class="carpeta-nombre"
-        >
-        </span>
-      </div>
-
-    </div>
-
-
-    <div
-      id="estadoCarpeta"
-      class="estado"
-    >
-      Verificando configuración...
-    </div>
-
-  </div>
-
-
-  <!-- =======================================================
-       MÓDULO 04 - CARGAR EXCEL
-       ======================================================= -->
-
-  <div class="panel">
-
-    <h2>
-      2. Cargar un Excel
-    </h2>
-
-    <div class="campo">
-
-      <label for="archivoExcel">
-        Seleccionar archivo Excel
-      </label>
-
-      <input
-        type="file"
-        id="archivoExcel"
-        accept=".xlsx,.xls,.xlsm"
-      >
-
-    </div>
-
-
-    <div class="botones">
-
-      <button
-        type="button"
-        class="btn-principal"
-        id="btnSubir"
-      >
-        Guardar Excel en Drive
-      </button>
-
-    </div>
-
-
-    <div
-      id="estadoCarga"
-      class="estado"
-    >
-      Selecciona un Excel para comenzar.
-    </div>
-
-  </div>
-
-
-  <!-- =======================================================
-       MÓDULO 05 - ARCHIVOS GUARDADOS
-       ======================================================= -->
-
-  <div class="panel">
-
-    <h2>
-      3. Excel guardados en Drive
-    </h2>
-
-    <div class="botones">
-
-      <button
-        type="button"
-        class="btn-azul"
-        id="btnActualizarLista"
-      >
-        Actualizar lista
-      </button>
-
-    </div>
-
-
-    <div
-      id="estadoLista"
-      class="estado"
-    >
-      Cargando archivos...
-    </div>
-
-
-    <div class="tabla-contenedor">
-
-      <table>
-
-        <thead>
-
-          <tr>
-
-            <th>
-              Archivo
-            </th>
-
-            <th>
-              Fecha
-            </th>
-
-            <th>
-              Tamaño
-            </th>
-
-            <th>
-              Acciones
-            </th>
-
-          </tr>
-
-        </thead>
-
-        <tbody
-          id="tablaArchivos"
-        >
-
-        </tbody>
-
-      </table>
-
-    </div>
-
-  </div>
-
-
-  <!-- =======================================================
-       MÓDULO 06 - RESULTADO
-       ======================================================= -->
-
-  <div
-    class="panel oculto"
-    id="panelResultado"
+  <main
+    class="max-w-[1600px] mx-auto p-4"
   >
 
-    <h2>
-      Resultado del procesamiento
-    </h2>
+
+    <!-- =====================================================
+         MÓDULO 04 - HERRAMIENTAS PRINCIPALES
+         ===================================================== -->
+
+    <div class="grid-principal">
 
 
-    <div
-      id="mensajeResultado"
-      class="estado ok"
-    >
+      <!-- ===================================================
+           COLUMNA IZQUIERDA
+           =================================================== -->
+
+      <div class="columna">
+
+
+        <!-- ================================================
+             EXCEL
+             ================================================ -->
+
+        <div class="card mb-4">
+
+          <h2 class="font-bold text-lg mb-3">
+            Excel
+          </h2>
+
+          <label
+            class="text-sm font-semibold block mb-2"
+          >
+            Cargar archivo Excel
+          </label>
+
+          <input
+            type="file"
+            id="excelInput"
+            accept=".xlsx,.xls,.csv"
+          >
+
+          <div
+            id="estadoExcel"
+            class="estado estado-normal mt-3"
+          >
+            Selecciona un archivo Excel.
+          </div>
+
+        </div>
+
+
+        <!-- ================================================
+             HOJAS
+             ================================================ -->
+
+        <div
+          class="card mb-4"
+          id="panelHojas"
+          style="display:none;"
+        >
+
+          <h2 class="font-bold text-lg mb-3">
+            Hoja
+          </h2>
+
+          <select
+            id="selectorHoja"
+          >
+          </select>
+
+        </div>
+
+
+        <!-- ================================================
+             BUSCADOR
+             ================================================ -->
+
+        <div
+          class="card mb-4"
+          id="panelBusqueda"
+          style="display:none;"
+        >
+
+          <h2 class="font-bold text-lg mb-3">
+            Buscar
+          </h2>
+
+          <input
+            type="text"
+            id="buscador"
+            placeholder="Escribe lo que deseas buscar..."
+          >
+
+          <div class="botones mt-3 flex gap-2 flex-wrap">
+
+            <button
+              class="btn btn-primary"
+              id="btnBuscar"
+            >
+              Buscar
+            </button>
+
+            <button
+              class="btn btn-secondary"
+              id="btnLimpiarBusqueda"
+            >
+              Limpiar
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- ================================================
+             ESTADÍSTICAS
+             ================================================ -->
+
+        <div
+          class="card mb-4"
+          id="panelIndicadores"
+          style="display:none;"
+        >
+
+          <h2 class="font-bold text-lg mb-3">
+            Información
+          </h2>
+
+          <div class="indicadores">
+
+            <div class="indicador">
+
+              <div class="indicador-label">
+                Filas
+              </div>
+
+              <div
+                class="indicador-valor"
+                id="totalFilas"
+              >
+                0
+              </div>
+
+            </div>
+
+            <div class="indicador">
+
+              <div class="indicador-label">
+                Columnas
+              </div>
+
+              <div
+                class="indicador-valor"
+                id="totalColumnas"
+              >
+                0
+              </div>
+
+            </div>
+
+            <div class="indicador">
+
+              <div class="indicador-label">
+                Resultados
+              </div>
+
+              <div
+                class="indicador-valor"
+                id="totalResultados"
+              >
+                0
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- ================================================
+             KML
+             ================================================ -->
+
+        <div class="card mb-4">
+
+          <h2 class="font-bold text-lg mb-3">
+            KML / KMZ
+          </h2>
+
+          <input
+            type="file"
+            id="kmlInput"
+            accept=".kml,.kmz"
+          >
+
+          <div
+            id="estadoKml"
+            class="estado estado-normal mt-3"
+          >
+            Selecciona un archivo KML o KMZ.
+          </div>
+
+        </div>
+
+
+        <!-- ================================================
+             ELEMENTOS KML
+             ================================================ -->
+
+        <div
+          class="card"
+          id="panelKmlElementos"
+          style="display:none;"
+        >
+
+          <h2 class="font-bold text-lg mb-3">
+            Elementos KML
+          </h2>
+
+          <div
+            id="listaKml"
+            class="kml-info"
+          >
+          </div>
+
+        </div>
+
+
+      </div>
+
+
+      <!-- ===================================================
+           COLUMNA DERECHA
+           =================================================== -->
+
+      <div class="columna">
+
+
+        <!-- ================================================
+             VISTAS DEL MAPA
+             ================================================ -->
+
+        <div class="card mb-4">
+
+          <div
+            class="flex flex-wrap justify-between items-center gap-3 mb-3"
+          >
+
+            <h2 class="font-bold text-lg">
+              Visor
+            </h2>
+
+            <div class="flex gap-2 flex-wrap">
+
+              <button
+                class="btn btn-secondary"
+                id="btnMapa"
+              >
+                Mapa
+              </button>
+
+              <button
+                class="btn btn-secondary"
+                id="btnSatelite"
+              >
+                Satélite
+              </button>
+
+              <button
+                class="btn btn-secondary"
+                id="btnRelieve"
+              >
+                Relieve
+              </button>
+
+              <button
+                class="btn btn-secondary"
+                id="btnHibrido"
+              >
+                Híbrido
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <!-- ==============================================
+               MAPA
+               ============================================== -->
+
+          <div id="mapa">
+
+            <div
+              class="h-full flex items-center justify-center text-gray-500"
+              id="mensajeMapa"
+            >
+
+              Carga un archivo KML para visualizarlo.
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- ================================================
+             TABLA EXCEL
+             ================================================ -->
+
+        <div
+          class="card"
+          id="panelTabla"
+          style="display:none;"
+        >
+
+          <div
+            class="flex flex-wrap justify-between items-center gap-3 mb-3"
+          >
+
+            <h2 class="font-bold text-lg">
+              Datos del Excel
+            </h2>
+
+            <select
+              id="filasPorPagina"
+              style="width:auto;"
+            >
+
+              <option value="25">
+                25 filas
+              </option>
+
+              <option value="50">
+                50 filas
+              </option>
+
+              <option value="100" selected>
+                100 filas
+              </option>
+
+              <option value="250">
+                250 filas
+              </option>
+
+              <option value="500">
+                500 filas
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div class="tabla-contenedor">
+
+            <table>
+
+              <thead id="cabeceraTabla">
+              </thead>
+
+              <tbody id="cuerpoTabla">
+              </tbody>
+
+            </table>
+
+          </div>
+
+
+          <div
+            id="paginacion"
+            class="paginacion"
+          >
+          </div>
+
+        </div>
+
+
+      </div>
+
+
     </div>
 
 
-    <div
-      class="resultado-grid"
-      id="resultadoGrid"
-    >
-    </div>
-
-  </div>
-
-
-  <!-- =======================================================
-       MÓDULO 07 - ESTADO DEL SISTEMA
-       ======================================================= -->
-
-  <div class="panel">
-
-    <h2>
-      Estado del sistema
-    </h2>
-
-    <div
-      id="estadoSistema"
-      class="estado"
-    >
-      Verificando...
-    </div>
-
-    <div class="nota">
-
-      La hoja BASE permanece en el archivo configurado en
-      <strong>Code.gs</strong>. Este libro vacío solamente
-      ejecuta la aplicación.
-
-    </div>
-
-  </div>
-
+  </main>
 
 </div>
 
 
+<!-- =========================================================
+     MÓDULO 05 - JAVASCRIPT
+     ========================================================= -->
+
 <script>
 
-/* ============================================================
- * MÓDULO 08 - VARIABLES
- * ============================================================ */
 
-let carpetaConfigurada = false;
+/***************************************************************
+ * =============================================================
+ * VARIABLES GLOBALES
+ * =============================================================
+ ***************************************************************/
+
+let workbookExcel = null;
+
+let datosActuales = [];
+
+let datosFiltrados = [];
+
+let nombreHojaActual = '';
+
+let paginaActual = 1;
+
+let filasPorPagina = 100;
+
+let ordenColumna = -1;
+
+let ordenAscendente = true;
 
 
-/* ============================================================
- * MÓDULO 09 - INICIALIZACIÓN
- * ============================================================ */
+/*
+ * Elementos KML.
+ */
 
-window.addEventListener(
-  'load',
-  function() {
+let elementosKml = [];
 
-    cargarConfiguracion();
+let documentoKml = null;
 
-    cargarEstadoSistema();
 
-  }
+/***************************************************************
+ * =============================================================
+ * MÓDULO 06 - ELEMENTOS HTML
+ * =============================================================
+ ***************************************************************/
+
+const excelInput =
+  document.getElementById(
+    'excelInput'
+  );
+
+const kmlInput =
+  document.getElementById(
+    'kmlInput'
+  );
+
+const selectorHoja =
+  document.getElementById(
+    'selectorHoja'
+  );
+
+const buscador =
+  document.getElementById(
+    'buscador'
+  );
+
+const filasPorPaginaInput =
+  document.getElementById(
+    'filasPorPagina'
+  );
+
+const estadoExcel =
+  document.getElementById(
+    'estadoExcel'
+  );
+
+const estadoKml =
+  document.getElementById(
+    'estadoKml'
+  );
+
+const tablaCabecera =
+  document.getElementById(
+    'cabeceraTabla'
+  );
+
+const tablaCuerpo =
+  document.getElementById(
+    'cuerpoTabla'
+  );
+
+const paginacion =
+  document.getElementById(
+    'paginacion'
+  );
+
+const listaKml =
+  document.getElementById(
+    'listaKml'
+  );
+
+const mapa =
+  document.getElementById(
+    'mapa'
+  );
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 07 - CARGAR EXCEL
+ * =============================================================
+ ***************************************************************/
+
+excelInput.addEventListener(
+  'change',
+  cargarExcel
 );
 
 
-/* ============================================================
- * MÓDULO 10 - ELEMENTOS
- * ============================================================ */
-
-const txtCarpeta =
-  document.getElementById(
-    'txtCarpeta'
-  );
-
-const btnGuardarCarpeta =
-  document.getElementById(
-    'btnGuardarCarpeta'
-  );
-
-const btnCambiarCarpeta =
-  document.getElementById(
-    'btnCambiarCarpeta'
-  );
-
-const btnSubir =
-  document.getElementById(
-    'btnSubir'
-  );
-
-const btnActualizarLista =
-  document.getElementById(
-    'btnActualizarLista'
-  );
-
-const archivoExcel =
-  document.getElementById(
-    'archivoExcel'
-  );
-
-const estadoCarpeta =
-  document.getElementById(
-    'estadoCarpeta'
-  );
-
-const estadoCarga =
-  document.getElementById(
-    'estadoCarga'
-  );
-
-const estadoLista =
-  document.getElementById(
-    'estadoLista'
-  );
-
-const tablaArchivos =
-  document.getElementById(
-    'tablaArchivos'
-  );
-
-const carpetaInfo =
-  document.getElementById(
-    'carpetaInfo'
-  );
-
-const nombreCarpeta =
-  document.getElementById(
-    'nombreCarpeta'
-  );
-
-const panelResultado =
-  document.getElementById(
-    'panelResultado'
-  );
-
-const mensajeResultado =
-  document.getElementById(
-    'mensajeResultado'
-  );
-
-const resultadoGrid =
-  document.getElementById(
-    'resultadoGrid'
-  );
-
-const estadoSistema =
-  document.getElementById(
-    'estadoSistema'
-  );
-
-
-/* ============================================================
- * MÓDULO 11 - GUARDAR CARPETA
- * ============================================================ */
-
-btnGuardarCarpeta.addEventListener(
-  'click',
-  guardarCarpeta
-);
-
-
-btnCambiarCarpeta.addEventListener(
-  'click',
-  function() {
-
-    txtCarpeta.focus();
-
-    txtCarpeta.select();
-
-  }
-);
-
-
-function guardarCarpeta() {
-
-  const valor =
-    txtCarpeta.value.trim();
-
-
-  if (!valor) {
-
-    mostrarEstado(
-      estadoCarpeta,
-      'Debes pegar el enlace o ID de la carpeta.',
-      'error'
-    );
-
-    txtCarpeta.focus();
-
-    return;
-
-  }
-
-
-  mostrarEstado(
-    estadoCarpeta,
-    '<span class="cargando"></span> Validando carpeta...',
-    'proceso',
-    true
-  );
-
-
-  btnGuardarCarpeta.disabled =
-    true;
-
-
-  google.script.run
-
-    .withSuccessHandler(
-      function(resultado) {
-
-        btnGuardarCarpeta.disabled =
-          false;
-
-
-        carpetaConfigurada =
-          true;
-
-
-        txtCarpeta.value =
-          resultado.folderId;
-
-
-        nombreCarpeta.textContent =
-          resultado.folderName;
-
-
-        carpetaInfo.classList.remove(
-          'oculto'
-        );
-
-
-        mostrarEstado(
-          estadoCarpeta,
-          'Carpeta configurada correctamente.',
-          'ok'
-        );
-
-
-        cargarLista();
-
-        cargarEstadoSistema();
-
-      }
-    )
-
-    .withFailureHandler(
-      function(error) {
-
-        btnGuardarCarpeta.disabled =
-          false;
-
-
-        mostrarEstado(
-          estadoCarpeta,
-          error.message,
-          'error'
-        );
-
-      }
-    )
-
-    .guardarCarpetaDrive(
-      valor
-    );
-
-}
-
-
-/* ============================================================
- * MÓDULO 12 - CARGAR CONFIGURACIÓN
- * ============================================================ */
-
-function cargarConfiguracion() {
-
-  google.script.run
-
-    .withSuccessHandler(
-      function(resultado) {
-
-        if (
-          resultado.folderId
-        ) {
-
-          carpetaConfigurada =
-            true;
-
-
-          txtCarpeta.value =
-            resultado.folderId;
-
-
-          nombreCarpeta.textContent =
-            resultado.folderName;
-
-
-          carpetaInfo.classList.remove(
-            'oculto'
-          );
-
-
-          mostrarEstado(
-            estadoCarpeta,
-            'Carpeta configurada correctamente.',
-            'ok'
-          );
-
-
-          cargarLista();
-
-        } else {
-
-          carpetaConfigurada =
-            false;
-
-
-          mostrarEstado(
-            estadoCarpeta,
-            'Aún no se ha configurado una carpeta. Pega el link o ID arriba.',
-            ''
-          );
-
-        }
-
-      }
-    )
-
-    .withFailureHandler(
-      function(error) {
-
-        mostrarEstado(
-          estadoCarpeta,
-          error.message,
-          'error'
-        );
-
-      }
-    )
-
-    .obtenerConfiguracion();
-
-}
-
-
-/* ============================================================
- * MÓDULO 13 - SUBIR EXCEL
- * ============================================================ */
-
-btnSubir.addEventListener(
-  'click',
-  subirArchivo
-);
-
-
-function subirArchivo() {
+function cargarExcel(evento) {
 
   const archivo =
-    archivoExcel.files[0];
-
-
-  if (!carpetaConfigurada) {
-
-    mostrarEstado(
-      estadoCarga,
-      'Primero debes configurar la carpeta de Drive.',
-      'error'
-    );
-
-    txtCarpeta.focus();
-
-    return;
-
-  }
+    evento.target.files[0];
 
 
   if (!archivo) {
 
-    mostrarEstado(
-      estadoCarga,
-      'Selecciona un archivo Excel.',
-      'error'
-    );
-
     return;
 
   }
-
-
-  const extension =
-    archivo.name
-      .split('.')
-      .pop()
-      .toLowerCase();
-
-
-  if (
-    !['xlsx', 'xls', 'xlsm']
-      .includes(extension)
-  ) {
-
-    mostrarEstado(
-      estadoCarga,
-      'El archivo debe ser XLSX, XLS o XLSM.',
-      'error'
-    );
-
-    return;
-
-  }
-
-
-  btnSubir.disabled =
-    true;
 
 
   mostrarEstado(
-    estadoCarga,
-    '<span class="cargando"></span> Leyendo el archivo...',
-    'proceso',
-    true
+    estadoExcel,
+    'Leyendo archivo Excel...',
+    'proceso'
   );
 
 
@@ -979,76 +914,60 @@ function subirArchivo() {
 
 
   lector.onload =
-    function(evento) {
+    function(e) {
 
-      const base64 =
-        evento.target.result;
+      try {
 
-
-      mostrarEstado(
-        estadoCarga,
-        '<span class="cargando"></span> Guardando el Excel en Drive...',
-        'proceso',
-        true
-      );
+        const datos =
+          new Uint8Array(
+            e.target.result
+          );
 
 
-      google.script.run
-
-        .withSuccessHandler(
-          function(resultado) {
-
-            btnSubir.disabled =
-              false;
-
-
-            mostrarEstado(
-              estadoCarga,
-              '✓ ' +
-              resultado.message +
-              '<br><br>' +
-              'Archivo: ' +
-              escapeHtml(
-                resultado.fileName
-              ),
-              'ok',
-              true
-            );
+        workbookExcel =
+          XLSX.read(
+            datos,
+            {
+              type: 'array',
+              cellDates: true
+            }
+          );
 
 
-            archivoExcel.value =
-              '';
+        cargarListaHojas();
 
 
-            cargarLista();
+        if (
+          workbookExcel.SheetNames.length
+        ) {
 
-            cargarEstadoSistema();
+          cargarHoja(
+            workbookExcel.SheetNames[0]
+          );
 
-          }
-        )
-
-        .withFailureHandler(
-          function(error) {
-
-            btnSubir.disabled =
-              false;
+        }
 
 
-            mostrarEstado(
-              estadoCarga,
-              error.message,
-              'error'
-            );
-
-          }
-        )
-
-        .subirExcel(
+        mostrarEstado(
+          estadoExcel,
+          'Excel cargado correctamente: ' +
           archivo.name,
-          base64,
-          archivo.type,
-          txtCarpeta.value.trim()
+          'ok'
         );
+
+      } catch(error) {
+
+        console.error(error);
+
+
+        mostrarEstado(
+          estadoExcel,
+          'Error al leer el Excel: ' +
+          error.message,
+          'error'
+        );
+
+      }
 
     };
 
@@ -1056,12 +975,8 @@ function subirArchivo() {
   lector.onerror =
     function() {
 
-      btnSubir.disabled =
-        false;
-
-
       mostrarEstado(
-        estadoCarga,
+        estadoExcel,
         'No fue posible leer el archivo.',
         'error'
       );
@@ -1069,638 +984,1709 @@ function subirArchivo() {
     };
 
 
-  lector.readAsDataURL(
+  lector.readAsArrayBuffer(
     archivo
   );
 
 }
 
 
-/* ============================================================
- * MÓDULO 14 - CARGAR LISTA DE ARCHIVOS
- * ============================================================ */
+/***************************************************************
+ * =============================================================
+ * MÓDULO 08 - LISTAR HOJAS
+ * =============================================================
+ ***************************************************************/
 
-btnActualizarLista.addEventListener(
-  'click',
-  cargarLista
-);
+function cargarListaHojas() {
+
+  selectorHoja.innerHTML =
+    '';
 
 
-function cargarLista() {
+  workbookExcel.SheetNames
+    .forEach(
+      function(nombre) {
 
-  if (!carpetaConfigurada) {
+        const opcion =
+          document.createElement(
+            'option'
+          );
 
-    tablaArchivos.innerHTML =
-      '';
 
-    mostrarEstado(
-      estadoLista,
-      'Configura primero una carpeta de Drive.',
-      ''
+        opcion.value =
+          nombre;
+
+
+        opcion.textContent =
+          nombre;
+
+
+        selectorHoja.appendChild(
+          opcion
+        );
+
+      }
     );
 
-    return;
 
-  }
-
-
-  mostrarEstado(
-    estadoLista,
-    '<span class="cargando"></span> Consultando archivos...',
-    'proceso',
-    true
-  );
-
-
-  google.script.run
-
-    .withSuccessHandler(
-      function(resultado) {
-
-        renderizarArchivos(
-          resultado
-        );
-
-      }
+  document
+    .getElementById(
+      'panelHojas'
     )
-
-    .withFailureHandler(
-      function(error) {
-
-        mostrarEstado(
-          estadoLista,
-          error.message,
-          'error'
-        );
-
-      }
-    )
-
-    .listarExcels();
+    .style.display =
+      'block';
 
 }
 
 
-/* ============================================================
- * MÓDULO 15 - MOSTRAR ARCHIVOS
- * ============================================================ */
+/***************************************************************
+ * =============================================================
+ * MÓDULO 09 - CAMBIAR HOJA
+ * =============================================================
+ ***************************************************************/
 
-function renderizarArchivos(
-  resultado
+selectorHoja.addEventListener(
+  'change',
+  function() {
+
+    cargarHoja(
+      selectorHoja.value
+    );
+
+  }
+);
+
+
+function cargarHoja(
+  nombreHoja
 ) {
 
-  tablaArchivos.innerHTML =
-    '';
-
-
   if (
-    !resultado.archivos ||
-    resultado.archivos.length === 0
+    !workbookExcel
   ) {
-
-    mostrarEstado(
-      estadoLista,
-      'No hay archivos Excel en la carpeta seleccionada.',
-      ''
-    );
 
     return;
 
   }
 
 
-  mostrarEstado(
-    estadoLista,
-    'Carpeta: <strong>' +
-    escapeHtml(
-      resultado.folderName
-    ) +
-    '</strong> — ' +
-    resultado.archivos.length +
-    ' archivo(s).',
-    'ok',
-    true
-  );
+  nombreHojaActual =
+    nombreHoja;
 
 
-  resultado.archivos.forEach(
-    function(archivo) {
+  const hoja =
+    workbookExcel.Sheets[
+      nombreHoja
+    ];
 
-      const fila =
+
+  if (!hoja) {
+
+    return;
+
+  }
+
+
+  datosActuales =
+    XLSX.utils.sheet_to_json(
+      hoja,
+      {
+        header: 1,
+        defval: ''
+      }
+    );
+
+
+  /*
+   * Eliminar filas completamente vacías
+   */
+
+  datosActuales =
+    datosActuales.filter(
+      function(fila) {
+
+        return fila.some(
+          function(valor) {
+
+            return String(
+              valor
+            ).trim() !== '';
+
+          }
+        );
+
+      }
+    );
+
+
+  datosFiltrados =
+    [...datosActuales];
+
+
+  paginaActual =
+    1;
+
+
+  ordenColumna =
+    -1;
+
+
+  mostrarPanelesExcel();
+
+  actualizarIndicadores();
+
+  renderizarTabla();
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 10 - MOSTRAR PANELES EXCEL
+ * =============================================================
+ ***************************************************************/
+
+function mostrarPanelesExcel() {
+
+  document
+    .getElementById(
+      'panelBusqueda'
+    )
+    .style.display =
+      'block';
+
+
+  document
+    .getElementById(
+      'panelIndicadores'
+    )
+    .style.display =
+      'block';
+
+
+  document
+    .getElementById(
+      'panelTabla'
+    )
+    .style.display =
+      'block';
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 11 - INDICADORES
+ * =============================================================
+ ***************************************************************/
+
+function actualizarIndicadores() {
+
+  const filas =
+    Math.max(
+      datosActuales.length - 1,
+      0
+    );
+
+
+  const columnas =
+    datosActuales.length
+      ? datosActuales[0].length
+      : 0;
+
+
+  document
+    .getElementById(
+      'totalFilas'
+    )
+    .textContent =
+      formatearNumero(
+        filas
+      );
+
+
+  document
+    .getElementById(
+      'totalColumnas'
+    )
+    .textContent =
+      formatearNumero(
+        columnas
+      );
+
+
+  document
+    .getElementById(
+      'totalResultados'
+    )
+    .textContent =
+      formatearNumero(
+        Math.max(
+          datosFiltrados.length - 1,
+          0
+        )
+      );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 12 - RENDERIZAR TABLA
+ * =============================================================
+ ***************************************************************/
+
+function renderizarTabla() {
+
+  tablaCabecera.innerHTML =
+    '';
+
+  tablaCuerpo.innerHTML =
+    '';
+
+  paginacion.innerHTML =
+    '';
+
+
+  if (
+    !datosFiltrados.length
+  ) {
+
+    return;
+
+  }
+
+
+  const encabezados =
+    datosFiltrados[0];
+
+
+  /*
+   * CABECERA
+   */
+
+  const filaCabecera =
+    document.createElement(
+      'tr'
+    );
+
+
+  encabezados.forEach(
+    function(valor, indice) {
+
+      const th =
         document.createElement(
-          'tr'
+          'th'
         );
 
 
-      fila.innerHTML =
-
-        '<td>' +
-          '<strong>' +
-          escapeHtml(
-            archivo.nombre
-          ) +
-          '</strong>' +
-        '</td>' +
-
-        '<td>' +
-          escapeHtml(
-            archivo.fechaTexto
-          ) +
-        '</td>' +
-
-        '<td>' +
-          formatearBytes(
-            archivo.tamaño
-          ) +
-        '</td>' +
-
-        '<td>' +
-
-          '<div class="acciones">' +
-
-            '<button ' +
-              'type="button" ' +
-              'class="btn-secundario" ' +
-              'data-accion="ver" ' +
-              'data-id="' +
-                escapeHtml(
-                  archivo.id
-                ) +
-              '">' +
-              '👁 Ver' +
-            '</button>' +
-
-            '<button ' +
-              'type="button" ' +
-              'class="btn-verde" ' +
-              'data-accion="procesar" ' +
-              'data-id="' +
-                escapeHtml(
-                  archivo.id
-                ) +
-              '">' +
-              '⚙ Procesar' +
-            '</button>' +
-
-          '</div>' +
-
-        '</td>';
+      th.textContent =
+        valor ||
+        'Columna ' +
+        (indice + 1);
 
 
-      tablaArchivos.appendChild(
-        fila
+      th.title =
+        'Haz clic para ordenar';
+
+
+      th.addEventListener(
+        'click',
+        function() {
+
+          ordenarPorColumna(
+            indice
+          );
+
+        }
+      );
+
+
+      filaCabecera.appendChild(
+        th
       );
 
     }
   );
 
 
+  tablaCabecera.appendChild(
+    filaCabecera
+  );
+
+
   /*
-   * Eventos de botones.
+   * DATOS
    */
 
-  tablaArchivos
-    .querySelectorAll(
-      'button[data-accion="ver"]'
-    )
-    .forEach(
-      function(boton) {
+  const totalDatos =
+    datosFiltrados.length - 1;
 
-        boton.addEventListener(
-          'click',
-          function() {
 
-            verArchivo(
-              boton.dataset.id
+  const totalPaginas =
+    Math.max(
+      Math.ceil(
+        totalDatos /
+        filasPorPagina
+      ),
+      1
+    );
+
+
+  if (
+    paginaActual >
+    totalPaginas
+  ) {
+
+    paginaActual =
+      totalPaginas;
+
+  }
+
+
+  const inicio =
+    1 +
+    (
+      paginaActual - 1
+    ) *
+    filasPorPagina;
+
+
+  const fin =
+    Math.min(
+      inicio +
+      filasPorPagina,
+      datosFiltrados.length
+    );
+
+
+  for (
+    let i = inicio;
+    i < fin;
+    i++
+  ) {
+
+    const tr =
+      document.createElement(
+        'tr'
+      );
+
+
+    const fila =
+      datosFiltrados[i];
+
+
+    for (
+      let c = 0;
+      c < encabezados.length;
+      c++
+    ) {
+
+      const td =
+        document.createElement(
+          'td'
+        );
+
+
+      td.textContent =
+        formatearCelda(
+          fila[c]
+        );
+
+
+      tr.appendChild(
+        td
+      );
+
+    }
+
+
+    tablaCuerpo.appendChild(
+      tr
+    );
+
+  }
+
+
+  renderizarPaginacion(
+    totalPaginas
+  );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 13 - ORDENAR
+ * =============================================================
+ ***************************************************************/
+
+function ordenarPorColumna(
+  columna
+) {
+
+  if (
+    ordenColumna === columna
+  ) {
+
+    ordenAscendente =
+      !ordenAscendente;
+
+  } else {
+
+    ordenColumna =
+      columna;
+
+    ordenAscendente =
+      true;
+
+  }
+
+
+  const encabezado =
+    datosFiltrados[0];
+
+
+  const datos =
+    datosFiltrados.slice(1);
+
+
+  datos.sort(
+    function(a, b) {
+
+      const valorA =
+        String(
+          a[columna] ??
+          ''
+        ).toLowerCase();
+
+
+      const valorB =
+        String(
+          b[columna] ??
+          ''
+        ).toLowerCase();
+
+
+      const numeroA =
+        Number(
+          valorA.replace(
+            /,/g,
+            ''
+          )
+        );
+
+
+      const numeroB =
+        Number(
+          valorB.replace(
+            /,/g,
+            ''
+          )
+        );
+
+
+      let comparacion;
+
+
+      if (
+        valorA !== '' &&
+        valorB !== '' &&
+        !isNaN(numeroA) &&
+        !isNaN(numeroB)
+      ) {
+
+        comparacion =
+          numeroA -
+          numeroB;
+
+      } else {
+
+        comparacion =
+          valorA.localeCompare(
+            valorB,
+            'es',
+            {
+              numeric: true,
+              sensitivity: 'base'
+            }
+          );
+
+      }
+
+
+      return ordenAscendente
+        ? comparacion
+        : -comparacion;
+
+    }
+  );
+
+
+  datosFiltrados =
+    [
+      encabezado,
+      ...datos
+    ];
+
+
+  paginaActual =
+    1;
+
+
+  renderizarTabla();
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 14 - BUSCAR
+ * =============================================================
+ ***************************************************************/
+
+document
+  .getElementById(
+    'btnBuscar'
+  )
+  .addEventListener(
+    'click',
+    realizarBusqueda
+  );
+
+
+buscador.addEventListener(
+  'keydown',
+  function(evento) {
+
+    if (
+      evento.key === 'Enter'
+    ) {
+
+      realizarBusqueda();
+
+    }
+
+  }
+);
+
+
+function realizarBusqueda() {
+
+  const texto =
+    buscador.value
+      .trim()
+      .toLowerCase();
+
+
+  if (
+    !texto
+  ) {
+
+    datosFiltrados =
+      [...datosActuales];
+
+  } else {
+
+    const encabezado =
+      datosActuales[0];
+
+
+    const datos =
+      datosActuales
+        .slice(1)
+        .filter(
+          function(fila) {
+
+            return fila.some(
+              function(valor) {
+
+                return String(
+                  valor
+                )
+                .toLowerCase()
+                .includes(
+                  texto
+                );
+
+              }
             );
 
           }
         );
 
-      }
-    );
+
+    datosFiltrados =
+      [
+        encabezado,
+        ...datos
+      ];
+
+  }
 
 
-  tablaArchivos
-    .querySelectorAll(
-      'button[data-accion="procesar"]'
-    )
-    .forEach(
-      function(boton) {
+  paginaActual =
+    1;
 
-        boton.addEventListener(
-          'click',
-          function() {
 
-            procesarArchivo(
-              boton.dataset.id,
-              boton
-            );
+  actualizarIndicadores();
 
-          }
-        );
-
-      }
-    );
+  renderizarTabla();
 
 }
 
 
-/* ============================================================
- * MÓDULO 16 - VISUALIZAR ARCHIVO
- * ============================================================ */
+/***************************************************************
+ * =============================================================
+ * MÓDULO 15 - LIMPIAR BÚSQUEDA
+ * =============================================================
+ ***************************************************************/
 
-function verArchivo(
-  fileId
+document
+  .getElementById(
+    'btnLimpiarBusqueda'
+  )
+  .addEventListener(
+    'click',
+    function() {
+
+      buscador.value =
+        '';
+
+
+      datosFiltrados =
+        [...datosActuales];
+
+
+      paginaActual =
+        1;
+
+
+      actualizarIndicadores();
+
+      renderizarTabla();
+
+    }
+  );
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 16 - FILAS POR PÁGINA
+ * =============================================================
+ ***************************************************************/
+
+filasPorPaginaInput.addEventListener(
+  'change',
+  function() {
+
+    filasPorPagina =
+      Number(
+        filasPorPaginaInput.value
+      );
+
+
+    paginaActual =
+      1;
+
+
+    renderizarTabla();
+
+  }
+);
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 17 - PAGINACIÓN
+ * =============================================================
+ ***************************************************************/
+
+function renderizarPaginacion(
+  totalPaginas
 ) {
 
-  google.script.run
-
-    .withSuccessHandler(
-      function(archivo) {
-
-        /*
-         * Abrimos el archivo original en Google Drive.
-         *
-         * Drive se encargará de mostrar su vista previa.
-         */
-
-        window.open(
-          archivo.url,
-          '_blank'
-        );
-
-      }
-    )
-
-    .withFailureHandler(
-      function(error) {
-
-        alert(
-          error.message
-        );
-
-      }
-    )
-
-    .obtenerArchivo(
-      fileId
-    );
-
-}
+  paginacion.innerHTML =
+    '';
 
 
-/* ============================================================
- * MÓDULO 17 - PROCESAR ARCHIVO EXISTENTE
- * ============================================================ */
-
-function procesarArchivo(
-  fileId,
-  boton
-) {
-
-  const confirmar =
-    confirm(
-      '¿Deseas procesar este Excel y actualizar la hoja BASE?\n\n' +
-      'Solamente se modificarán las columnas B y C de las filas encontradas.'
-    );
-
-
-  if (!confirmar) {
+  if (
+    totalPaginas <= 1
+  ) {
 
     return;
 
   }
 
 
-  boton.disabled =
-    true;
+  const btnAnterior =
+    document.createElement(
+      'button'
+    );
 
 
-  boton.innerHTML =
-    '<span class="cargando"></span> Procesando';
+  btnAnterior.className =
+    'pagina';
+
+
+  btnAnterior.textContent =
+    '‹';
+
+
+  btnAnterior.disabled =
+    paginaActual === 1;
+
+
+  btnAnterior.addEventListener(
+    'click',
+    function() {
+
+      paginaActual--;
+
+      renderizarTabla();
+
+    }
+  );
+
+
+  paginacion.appendChild(
+    btnAnterior
+  );
+
+
+  /*
+   * Determinar páginas visibles.
+   */
+
+  let inicio =
+    Math.max(
+      paginaActual - 2,
+      1
+    );
+
+
+  let fin =
+    Math.min(
+      inicio + 4,
+      totalPaginas
+    );
+
+
+  if (
+    fin - inicio < 4
+  ) {
+
+    inicio =
+      Math.max(
+        fin - 4,
+        1
+      );
+
+  }
+
+
+  for (
+    let i = inicio;
+    i <= fin;
+    i++
+  ) {
+
+    const boton =
+      document.createElement(
+        'button'
+      );
+
+
+    boton.className =
+      'pagina';
+
+
+    if (
+      i === paginaActual
+    ) {
+
+      boton.classList.add(
+        'activa'
+      );
+
+    }
+
+
+    boton.textContent =
+      i;
+
+
+    boton.addEventListener(
+      'click',
+      function() {
+
+        paginaActual =
+          i;
+
+        renderizarTabla();
+
+      }
+    );
+
+
+    paginacion.appendChild(
+      boton
+    );
+
+  }
+
+
+  const btnSiguiente =
+    document.createElement(
+      'button'
+    );
+
+
+  btnSiguiente.className =
+    'pagina';
+
+
+  btnSiguiente.textContent =
+    '›';
+
+
+  btnSiguiente.disabled =
+    paginaActual === totalPaginas;
+
+
+  btnSiguiente.addEventListener(
+    'click',
+    function() {
+
+      paginaActual++;
+
+      renderizarTabla();
+
+    }
+  );
+
+
+  paginacion.appendChild(
+    btnSiguiente
+  );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 18 - KML / KMZ
+ * =============================================================
+ ***************************************************************/
+
+kmlInput.addEventListener(
+  'change',
+  cargarKml
+);
+
+
+async function cargarKml(
+  evento
+) {
+
+  const archivo =
+    evento.target.files[0];
+
+
+  if (!archivo) {
+
+    return;
+
+  }
 
 
   mostrarEstado(
-    estadoLista,
-    '<span class="cargando"></span> Procesando Excel contra BASE. Esto puede tardar dependiendo de la cantidad de registros...',
-    'proceso',
+    estadoKml,
+    'Leyendo archivo KML/KMZ...',
+    'proceso'
+  );
+
+
+  try {
+
+    let textoKml = '';
+
+
+    const extension =
+      archivo.name
+        .split('.')
+        .pop()
+        .toLowerCase();
+
+
+    /*
+     * KML
+     */
+
+    if (
+      extension === 'kml'
+    ) {
+
+      textoKml =
+        await archivo.text();
+
+    }
+
+
+    /*
+     * KMZ
+     */
+
+    else if (
+      extension === 'kmz'
+    ) {
+
+      const buffer =
+        await archivo.arrayBuffer();
+
+
+      const zip =
+        await JSZip.loadAsync(
+          buffer
+        );
+
+
+      const archivoKml =
+        zip.file(
+          'doc.kml'
+        );
+
+
+      if (!archivoKml) {
+
+        throw new Error(
+          'El KMZ no contiene doc.kml.'
+        );
+
+      }
+
+
+      textoKml =
+        await archivoKml.async(
+          'text'
+        );
+
+    }
+
+
+    else {
+
+      throw new Error(
+        'Formato no compatible.'
+      );
+
+    }
+
+
+    procesarTextoKml(
+      textoKml,
+      archivo.name
+    );
+
+
+  } catch(error) {
+
+    console.error(error);
+
+
+    mostrarEstado(
+      estadoKml,
+      'Error: ' +
+      error.message,
+      'error'
+    );
+
+  }
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 19 - PROCESAR XML KML
+ * =============================================================
+ ***************************************************************/
+
+function procesarTextoKml(
+  texto,
+  nombreArchivo
+) {
+
+  const parser =
+    new DOMParser();
+
+
+  documentoKml =
+    parser.parseFromString(
+      texto,
+      'application/xml'
+    );
+
+
+  const errorXml =
+    documentoKml.querySelector(
+      'parsererror'
+    );
+
+
+  if (errorXml) {
+
+    throw new Error(
+      'El archivo KML contiene un XML no válido.'
+    );
+
+  }
+
+
+  elementosKml =
+    [];
+
+
+  /*
+   * Placemark
+   */
+
+  const placemarks =
+    Array.from(
+      documentoKml.getElementsByTagName(
+        'Placemark'
+      )
+    );
+
+
+  placemarks.forEach(
+    function(pm, indice) {
+
+      const nombreNodo =
+        pm.getElementsByTagName(
+          'name'
+        )[0];
+
+
+      const descripcionNodo =
+        pm.getElementsByTagName(
+          'description'
+        )[0];
+
+
+      const coordenadasNodo =
+        pm.getElementsByTagName(
+          'coordinates'
+        )[0];
+
+
+      elementosKml.push({
+
+        indice:
+          indice + 1,
+
+        nombre:
+          nombreNodo
+            ? nombreNodo.textContent.trim()
+            : 'Sin nombre',
+
+        descripcion:
+          descripcionNodo
+            ? descripcionNodo.textContent.trim()
+            : '',
+
+        coordenadas:
+          coordenadasNodo
+            ? coordenadasNodo.textContent.trim()
+            : ''
+
+      });
+
+    }
+  );
+
+
+  mostrarEstado(
+    estadoKml,
+    'KML cargado correctamente: ' +
+    nombreArchivo +
+    '<br>' +
+    'Elementos encontrados: ' +
+    elementosKml.length,
+    'ok',
     true
   );
 
 
-  panelResultado.classList.add(
-    'oculto'
-  );
+  mostrarElementosKml();
 
-
-  google.script.run
-
-    .withSuccessHandler(
-      function(resultado) {
-
-        boton.disabled =
-          false;
-
-
-        boton.innerHTML =
-          '⚙ Procesar';
-
-
-        mostrarEstado(
-          estadoLista,
-          '✓ Proceso terminado correctamente.',
-          'ok'
-        );
-
-
-        mostrarResultado(
-          resultado
-        );
-
-
-        cargarLista();
-
-      }
-    )
-
-    .withFailureHandler(
-      function(error) {
-
-        boton.disabled =
-          false;
-
-
-        boton.innerHTML =
-          '⚙ Procesar';
-
-
-        mostrarEstado(
-          estadoLista,
-          error.message,
-          'error'
-        );
-
-      }
-    )
-
-    .procesarExcelDesdeDrive(
-      fileId
-    );
+  construirVisorKml();
 
 }
 
 
-/* ============================================================
- * MÓDULO 18 - MOSTRAR RESULTADO
- * ============================================================ */
+/***************************************************************
+ * =============================================================
+ * MÓDULO 20 - LISTA KML
+ * =============================================================
+ ***************************************************************/
 
-function mostrarResultado(
-  resultado
+function mostrarElementosKml() {
+
+  const panel =
+    document.getElementById(
+      'panelKmlElementos'
+    );
+
+
+  panel.style.display =
+    'block';
+
+
+  listaKml.innerHTML =
+    '';
+
+
+  if (
+    elementosKml.length === 0
+  ) {
+
+    listaKml.textContent =
+      'No se encontraron Placemark.';
+
+    return;
+
+  }
+
+
+  elementosKml.forEach(
+    function(elemento) {
+
+      const div =
+        document.createElement(
+          'div'
+        );
+
+
+      div.className =
+        'kml-elemento';
+
+
+      div.innerHTML =
+        '<strong>' +
+        escapeHtml(
+          elemento.nombre
+        ) +
+        '</strong>' +
+        '<br>' +
+        '<span class="text-xs text-gray-500">' +
+        escapeHtml(
+          elemento.coordenadas
+        ) +
+        '</span>';
+
+
+      div.addEventListener(
+        'click',
+        function() {
+
+          mostrarElementoKml(
+            elemento
+          );
+
+        }
+      );
+
+
+      listaKml.appendChild(
+        div
+      );
+
+    }
+  );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 21 - VISOR KML
+ * =============================================================
+ *
+ * NO requiere API KEY de Google Maps.
+ *
+ * Utilizamos Google Maps mediante URL de consulta para
+ * visualización geográfica.
+ *
+ ***************************************************************/
+
+function construirVisorKml() {
+
+  /*
+   * Extraer coordenadas.
+   */
+
+  const coordenadas =
+    [];
+
+
+  elementosKml.forEach(
+    function(elemento) {
+
+      const puntos =
+        extraerCoordenadas(
+          elemento.coordenadas
+        );
+
+
+      puntos.forEach(
+        function(punto) {
+
+          coordenadas.push(
+            punto
+          );
+
+        }
+      );
+
+    }
+  );
+
+
+  if (
+    coordenadas.length === 0
+  ) {
+
+    mapa.innerHTML =
+      '<div class="h-full flex items-center justify-center text-gray-500">' +
+      'El KML no contiene coordenadas reconocibles.' +
+      '</div>';
+
+    return;
+
+  }
+
+
+  /*
+   * Centro aproximado.
+   */
+
+  let lat =
+    0;
+
+  let lon =
+    0;
+
+
+  coordenadas.forEach(
+    function(punto) {
+
+      lat +=
+        punto.lat;
+
+      lon +=
+        punto.lon;
+
+    }
+  );
+
+
+  lat /=
+    coordenadas.length;
+
+
+  lon /=
+    coordenadas.length;
+
+
+  /*
+   * Google Maps sin API.
+   *
+   * El parámetro q permite abrir la ubicación.
+   */
+
+  const url =
+    'https://www.google.com/maps/@' +
+    lat +
+    ',' +
+    lon +
+    ',14z';
+
+
+  mapa.innerHTML =
+
+    '<iframe ' +
+      'src="' +
+        url +
+      '"' +
+      'loading="lazy"' +
+      'allowfullscreen' +
+      'referrerpolicy="no-referrer-when-downgrade"' +
+    '>' +
+    '</iframe>';
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 22 - EXTRAER COORDENADAS
+ * ============================================================= */
+
+function extraerCoordenadas(
+  texto
 ) {
 
-  panelResultado.classList.remove(
-    'oculto'
-  );
+  if (!texto) {
+
+    return [];
+
+  }
 
 
-  mensajeResultado.innerHTML =
-    '✓ ' +
-    escapeHtml(
-      resultado.mensaje
-    );
+  const resultado =
+    [];
 
 
-  resultadoGrid.innerHTML = '';
+  const partes =
+    texto
+      .replace(
+        /\n/g,
+        ' '
+      )
+      .trim()
+      .split(
+        /\s+/
+      );
 
 
-  agregarResultado(
-    'Archivo',
-    resultado.archivo
-  );
+  partes.forEach(
+    function(parte) {
+
+      const valores =
+        parte.split(',');
 
 
-  agregarResultado(
-    'Filas Excel',
-    resultado.filasExcel
-  );
+      if (
+        valores.length >= 2
+      ) {
+
+        const lon =
+          parseFloat(
+            valores[0]
+          );
 
 
-  agregarResultado(
-    'Claves Excel',
-    resultado.clavesExcel
-  );
-
-
-  agregarResultado(
-    'Duplicados Excel',
-    resultado.duplicadosExcel
-  );
-
-
-  agregarResultado(
-    'Filas BASE',
-    resultado.filasBase
-  );
-
-
-  agregarResultado(
-    'Coincidencias',
-    resultado.coincidencias
-  );
-
-
-  agregarResultado(
-    'Filas actualizadas',
-    resultado.filasActualizadas
-  );
-
-
-  agregarResultado(
-    'Modo',
-    resultado.modoCoincidencia
-  );
-
-
-  agregarResultado(
-    'Tiempo',
-    resultado.tiempoSegundos +
-    ' segundos'
-  );
-
-
-  panelResultado.scrollIntoView({
-    behavior: 'smooth',
-    block: 'start'
-  });
-
-}
-
-
-function agregarResultado(
-  etiqueta,
-  valor
-) {
-
-  const div =
-    document.createElement(
-      'div'
-    );
-
-
-  div.className =
-    'resultado-item';
-
-
-  div.innerHTML =
-
-    '<span>' +
-      escapeHtml(
-        String(etiqueta)
-      ) +
-    '</span>' +
-
-    '<strong>' +
-      escapeHtml(
-        String(valor)
-      ) +
-    '</strong>';
-
-
-  resultadoGrid.appendChild(
-    div
-  );
-
-}
-
-
-/* ============================================================
- * MÓDULO 19 - ESTADO DEL SISTEMA
- * ============================================================ */
-
-function cargarEstadoSistema() {
-
-  google.script.run
-
-    .withSuccessHandler(
-      function(resultado) {
-
-        let html = '';
+        const lat =
+          parseFloat(
+            valores[1]
+          );
 
 
         if (
-          resultado.baseOK
+          !isNaN(lat) &&
+          !isNaN(lon)
         ) {
 
-          html +=
-            '✓ BASE: ' +
-            escapeHtml(
-              resultado.baseMensaje
-            );
+          resultado.push({
 
-        } else {
+            lat:
+              lat,
 
-          html +=
-            '✗ BASE: ' +
-            escapeHtml(
-              resultado.baseMensaje
-            );
+            lon:
+              lon
+
+          });
 
         }
 
-
-        html +=
-          '<br>';
-
-
-        if (
-          resultado.carpetaOK
-        ) {
-
-          html +=
-            '✓ Drive: ' +
-            escapeHtml(
-              resultado.carpetaNombre
-            );
-
-        } else {
-
-          html +=
-            '✗ Drive: ' +
-            escapeHtml(
-              resultado.carpetaNombre
-            );
-
-        }
-
-
-        html +=
-          '<br>';
-
-
-        html +=
-          'Modo de coincidencia: <strong>' +
-          escapeHtml(
-            resultado.modoCoincidencia
-          ) +
-          '</strong>';
-
-
-        mostrarEstado(
-          estadoSistema,
-          html,
-          resultado.baseOK &&
-          resultado.carpetaOK
-            ? 'ok'
-            : 'error',
-          true
-        );
-
       }
-    )
 
-    .withFailureHandler(
-      function(error) {
+    }
+  );
 
-        mostrarEstado(
-          estadoSistema,
-          error.message,
-          'error'
-        );
 
-      }
-    )
-
-    .obtenerEstadoSistema();
+  return resultado;
 
 }
 
 
-/* ============================================================
- * MÓDULO 20 - UTILIDADES
- * ============================================================ */
+/***************************************************************
+ * =============================================================
+ * MÓDULO 23 - MOSTRAR ELEMENTO KML
+ * =============================================================
+ ***************************************************************/
+
+function mostrarElementoKml(
+  elemento
+) {
+
+  const puntos =
+    extraerCoordenadas(
+      elemento.coordenadas
+    );
+
+
+  if (
+    puntos.length === 0
+  ) {
+
+    return;
+
+  }
+
+
+  const punto =
+    puntos[0];
+
+
+  const url =
+    'https://www.google.com/maps/@' +
+    punto.lat +
+    ',' +
+    punto.lon +
+    ',18z';
+
+
+  mapa.innerHTML =
+
+    '<iframe ' +
+      'src="' +
+        url +
+      '"' +
+      'loading="lazy"' +
+      'allowfullscreen' +
+      'referrerpolicy="no-referrer-when-downgrade"' +
+    '>' +
+    '</iframe>';
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 24 - VISTAS DEL MAPA
+ * =============================================================
+ ***************************************************************/
+
+document
+  .getElementById(
+    'btnMapa'
+  )
+  .addEventListener(
+    'click',
+    function() {
+
+      cambiarTipoMapa(
+        'roadmap'
+      );
+
+    }
+  );
+
+
+document
+  .getElementById(
+    'btnSatelite'
+  )
+  .addEventListener(
+    'click',
+    function() {
+
+      cambiarTipoMapa(
+        'satellite'
+      );
+
+    }
+  );
+
+
+document
+  .getElementById(
+    'btnRelieve'
+  )
+  .addEventListener(
+    'click',
+    function() {
+
+      cambiarTipoMapa(
+        'terrain'
+      );
+
+    }
+  );
+
+
+document
+  .getElementById(
+    'btnHibrido'
+  )
+  .addEventListener(
+    'click',
+    function() {
+
+      cambiarTipoMapa(
+        'hybrid'
+      );
+
+    }
+  );
+
+
+function cambiarTipoMapa(
+  tipo
+) {
+
+  const coordenadas =
+    [];
+
+
+  elementosKml.forEach(
+    function(elemento) {
+
+      extraerCoordenadas(
+        elemento.coordenadas
+      )
+      .forEach(
+        function(punto) {
+
+          coordenadas.push(
+            punto
+          );
+
+        }
+      );
+
+    }
+  );
+
+
+  if (
+    coordenadas.length === 0
+  ) {
+
+    return;
+
+  }
+
+
+  let lat = 0;
+  let lon = 0;
+
+
+  coordenadas.forEach(
+    function(punto) {
+
+      lat += punto.lat;
+      lon += punto.lon;
+
+    }
+  );
+
+
+  lat /=
+    coordenadas.length;
+
+
+  lon /=
+    coordenadas.length;
+
+
+  /*
+   * Google Maps sin API.
+   *
+   * Se utilizan parámetros de URL.
+   */
+
+  let url =
+    'https://www.google.com/maps/@' +
+    lat +
+    ',' +
+    lon +
+    ',14z';
+
+
+  /*
+   * Para vista satélite se agrega:
+   */
+
+  if (
+    tipo === 'satellite'
+  ) {
+
+    url +=
+      '/data=!3m1!1e3';
+
+  }
+
+
+  mapa.innerHTML =
+
+    '<iframe ' +
+      'src="' +
+        url +
+      '"' +
+      'loading="lazy"' +
+      'allowfullscreen' +
+      'referrerpolicy="no-referrer-when-downgrade"' +
+    '></iframe>';
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * MÓDULO 25 - UTILIDADES
+ * =============================================================
+ ***************************************************************/
 
 function mostrarEstado(
   elemento,
   mensaje,
   tipo,
-  permitirHTML
+  permitirHTML = false
 ) {
 
   elemento.className =
     'estado';
 
 
-  if (tipo) {
+  if (
+    tipo === 'ok'
+  ) {
 
     elemento.classList.add(
-      tipo
+      'estado-ok'
+    );
+
+  } else if (
+    tipo === 'error'
+  ) {
+
+    elemento.classList.add(
+      'estado-error'
+    );
+
+  } else if (
+    tipo === 'proceso'
+  ) {
+
+    elemento.classList.add(
+      'estado-proceso'
+    );
+
+  } else {
+
+    elemento.classList.add(
+      'estado-normal'
     );
 
   }
 
 
-  if (permitirHTML) {
+  if (
+    permitirHTML
+  ) {
 
     elemento.innerHTML =
       mensaje;
@@ -1715,44 +2701,47 @@ function mostrarEstado(
 }
 
 
-function formatearBytes(
-  bytes
+function formatearCelda(
+  valor
 ) {
 
   if (
-    bytes === 0
+    valor === null ||
+    valor === undefined
   ) {
 
-    return '0 B';
+    return '';
 
   }
 
 
-  const unidades =
-    [
-      'B',
-      'KB',
-      'MB',
-      'GB'
-    ];
+  if (
+    valor instanceof Date
+  ) {
 
-
-  const i =
-    Math.floor(
-      Math.log(bytes) /
-      Math.log(1024)
+    return valor.toLocaleDateString(
+      'es-MX'
     );
 
+  }
 
-  return (
-    bytes /
-    Math.pow(
-      1024,
-      i
-    )
-  ).toFixed(2) +
-  ' ' +
-  unidades[i];
+
+  return String(
+    valor
+  );
+
+}
+
+
+function formatearNumero(
+  numero
+) {
+
+  return Number(
+    numero
+  ).toLocaleString(
+    'es-MX'
+  );
 
 }
 
@@ -1761,29 +2750,38 @@ function escapeHtml(
   texto
 ) {
 
-  return String(texto)
-    .replace(
-      /&/g,
-      '&amp;'
-    )
-    .replace(
-      /</g,
-      '&lt;'
-    )
-    .replace(
-      />/g,
-      '&gt;'
-    )
-    .replace(
-      /"/g,
-      '&quot;'
-    )
-    .replace(
-      /'/g,
-      '&#039;'
-    );
+  return String(
+    texto
+  )
+  .replace(
+    /&/g,
+    '&amp;'
+  )
+  .replace(
+    /</g,
+    '&lt;'
+  )
+  .replace(
+    />/g,
+    '&gt;'
+  )
+  .replace(
+    /"/g,
+    '&quot;'
+  )
+  .replace(
+    /'/g,
+    '&#039;'
+  );
 
 }
+
+
+/***************************************************************
+ * =============================================================
+ * FIN DEL INDEX.HTML
+ * =============================================================
+ ***************************************************************/
 
 </script>
 
