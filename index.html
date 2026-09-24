@@ -19,15 +19,16 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- XLSX -->
-<script
-  src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
-</script>
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
 
-<!-- JSZip -->
-<script
-  src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js">
-</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 
 <!-- =========================================================
@@ -46,303 +47,748 @@ body {
   padding: 0;
   width: 100%;
   height: 100%;
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
   background: #f3f4f6;
-  color: #1f2937;
 }
 
-#app {
+#map {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
+  z-index: 1;
 }
 
 
-/* ---------------------------------------------------------
+/* =========================================================
+   PANEL PRINCIPAL
+   ========================================================= */
+
+#main-panel {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 470px;
+  height: calc(100vh - 24px);
+  max-height: calc(100vh - 24px);
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.25);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   ENCABEZADO
+   ========================================================= */
+
+.app-header {
+  padding: 15px 18px 12px 18px;
+  border-bottom: 1px solid #e5e7eb;
+  background: white;
+  flex-shrink: 0;
+}
+
+.app-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.app-subtitle {
+  margin-top: 3px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.marker-count {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+
+/* =========================================================
+   PESTAÑAS
+   ========================================================= */
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+  flex-shrink: 0;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 11px 4px;
+  border: 0;
+  background: transparent;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.tab-button:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.tab-button.active {
+  color: #2563eb;
+  background: white;
+  border-bottom: 2px solid #2563eb;
+}
+
+
+/* =========================================================
+   CONTENIDO DE PESTAÑAS
+   ========================================================= */
+
+.tab-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 14px;
+}
+
+.tab-section {
+  display: none;
+}
+
+.tab-section.active {
+  display: block;
+}
+
+
+/* =========================================================
+   TITULOS DE SECCIÓN
+   ========================================================= */
+
+.section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.section-subtitle {
+  font-size: 11px;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+
+/* =========================================================
+   ARCHIVOS
+   ========================================================= */
+
+.file-upload-box {
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 18px 12px;
+  text-align: center;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.file-upload-box:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.file-upload-box i {
+  font-size: 28px;
+  color: #2563eb;
+  margin-bottom: 7px;
+}
+
+.file-upload-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.file-upload-description {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+#file-input {
+  display: none;
+}
+
+
+/* =========================================================
+   ESTADO DEL ARCHIVO LOCAL
+   ========================================================= */
+
+.local-file-status {
+  margin-top: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  font-size: 11px;
+  color: #374151;
+}
+
+.local-file-status strong {
+  color: #111827;
+}
+
+
+/* =========================================================
    BOTONES
-   --------------------------------------------------------- */
+   ========================================================= */
 
 .btn {
-  border: none;
-  border-radius: 8px;
-  padding: 10px 15px;
-  cursor: pointer;
-  font-size: 14px;
+  border: 0;
+  border-radius: 7px;
+  padding: 8px 11px;
+  font-size: 11px;
   font-weight: 600;
-  transition: .15s;
-}
-
-.btn:hover {
-  transform: translateY(-1px);
-}
-
-.btn:disabled {
-  opacity: .5;
-  cursor: not-allowed;
-  transform: none;
+  cursor: pointer;
+  transition: .2s;
 }
 
 .btn-primary {
-  background: #1f2937;
+  background: #2563eb;
   color: white;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
 }
 
 .btn-secondary {
   background: #e5e7eb;
-  color: #111827;
-}
-
-.btn-success {
-  background: #166534;
-  color: white;
-}
-
-.btn-danger {
-  background: #991b1b;
-  color: white;
-}
-
-.btn-blue {
-  background: #1d4ed8;
-  color: white;
-}
-
-
-/* ---------------------------------------------------------
-   TARJETAS
-   --------------------------------------------------------- */
-
-.card {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 16px;
-}
-
-
-/* ---------------------------------------------------------
-   INPUTS
-   --------------------------------------------------------- */
-
-input,
-select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 7px;
-  background: white;
-  font-size: 14px;
-}
-
-input:focus,
-select:focus {
-  outline: 2px solid #93c5fd;
-  border-color: #2563eb;
-}
-
-
-/* ---------------------------------------------------------
-   TABLA
-   --------------------------------------------------------- */
-
-.tabla-contenedor {
-  width: 100%;
-  overflow: auto;
-  max-height: 560px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-}
-
-table {
-  border-collapse: collapse;
-  width: max-content;
-  min-width: 100%;
-}
-
-th,
-td {
-  border-bottom: 1px solid #e5e7eb;
-  border-right: 1px solid #e5e7eb;
-  padding: 8px 10px;
-  white-space: nowrap;
-  font-size: 13px;
-}
-
-th {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background: #111827;
-  color: white;
-  cursor: pointer;
-}
-
-th:hover {
-  background: #374151;
-}
-
-td {
-  background: white;
-}
-
-tr:hover td {
-  background: #f9fafb;
-}
-
-
-/* ---------------------------------------------------------
-   PAGINACIÓN
-   --------------------------------------------------------- */
-
-.paginacion {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 12px;
-}
-
-.pagina {
-  min-width: 38px;
-  padding: 7px 10px;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
-  background: white;
-  cursor: pointer;
-}
-
-.pagina.activa {
-  background: #111827;
-  color: white;
-}
-
-
-/* ---------------------------------------------------------
-   MAPA
-   --------------------------------------------------------- */
-
-#mapa {
-  width: 100%;
-  height: 620px;
-  border-radius: 10px;
-  overflow: hidden;
-  background: #e5e7eb;
-  position: relative;
-}
-
-#mapa iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
-
-/* ---------------------------------------------------------
-   KML
-   --------------------------------------------------------- */
-
-.kml-info {
-  max-height: 280px;
-  overflow: auto;
-}
-
-.kml-elemento {
-  border-bottom: 1px solid #e5e7eb;
-  padding: 9px;
-  cursor: pointer;
-}
-
-.kml-elemento:hover {
-  background: #f3f4f6;
-}
-
-
-/* ---------------------------------------------------------
-   ESTADOS
-   --------------------------------------------------------- */
-
-.estado {
-  padding: 10px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-}
-
-.estado-normal {
-  background: #f3f4f6;
   color: #374151;
 }
 
-.estado-ok {
-  background: #ecfdf5;
-  color: #166534;
+.btn-secondary:hover {
+  background: #d1d5db;
 }
 
-.estado-error {
-  background: #fef2f2;
-  color: #991b1b;
+.btn-success {
+  background: #16a34a;
+  color: white;
 }
 
-.estado-proceso {
+.btn-success:hover {
+  background: #15803d;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+
+/* =========================================================
+   CAJA DE EXPORTACIÓN
+   ========================================================= */
+
+.export-box {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid #dbeafe;
   background: #eff6ff;
-  color: #1e40af;
+  border-radius: 8px;
+}
+
+.export-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 7px;
 }
 
 
-/* ---------------------------------------------------------
-   INDICADORES
-   --------------------------------------------------------- */
+/* =========================================================
+   LISTA DE PUNTOS
+   ========================================================= */
 
-.indicadores {
-  display: grid;
-  grid-template-columns:
-    repeat(auto-fit, minmax(130px, 1fr));
-  gap: 10px;
-}
-
-.indicador {
-  background: #f9fafb;
+.points-list {
+  margin-top: 12px;
+  max-height: 240px;
+  overflow-y: auto;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  padding: 12px;
 }
 
-.indicador-label {
+.point-list-item {
+  padding: 8px 9px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
   font-size: 11px;
+  transition: .15s;
+}
+
+.point-list-item:last-child {
+  border-bottom: 0;
+}
+
+.point-list-item:hover {
+  background: #eff6ff;
+}
+
+.point-list-number {
+  display: inline-block;
+  min-width: 25px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.point-list-name {
+  color: #111827;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   INPUTS
+   ========================================================= */
+
+.input-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.input-control {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 7px 8px;
+  font-size: 11px;
+  outline: none;
+  background: white;
+}
+
+.input-control:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37,99,235,.12);
+}
+
+.readonly-field {
+  background: #f3f4f6;
   color: #6b7280;
 }
 
-.indicador-valor {
-  font-size: 20px;
-  font-weight: bold;
-  margin-top: 3px;
+.editable-field {
+  background: #fff;
 }
 
 
-/* ---------------------------------------------------------
-   LAYOUT
-   --------------------------------------------------------- */
+/* =========================================================
+   TABLA
+   ========================================================= */
 
-.grid-principal {
+.table-search {
+  margin-bottom: 10px;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 780px;
+}
+
+.data-table th {
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 7px 6px;
+  border-bottom: 1px solid #d1d5db;
+  text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.data-table td {
+  font-size: 10px;
+  padding: 5px 6px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.data-table tr:hover td {
+  background: #f8fafc;
+}
+
+.table-input {
+  width: 100%;
+  min-width: 90px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 4px 5px;
+  font-size: 10px;
+}
+
+.table-point-name {
+  color: #2563eb;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.table-point-name:hover {
+  text-decoration: underline;
+}
+
+.color-input {
+  width: 38px;
+  height: 25px;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+}
+
+
+/* =========================================================
+   FILTROS
+   ========================================================= */
+
+.filter-block {
+  margin-bottom: 12px;
+}
+
+.filter-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.filter-options {
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 7px;
+  padding: 6px;
+  background: #fafafa;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  font-size: 10px;
+  color: #374151;
+}
+
+.filter-option input {
+  cursor: pointer;
+}
+
+.filter-color-square {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  border: 1px solid #9ca3af;
+  display: inline-block;
+}
+
+.filter-info {
+  padding: 8px;
+  border-radius: 7px;
+  background: #eff6ff;
+  color: #1e40af;
+  font-size: 10px;
+  margin-top: 8px;
+}
+
+
+/* =========================================================
+   RUTAS
+   ========================================================= */
+
+.route-box {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #fafafa;
+}
+
+.route-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+  margin-bottom: 8px;
+}
+
+.route-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.route-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 21px;
+  height: 21px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0,0,0,.3);
+}
+
+.route-coordinate-box {
+  margin-top: 8px;
+}
+
+.route-coordinate-input {
+  font-size: 11px;
+}
+
+.route-points {
+  margin-top: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: white;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.route-point-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 7px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 10px;
+}
+
+.route-point-item:last-child {
+  border-bottom: 0;
+}
+
+.route-number {
+  min-width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.route-point-name {
+  font-weight: 600;
+  color: #374151;
+}
+
+.route-distance {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #374151;
+  font-weight: 600;
+}
+
+.route-mode-active {
+  background: #dc2626 !important;
+  color: white !important;
+}
+
+
+/* =========================================================
+   MARCADOR PERSONALIZADO
+   ========================================================= */
+
+.custom-marker {
+  width: 28px;
+  height: 28px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(0,0,0,.35);
+  position: relative;
+}
+
+.custom-marker-inner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: white;
+  border-radius: 50%;
+  top: 7px;
+  left: 7px;
+}
+
+.custom-marker-content {
+  transform: rotate(45deg);
+}
+
+
+/* =========================================================
+   POPUP
+   ========================================================= */
+
+.popup-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.popup-grid {
   display: grid;
-  grid-template-columns: 380px 1fr;
-  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
 }
 
-.columna {
-  min-width: 0;
+.popup-field {
+  margin-bottom: 7px;
 }
 
-@media(max-width: 900px) {
+.popup-field-full {
+  grid-column: 1 / -1;
+}
 
-  .grid-principal {
-    grid-template-columns: 1fr;
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+#toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(17,24,39,.95);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 11px;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: .25s;
+  max-width: 90%;
+  text-align: center;
+}
+
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+
+/* =========================================================
+   CHECKBOX
+   ========================================================= */
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: #374151;
+}
+
+.checkbox-row input {
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   MAPA - CONTROLES
+   ========================================================= */
+
+.leaflet-control-layers {
+  font-size: 11px;
+}
+
+.leaflet-popup-content {
+  margin: 10px;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 9px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  #main-panel {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 43vh;
+    max-height: 43vh;
+    border-radius: 14px 14px 0 0;
   }
 
-  #mapa {
-    height: 500px;
+  .app-header {
+    padding: 9px 12px 7px;
+  }
+
+  .app-title {
+    font-size: 16px;
+  }
+
+  .tabs {
+    overflow-x: auto;
+  }
+
+  .tab-button {
+    min-width: 80px;
+    font-size: 10px;
+    padding: 8px 3px;
+  }
+
+  .tab-content {
+    padding: 10px;
   }
 
 }
@@ -355,1363 +801,2206 @@ tr:hover td {
 <body>
 
 
-<div id="app">
+<!-- =========================================================
+     MÓDULO 03 - MAPA
+     ========================================================= -->
+
+<div id="map"></div>
+
+
+<!-- =========================================================
+     MÓDULO 04 - PANEL PRINCIPAL
+     ========================================================= -->
+
+<div id="main-panel">
 
 
   <!-- =======================================================
-       MÓDULO 03 - ENCABEZADO
+       ENCABEZADO
        ======================================================= -->
 
-  <header class="bg-gray-900 text-white px-5 py-4">
+  <div class="app-header">
 
-    <div class="max-w-[1600px] mx-auto">
+    <h1 class="app-title">
+      Visualizador KML & Excel
+    </h1>
 
-      <h1 class="text-xl font-bold">
-        Visualizador KML & Excel
-      </h1>
-
-      <p class="text-sm text-gray-300 mt-1">
-        Visualiza archivos Excel y KML directamente desde tu
-        computadora.
-      </p>
-
+    <div class="app-subtitle">
+      KML + Excel + Google Maps
     </div>
 
-  </header>
+    <div
+      id="marker-count"
+      class="marker-count"
+    >
+      0 puntos
+    </div>
+
+  </div>
 
 
-  <main
-    class="max-w-[1600px] mx-auto p-4"
-  >
+  <!-- =======================================================
+       PESTAÑAS
+       ======================================================= -->
+
+  <div class="tabs">
+
+    <button
+      class="tab-button active"
+      onclick="switchTab('files')"
+    >
+      <i class="fa-solid fa-folder-open"></i>
+      Archivos
+    </button>
+
+    <button
+      class="tab-button"
+      onclick="switchTab('table')"
+    >
+      <i class="fa-solid fa-table"></i>
+      Tabla
+    </button>
+
+    <button
+      class="tab-button"
+      onclick="switchTab('filters')"
+    >
+      <i class="fa-solid fa-filter"></i>
+      Filtros
+    </button>
+
+    <button
+      class="tab-button"
+      onclick="switchTab('routes')"
+    >
+      <i class="fa-solid fa-route"></i>
+      Rutas
+    </button>
+
+  </div>
+
+
+  <!-- =======================================================
+       CONTENIDO
+       ======================================================= -->
+
+  <div class="tab-content">
 
 
     <!-- =====================================================
-         MÓDULO 04 - HERRAMIENTAS PRINCIPALES
+         MÓDULO 05 - ARCHIVOS
          ===================================================== -->
 
-    <div class="grid-principal">
+    <section
+      id="tab-files"
+      class="tab-section active"
+    >
+
+      <div class="section-title">
+        Cargar archivo
+      </div>
+
+      <div class="section-subtitle">
+        Selecciona un archivo KML, XML o Excel para visualizarlo.
+      </div>
 
 
-      <!-- ===================================================
-           COLUMNA IZQUIERDA
-           =================================================== -->
+      <!-- ---------------------------------------------------
+           CARGADOR
+           --------------------------------------------------- -->
 
-      <div class="columna">
+      <label
+        for="file-input"
+        class="file-upload-box"
+      >
+
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+
+        <div class="file-upload-title">
+          Cargar KML o Excel
+        </div>
+
+        <div class="file-upload-description">
+          El archivo se procesa directamente en el navegador.
+        </div>
+
+      </label>
+
+      <input
+        id="file-input"
+        type="file"
+        accept=".xlsx,.xls,.kml,.xml"
+        onchange="handleUpload(event)"
+      >
 
 
-        <!-- ================================================
-             EXCEL
-             ================================================ -->
+      <!-- ---------------------------------------------------
+           ESTADO LOCAL
+           --------------------------------------------------- -->
 
-        <div class="card mb-4">
+      <div
+        id="local-file-status"
+        class="local-file-status"
+      >
+        <strong>Archivo:</strong>
+        Ningún archivo cargado.
+      </div>
 
-          <h2 class="font-bold text-lg mb-3">
-            Excel
-          </h2>
 
-          <label
-            class="text-sm font-semibold block mb-2"
+      <!-- ---------------------------------------------------
+           EXPORTACIÓN
+           --------------------------------------------------- -->
+
+      <div
+        id="export-box"
+        class="export-box"
+        style="display:none;"
+      >
+
+        <div class="export-title">
+          Exportar información
+        </div>
+
+        <button
+          class="btn btn-success btn-full"
+          onclick="downloadKML()"
+        >
+
+          <i class="fa-solid fa-download"></i>
+
+          Descargar KML
+
+        </button>
+
+      </div>
+
+
+      <!-- ---------------------------------------------------
+           LISTA DE PUNTOS
+           --------------------------------------------------- -->
+
+      <div
+        class="section-title"
+        style="margin-top:14px;"
+      >
+        Puntos cargados
+      </div>
+
+      <button
+        class="btn btn-secondary btn-full"
+        onclick="zoomAll()"
+        style="margin-bottom:8px;"
+      >
+
+        <i class="fa-solid fa-expand"></i>
+
+        Ver todos
+
+      </button>
+
+      <div
+        id="points-list"
+        class="points-list"
+      >
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MÓDULO 06 - TABLA
+         ===================================================== -->
+
+    <section
+      id="tab-table"
+      class="tab-section"
+    >
+
+      <div class="section-title">
+        Tabla de puntos
+      </div>
+
+      <div class="section-subtitle">
+        Puedes modificar descripciones y colores directamente.
+      </div>
+
+
+      <div class="table-search">
+
+        <input
+          id="table-search-input"
+          class="input-control"
+          type="text"
+          placeholder="Buscar por nombre o descripción..."
+          oninput="renderTable()"
+        >
+
+      </div>
+
+
+      <div class="table-container">
+
+        <table class="data-table">
+
+          <thead>
+
+            <tr>
+
+              <th>Orden</th>
+
+              <th>Nombre</th>
+
+              <th>Latitud</th>
+
+              <th>Longitud</th>
+
+              <th>Desc. 1</th>
+
+              <th>Desc. 2</th>
+
+              <th>Desc. 3</th>
+
+              <th>Color</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="data-table-body">
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MÓDULO 07 - FILTROS
+         ===================================================== -->
+
+    <section
+      id="tab-filters"
+      class="tab-section"
+    >
+
+      <div class="section-title">
+        Filtros
+      </div>
+
+      <div class="section-subtitle">
+        Filtra los puntos mostrados en el mapa y en la lista.
+      </div>
+
+
+      <!-- ---------------------------------------------------
+           BÚSQUEDA GENERAL
+           --------------------------------------------------- -->
+
+      <div class="filter-block">
+
+        <div class="filter-title">
+          Búsqueda general
+        </div>
+
+        <input
+          id="general-filter"
+          class="input-control"
+          type="text"
+          placeholder="Buscar..."
+          oninput="applyFilters()"
+        >
+
+      </div>
+
+
+      <!-- ---------------------------------------------------
+           COLORES
+           --------------------------------------------------- -->
+
+      <div class="filter-block">
+
+        <div class="filter-title">
+          Colores
+        </div>
+
+        <div
+          id="color-filters"
+          class="filter-options"
+        >
+        </div>
+
+      </div>
+
+
+      <!-- ---------------------------------------------------
+           DESCRIPCIÓN 1
+           --------------------------------------------------- -->
+
+      <div class="filter-block">
+
+        <div class="filter-title">
+          Descripción 1
+        </div>
+
+        <div
+          id="desc1-filters"
+          class="filter-options"
+        >
+        </div>
+
+      </div>
+
+
+      <!-- ---------------------------------------------------
+           DESCRIPCIÓN 2
+           --------------------------------------------------- -->
+
+      <div class="filter-block">
+
+        <div class="filter-title">
+          Descripción 2
+        </div>
+
+        <div
+          id="desc2-filters"
+          class="filter-options"
+        >
+        </div>
+
+      </div>
+
+
+      <!-- ---------------------------------------------------
+           DESCRIPCIÓN 3
+           --------------------------------------------------- -->
+
+      <div class="filter-block">
+
+        <div class="filter-title">
+          Descripción 3
+        </div>
+
+        <div
+          id="desc3-filters"
+          class="filter-options"
+        >
+        </div>
+
+      </div>
+
+
+      <!-- ---------------------------------------------------
+           BOTÓN RESTABLECER
+           --------------------------------------------------- -->
+
+      <button
+        class="btn btn-secondary btn-full"
+        onclick="resetFilters()"
+      >
+
+        <i class="fa-solid fa-filter-circle-xmark"></i>
+
+        Restablecer filtros
+
+      </button>
+
+
+      <div
+        id="filter-info"
+        class="filter-info"
+      >
+        Mostrando 0 puntos.
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MÓDULO 08 - RUTAS
+         ===================================================== -->
+
+    <section
+      id="tab-routes"
+      class="tab-section"
+    >
+
+      <div class="section-title">
+        Rutas
+      </div>
+
+      <div class="section-subtitle">
+        Selecciona los puntos en el orden en que deseas recorrerlos.
+      </div>
+
+
+      <!-- ---------------------------------------------------
+           CREAR RUTA
+           --------------------------------------------------- -->
+
+      <button
+        class="btn btn-primary btn-full"
+        onclick="createRoute()"
+      >
+
+        <i class="fa-solid fa-plus"></i>
+
+        Nueva ruta
+
+      </button>
+
+
+      <!-- ---------------------------------------------------
+           SELECTOR DE RUTA
+           --------------------------------------------------- -->
+
+      <div
+        class="route-box"
+        style="margin-top:10px;"
+      >
+
+        <label class="input-label">
+          Ruta activa
+        </label>
+
+        <select
+          id="route-select"
+          class="input-control"
+          onchange="selectRoute(this.value)"
+        >
+
+          <option value="">
+            Selecciona una ruta
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <!-- ---------------------------------------------------
+           CONFIGURACIÓN DE RUTA
+           --------------------------------------------------- -->
+
+      <div
+        id="route-config"
+        class="route-box"
+        style="display:none;"
+      >
+
+        <div class="route-header">
+
+          <div
+            id="active-route-name"
+            class="route-name"
           >
-            Cargar archivo Excel
+            Ruta
+          </div>
+
+        </div>
+
+
+        <!-- -------------------------------------------------
+             COORDENADA INICIAL
+             ------------------------------------------------- -->
+
+        <div class="route-coordinate-box">
+
+          <label class="input-label">
+            Coordenada inicial opcional
           </label>
 
           <input
-            type="file"
-            id="excelInput"
-            accept=".xlsx,.xls,.csv"
-          >
-
-          <div
-            id="estadoExcel"
-            class="estado estado-normal mt-3"
-          >
-            Selecciona un archivo Excel.
-          </div>
-
-        </div>
-
-
-        <!-- ================================================
-             HOJAS
-             ================================================ -->
-
-        <div
-          class="card mb-4"
-          id="panelHojas"
-          style="display:none;"
-        >
-
-          <h2 class="font-bold text-lg mb-3">
-            Hoja
-          </h2>
-
-          <select
-            id="selectorHoja"
-          >
-          </select>
-
-        </div>
-
-
-        <!-- ================================================
-             BUSCADOR
-             ================================================ -->
-
-        <div
-          class="card mb-4"
-          id="panelBusqueda"
-          style="display:none;"
-        >
-
-          <h2 class="font-bold text-lg mb-3">
-            Buscar
-          </h2>
-
-          <input
+            id="route-start-coordinate"
+            class="input-control route-coordinate-input"
             type="text"
-            id="buscador"
-            placeholder="Escribe lo que deseas buscar..."
+            placeholder="Latitud, Longitud"
+            oninput="updateRouteCoordinateState()"
           >
 
-          <div class="botones mt-3 flex gap-2 flex-wrap">
-
-            <button
-              class="btn btn-primary"
-              id="btnBuscar"
-            >
-              Buscar
-            </button>
-
-            <button
-              class="btn btn-secondary"
-              id="btnLimpiarBusqueda"
-            >
-              Limpiar
-            </button>
-
+          <div
+            style="
+              font-size:9px;
+              color:#6b7280;
+              margin-top:3px;
+            "
+          >
+            Ejemplo: 19.4326, -99.1332
           </div>
 
         </div>
 
 
-        <!-- ================================================
-             ESTADÍSTICAS
-             ================================================ -->
+        <!-- -------------------------------------------------
+             REGRESAR
+             ------------------------------------------------- -->
 
         <div
-          class="card mb-4"
-          id="panelIndicadores"
-          style="display:none;"
+          class="checkbox-row"
+          style="margin-top:9px;"
         >
-
-          <h2 class="font-bold text-lg mb-3">
-            Información
-          </h2>
-
-          <div class="indicadores">
-
-            <div class="indicador">
-
-              <div class="indicador-label">
-                Filas
-              </div>
-
-              <div
-                class="indicador-valor"
-                id="totalFilas"
-              >
-                0
-              </div>
-
-            </div>
-
-            <div class="indicador">
-
-              <div class="indicador-label">
-                Columnas
-              </div>
-
-              <div
-                class="indicador-valor"
-                id="totalColumnas"
-              >
-                0
-              </div>
-
-            </div>
-
-            <div class="indicador">
-
-              <div class="indicador-label">
-                Resultados
-              </div>
-
-              <div
-                class="indicador-valor"
-                id="totalResultados"
-              >
-                0
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- ================================================
-             KML
-             ================================================ -->
-
-        <div class="card mb-4">
-
-          <h2 class="font-bold text-lg mb-3">
-            KML / KMZ
-          </h2>
 
           <input
-            type="file"
-            id="kmlInput"
-            accept=".kml,.kmz"
+            id="route-return-checkbox"
+            type="checkbox"
+            onchange="updateRouteCoordinateState()"
           >
 
-          <div
-            id="estadoKml"
-            class="estado estado-normal mt-3"
-          >
-            Selecciona un archivo KML o KMZ.
-          </div>
+          <label for="route-return-checkbox">
+            Regresar al punto inicial
+          </label>
 
         </div>
 
 
-        <!-- ================================================
-             ELEMENTOS KML
-             ================================================ -->
+        <!-- -------------------------------------------------
+             MODO SELECCIÓN
+             ------------------------------------------------- -->
 
-        <div
-          class="card"
-          id="panelKmlElementos"
-          style="display:none;"
+        <button
+          id="route-mode-button"
+          class="btn btn-primary btn-full"
+          style="margin-top:10px;"
+          onclick="toggleRouteMode()"
         >
 
-          <h2 class="font-bold text-lg mb-3">
-            Elementos KML
-          </h2>
+          <i class="fa-solid fa-location-dot"></i>
 
-          <div
-            id="listaKml"
-            class="kml-info"
-          >
-          </div>
+          Activar selección de puntos
 
+        </button>
+
+
+        <!-- -------------------------------------------------
+             INFORMACIÓN
+             ------------------------------------------------- -->
+
+        <div
+          id="route-points-count"
+          style="
+            margin-top:9px;
+            font-size:11px;
+            font-weight:600;
+            color:#374151;
+          "
+        >
+          0 puntos
         </div>
 
+        <div
+          id="route-distance"
+          class="route-distance"
+        >
+          Distancia: 0 km
+        </div>
+
+
+        <!-- -------------------------------------------------
+             LISTA DE PUNTOS
+             ------------------------------------------------- -->
+
+        <div
+          id="route-points-list"
+          class="route-points"
+        >
+        </div>
+
+
+        <!-- -------------------------------------------------
+             ACCIONES
+             ------------------------------------------------- -->
+
+        <div
+          style="
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:7px;
+            margin-top:9px;
+          "
+        >
+
+          <button
+            class="btn btn-primary"
+            onclick="openGoogleRoute()"
+          >
+
+            <i class="fa-solid fa-map-location-dot"></i>
+
+            Google Maps
+
+          </button>
+
+          <button
+            class="btn btn-danger"
+            onclick="clearRoute()"
+          >
+
+            <i class="fa-solid fa-trash"></i>
+
+            Limpiar ruta
+
+          </button>
+
+        </div>
 
       </div>
 
 
-      <!-- ===================================================
-           COLUMNA DERECHA
-           =================================================== -->
+      <!-- ---------------------------------------------------
+           LISTA DE RUTAS
+           --------------------------------------------------- -->
 
-      <div class="columna">
-
-
-        <!-- ================================================
-             VISTAS DEL MAPA
-             ================================================ -->
-
-        <div class="card mb-4">
-
-          <div
-            class="flex flex-wrap justify-between items-center gap-3 mb-3"
-          >
-
-            <h2 class="font-bold text-lg">
-              Visor
-            </h2>
-
-            <div class="flex gap-2 flex-wrap">
-
-              <button
-                class="btn btn-secondary"
-                id="btnMapa"
-              >
-                Mapa
-              </button>
-
-              <button
-                class="btn btn-secondary"
-                id="btnSatelite"
-              >
-                Satélite
-              </button>
-
-              <button
-                class="btn btn-secondary"
-                id="btnRelieve"
-              >
-                Relieve
-              </button>
-
-              <button
-                class="btn btn-secondary"
-                id="btnHibrido"
-              >
-                Híbrido
-              </button>
-
-            </div>
-
-          </div>
-
-
-          <!-- ==============================================
-               MAPA
-               ============================================== -->
-
-          <div id="mapa">
-
-            <div
-              class="h-full flex items-center justify-center text-gray-500"
-              id="mensajeMapa"
-            >
-
-              Carga un archivo KML para visualizarlo.
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- ================================================
-             TABLA EXCEL
-             ================================================ -->
-
-        <div
-          class="card"
-          id="panelTabla"
-          style="display:none;"
-        >
-
-          <div
-            class="flex flex-wrap justify-between items-center gap-3 mb-3"
-          >
-
-            <h2 class="font-bold text-lg">
-              Datos del Excel
-            </h2>
-
-            <select
-              id="filasPorPagina"
-              style="width:auto;"
-            >
-
-              <option value="25">
-                25 filas
-              </option>
-
-              <option value="50">
-                50 filas
-              </option>
-
-              <option value="100" selected>
-                100 filas
-              </option>
-
-              <option value="250">
-                250 filas
-              </option>
-
-              <option value="500">
-                500 filas
-              </option>
-
-            </select>
-
-          </div>
-
-
-          <div class="tabla-contenedor">
-
-            <table>
-
-              <thead id="cabeceraTabla">
-              </thead>
-
-              <tbody id="cuerpoTabla">
-              </tbody>
-
-            </table>
-
-          </div>
-
-
-          <div
-            id="paginacion"
-            class="paginacion"
-          >
-          </div>
-
-        </div>
-
-
+      <div
+        id="routes-list"
+        style="margin-top:10px;"
+      >
       </div>
 
+    </section>
 
-    </div>
-
-
-  </main>
+  </div>
 
 </div>
 
 
 <!-- =========================================================
-     MÓDULO 05 - JAVASCRIPT
+     MÓDULO 09 - TOAST
+     ========================================================= -->
+
+<div id="toast"></div>
+
+
+<!-- =========================================================
+     MÓDULO 10 - JAVASCRIPT PRINCIPAL
      ========================================================= -->
 
 <script>
 
 
-/***************************************************************
- * =============================================================
- * VARIABLES GLOBALES
- * =============================================================
- ***************************************************************/
+/* =========================================================
+   VARIABLES GLOBALES
+   ========================================================= */
 
-let workbookExcel = null;
+let map;
 
-let datosActuales = [];
+let googleHybrid;
+let googleSatellite;
+let googleStreets;
+let googleTerrain;
 
-let datosFiltrados = [];
+let markersData = [];
+let markerLayer = [];
 
-let nombreHojaActual = '';
+let currentFile = '';
+let currentFileType = '';
 
-let paginaActual = 1;
+let originalKML = '';
 
-let filasPorPagina = 100;
-
-let ordenColumna = -1;
-
-let ordenAscendente = true;
-
-
-/*
- * Elementos KML.
- */
-
-let elementosKml = [];
-
-let documentoKml = null;
+let routes = [];
+let activeRouteId = null;
+let routeMode = false;
 
 
-/***************************************************************
- * =============================================================
- * MÓDULO 06 - ELEMENTOS HTML
- * =============================================================
- ***************************************************************/
+/* =========================================================
+   FILTROS
+   ========================================================= */
 
-const excelInput =
-  document.getElementById(
-    'excelInput'
-  );
+let selectedColors = new Set();
 
-const kmlInput =
-  document.getElementById(
-    'kmlInput'
-  );
+let selectedDesc1 = new Set();
 
-const selectorHoja =
-  document.getElementById(
-    'selectorHoja'
-  );
+let selectedDesc2 = new Set();
 
-const buscador =
-  document.getElementById(
-    'buscador'
-  );
-
-const filasPorPaginaInput =
-  document.getElementById(
-    'filasPorPagina'
-  );
-
-const estadoExcel =
-  document.getElementById(
-    'estadoExcel'
-  );
-
-const estadoKml =
-  document.getElementById(
-    'estadoKml'
-  );
-
-const tablaCabecera =
-  document.getElementById(
-    'cabeceraTabla'
-  );
-
-const tablaCuerpo =
-  document.getElementById(
-    'cuerpoTabla'
-  );
-
-const paginacion =
-  document.getElementById(
-    'paginacion'
-  );
-
-const listaKml =
-  document.getElementById(
-    'listaKml'
-  );
-
-const mapa =
-  document.getElementById(
-    'mapa'
-  );
+let selectedDesc3 = new Set();
 
 
-/***************************************************************
- * =============================================================
- * MÓDULO 07 - CARGAR EXCEL
- * =============================================================
- ***************************************************************/
+/* =========================================================
+   COLORES AUTOMÁTICOS
+   ========================================================= */
 
-excelInput.addEventListener(
-  'change',
-  cargarExcel
+let automaticColorIndex = 0;
+
+const DEFAULT_COLORS = [
+
+  '#e6194b',
+  '#3cb44b',
+  '#ffe119',
+  '#4363d8',
+  '#f58231',
+  '#911eb4',
+  '#46f0f0',
+  '#f032e6',
+  '#bcf60c',
+  '#fabebe',
+  '#008080',
+  '#e6beff',
+  '#9a6324',
+  '#fffac8',
+  '#800000',
+  '#aaffc3',
+  '#808000',
+  '#ffd8b1',
+  '#000075',
+  '#808080',
+  '#ff7f00',
+  '#1f78b4',
+  '#33a02c',
+  '#6a3d9a',
+  '#b15928',
+  '#e31a1c',
+  '#ff69b4',
+  '#00ced1',
+  '#daa520',
+  '#7b68ee',
+  '#2e8b57',
+  '#dc143c',
+  '#20b2aa',
+  '#8a2be2',
+  '#ff1493',
+  '#708090',
+  '#556b2f',
+  '#4682b4',
+  '#b22222',
+  '#008000',
+  '#4b0082',
+  '#ff4500',
+  '#696969',
+  '#00ff7f',
+  '#4169e1',
+  '#9932cc',
+  '#ff6347',
+  '#2f4f4f',
+  '#8b4513',
+  '#191970',
+  '#228b22'
+
+];
+
+
+/* =========================================================
+   MÓDULO 11 - INICIALIZACIÓN
+   ========================================================= */
+
+window.addEventListener(
+  'load',
+  initializeApp
 );
 
 
-function cargarExcel(evento) {
+function initializeApp() {
 
-  const archivo =
-    evento.target.files[0];
+  initializeMap();
 
-
-  if (!archivo) {
-
-    return;
-
-  }
-
-
-  mostrarEstado(
-    estadoExcel,
-    'Leyendo archivo Excel...',
-    'proceso'
-  );
-
-
-  const lector =
-    new FileReader();
-
-
-  lector.onload =
-    function(e) {
-
-      try {
-
-        const datos =
-          new Uint8Array(
-            e.target.result
-          );
-
-
-        workbookExcel =
-          XLSX.read(
-            datos,
-            {
-              type: 'array',
-              cellDates: true
-            }
-          );
-
-
-        cargarListaHojas();
-
-
-        if (
-          workbookExcel.SheetNames.length
-        ) {
-
-          cargarHoja(
-            workbookExcel.SheetNames[0]
-          );
-
-        }
-
-
-        mostrarEstado(
-          estadoExcel,
-          'Excel cargado correctamente: ' +
-          archivo.name,
-          'ok'
-        );
-
-      } catch(error) {
-
-        console.error(error);
-
-
-        mostrarEstado(
-          estadoExcel,
-          'Error al leer el Excel: ' +
-          error.message,
-          'error'
-        );
-
-      }
-
-    };
-
-
-  lector.onerror =
-    function() {
-
-      mostrarEstado(
-        estadoExcel,
-        'No fue posible leer el archivo.',
-        'error'
-      );
-
-    };
-
-
-  lector.readAsArrayBuffer(
-    archivo
-  );
+  updateLocalFileStatus();
 
 }
 
 
-/***************************************************************
- * =============================================================
- * MÓDULO 08 - LISTAR HOJAS
- * =============================================================
- ***************************************************************/
-
-function cargarListaHojas() {
-
-  selectorHoja.innerHTML =
-    '';
-
-
-  workbookExcel.SheetNames
-    .forEach(
-      function(nombre) {
-
-        const opcion =
-          document.createElement(
-            'option'
-          );
-
-
-        opcion.value =
-          nombre;
-
-
-        opcion.textContent =
-          nombre;
-
-
-        selectorHoja.appendChild(
-          opcion
-        );
-
-      }
-    );
-
-
-  document
-    .getElementById(
-      'panelHojas'
-    )
-    .style.display =
-      'block';
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 09 - CAMBIAR HOJA
- * =============================================================
- ***************************************************************/
-
-selectorHoja.addEventListener(
-  'change',
-  function() {
-
-    cargarHoja(
-      selectorHoja.value
-    );
-
-  }
-);
-
-
-function cargarHoja(
-  nombreHoja
-) {
-
-  if (
-    !workbookExcel
-  ) {
-
-    return;
-
-  }
-
-
-  nombreHojaActual =
-    nombreHoja;
-
-
-  const hoja =
-    workbookExcel.Sheets[
-      nombreHoja
-    ];
-
-
-  if (!hoja) {
-
-    return;
-
-  }
-
-
-  datosActuales =
-    XLSX.utils.sheet_to_json(
-      hoja,
-      {
-        header: 1,
-        defval: ''
-      }
-    );
-
-
-  /*
-   * Eliminar filas completamente vacías
-   */
-
-  datosActuales =
-    datosActuales.filter(
-      function(fila) {
-
-        return fila.some(
-          function(valor) {
-
-            return String(
-              valor
-            ).trim() !== '';
-
-          }
-        );
-
-      }
-    );
-
-
-  datosFiltrados =
-    [...datosActuales];
-
-
-  paginaActual =
-    1;
-
-
-  ordenColumna =
-    -1;
-
-
-  mostrarPanelesExcel();
-
-  actualizarIndicadores();
-
-  renderizarTabla();
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 10 - MOSTRAR PANELES EXCEL
- * =============================================================
- ***************************************************************/
-
-function mostrarPanelesExcel() {
-
-  document
-    .getElementById(
-      'panelBusqueda'
-    )
-    .style.display =
-      'block';
-
-
-  document
-    .getElementById(
-      'panelIndicadores'
-    )
-    .style.display =
-      'block';
-
-
-  document
-    .getElementById(
-      'panelTabla'
-    )
-    .style.display =
-      'block';
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 11 - INDICADORES
- * =============================================================
- ***************************************************************/
-
-function actualizarIndicadores() {
-
-  const filas =
-    Math.max(
-      datosActuales.length - 1,
-      0
-    );
-
-
-  const columnas =
-    datosActuales.length
-      ? datosActuales[0].length
-      : 0;
-
-
-  document
-    .getElementById(
-      'totalFilas'
-    )
-    .textContent =
-      formatearNumero(
-        filas
-      );
-
-
-  document
-    .getElementById(
-      'totalColumnas'
-    )
-    .textContent =
-      formatearNumero(
-        columnas
-      );
-
-
-  document
-    .getElementById(
-      'totalResultados'
-    )
-    .textContent =
-      formatearNumero(
-        Math.max(
-          datosFiltrados.length - 1,
-          0
-        )
-      );
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 12 - RENDERIZAR TABLA
- * =============================================================
- ***************************************************************/
-
-function renderizarTabla() {
-
-  tablaCabecera.innerHTML =
-    '';
-
-  tablaCuerpo.innerHTML =
-    '';
-
-  paginacion.innerHTML =
-    '';
-
-
-  if (
-    !datosFiltrados.length
-  ) {
-
-    return;
-
-  }
-
-
-  const encabezados =
-    datosFiltrados[0];
-
-
-  /*
-   * CABECERA
-   */
-
-  const filaCabecera =
-    document.createElement(
-      'tr'
-    );
-
-
-  encabezados.forEach(
-    function(valor, indice) {
-
-      const th =
-        document.createElement(
-          'th'
-        );
-
-
-      th.textContent =
-        valor ||
-        'Columna ' +
-        (indice + 1);
-
-
-      th.title =
-        'Haz clic para ordenar';
-
-
-      th.addEventListener(
-        'click',
-        function() {
-
-          ordenarPorColumna(
-            indice
-          );
-
-        }
-      );
-
-
-      filaCabecera.appendChild(
-        th
-      );
-
+/* =========================================================
+   MÓDULO 12 - INICIALIZAR MAPA
+   ========================================================= */
+
+function initializeMap() {
+
+  map = L.map(
+    'map',
+    {
+      center: [19.4326, -99.1332],
+      zoom: 6,
+      zoomControl: true
     }
   );
 
 
-  tablaCabecera.appendChild(
-    filaCabecera
+  /* -------------------------------------------------------
+     GOOGLE HÍBRIDO
+     ------------------------------------------------------- */
+
+  googleHybrid = L.tileLayer(
+    'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+    {
+      attribution: 'Google',
+      maxZoom: 20
+    }
   );
 
 
-  /*
-   * DATOS
-   */
+  /* -------------------------------------------------------
+     GOOGLE SATÉLITE
+     ------------------------------------------------------- */
 
-  const totalDatos =
-    datosFiltrados.length - 1;
+  googleSatellite = L.tileLayer(
+    'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+    {
+      attribution: 'Google',
+      maxZoom: 20
+    }
+  );
 
 
-  const totalPaginas =
-    Math.max(
-      Math.ceil(
-        totalDatos /
-        filasPorPagina
-      ),
-      1
+  /* -------------------------------------------------------
+     GOOGLE CALLES
+     ------------------------------------------------------- */
+
+  googleStreets = L.tileLayer(
+    'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+    {
+      attribution: 'Google',
+      maxZoom: 20
+    }
+  );
+
+
+  /* -------------------------------------------------------
+     GOOGLE TERRENO
+     ------------------------------------------------------- */
+
+  googleTerrain = L.tileLayer(
+    'https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',
+    {
+      attribution: 'Google',
+      maxZoom: 20
+    }
+  );
+
+
+  /* -------------------------------------------------------
+     CAPA INICIAL
+     ------------------------------------------------------- */
+
+  googleHybrid.addTo(map);
+
+
+  /* -------------------------------------------------------
+     CONTROL DE CAPAS
+     ------------------------------------------------------- */
+
+  const baseMaps = {
+
+    'Google Híbrido': googleHybrid,
+
+    'Google Satélite': googleSatellite,
+
+    'Google Calles': googleStreets,
+
+    'Google Terreno': googleTerrain
+
+  };
+
+
+  L.control.layers(
+    baseMaps,
+    null,
+    {
+      collapsed: true
+    }
+  ).addTo(map);
+
+}
+
+
+/* =========================================================
+   MÓDULO 13 - PESTAÑAS
+   ========================================================= */
+
+function switchTab(tab) {
+
+  document
+    .querySelectorAll('.tab-section')
+    .forEach(section => {
+
+      section.classList.remove('active');
+
+    });
+
+
+  document
+    .querySelectorAll('.tab-button')
+    .forEach(button => {
+
+      button.classList.remove('active');
+
+    });
+
+
+  const section =
+    document.getElementById(
+      'tab-' + tab
     );
 
+  if (section) {
 
-  if (
-    paginaActual >
-    totalPaginas
-  ) {
-
-    paginaActual =
-      totalPaginas;
+    section.classList.add('active');
 
   }
 
 
-  const inicio =
-    1 +
-    (
-      paginaActual - 1
-    ) *
-    filasPorPagina;
+  const buttons =
+    document.querySelectorAll('.tab-button');
 
 
-  const fin =
-    Math.min(
-      inicio +
-      filasPorPagina,
-      datosFiltrados.length
+  const index = {
+
+    files: 0,
+
+    table: 1,
+
+    filters: 2,
+
+    routes: 3
+
+  };
+
+
+  if (buttons[index[tab]]) {
+
+    buttons[index[tab]]
+      .classList
+      .add('active');
+
+  }
+
+
+  setTimeout(
+    () => {
+
+      if (map) {
+
+        map.invalidateSize();
+
+      }
+
+    },
+    100
+  );
+
+}
+
+
+/* =========================================================
+   MÓDULO 14 - CARGA DE ARCHIVOS
+   ========================================================= */
+
+function handleUpload(event) {
+
+  const file =
+    event.target.files[0];
+
+  if (!file) {
+
+    return;
+
+  }
+
+
+  const extension =
+    file.name
+      .split('.')
+      .pop()
+      .toLowerCase();
+
+
+  /* -------------------------------------------------------
+     KML / XML
+     ------------------------------------------------------- */
+
+  if (
+    extension === 'kml' ||
+    extension === 'xml'
+  ) {
+
+    const reader =
+      new FileReader();
+
+
+    reader.onload =
+      function(e) {
+
+        try {
+
+          const content =
+            e.target.result;
+
+
+          originalKML =
+            content;
+
+
+          processKML(
+            file.name,
+            content
+          );
+
+
+          updateLocalFileStatus(
+            file.name,
+            'KML/XML'
+          );
+
+
+        } catch (error) {
+
+          console.error(error);
+
+          showToast(
+            'Error al procesar el archivo KML/XML.'
+          );
+
+        }
+
+      };
+
+
+    reader.readAsText(file);
+
+    return;
+
+  }
+
+
+  /* -------------------------------------------------------
+     EXCEL
+     ------------------------------------------------------- */
+
+  if (
+    extension === 'xlsx' ||
+    extension === 'xls'
+  ) {
+
+    const reader =
+      new FileReader();
+
+
+    reader.onload =
+      function(e) {
+
+        try {
+
+          const data =
+            new Uint8Array(
+              e.target.result
+            );
+
+
+          const workbook =
+            XLSX.read(
+              data,
+              {
+                type: 'array'
+              }
+            );
+
+
+          if (
+            !workbook.SheetNames ||
+            workbook.SheetNames.length === 0
+          ) {
+
+            showToast(
+              'El archivo Excel no contiene hojas.'
+            );
+
+            return;
+
+          }
+
+
+          const firstSheetName =
+            workbook.SheetNames[0];
+
+
+          const worksheet =
+            workbook.Sheets[
+              firstSheetName
+            ];
+
+
+          const rows =
+            XLSX.utils.sheet_to_json(
+              worksheet,
+              {
+                header: 1,
+                defval: ''
+              }
+            );
+
+
+          processExcel(
+            file.name,
+            rows
+          );
+
+
+          updateLocalFileStatus(
+            file.name,
+            'Excel'
+          );
+
+
+        } catch (error) {
+
+          console.error(error);
+
+          showToast(
+            'Error al procesar el archivo Excel.'
+          );
+
+        }
+
+      };
+
+
+    reader.readAsArrayBuffer(file);
+
+    return;
+
+  }
+
+
+  showToast(
+    'Formato de archivo no compatible.'
+  );
+
+}
+
+
+/* =========================================================
+   MÓDULO 15 - PROCESAR EXCEL
+   ========================================================= */
+
+function processExcel(
+  fileName,
+  rows
+) {
+
+  if (
+    !rows ||
+    rows.length < 2
+  ) {
+
+    showToast(
+      'El Excel no contiene datos suficientes.'
     );
+
+    return;
+
+  }
+
+
+  clearMap();
+
+
+  markersData = [];
+
+
+  automaticColorIndex = 0;
 
 
   for (
-    let i = inicio;
-    i < fin;
+    let i = 1;
+    i < rows.length;
     i++
   ) {
 
-    const tr =
-      document.createElement(
-        'tr'
-      );
+    const row =
+      rows[i];
 
 
-    const fila =
-      datosFiltrados[i];
+    if (!row) {
 
-
-    for (
-      let c = 0;
-      c < encabezados.length;
-      c++
-    ) {
-
-      const td =
-        document.createElement(
-          'td'
-        );
-
-
-      td.textContent =
-        formatearCelda(
-          fila[c]
-        );
-
-
-      tr.appendChild(
-        td
-      );
+      continue;
 
     }
 
 
-    tablaCuerpo.appendChild(
-      tr
-    );
-
-  }
-
-
-  renderizarPaginacion(
-    totalPaginas
-  );
-
-}
+    const isEmpty =
+      row.every(
+        value =>
+          String(value ?? '').trim() === ''
+      );
 
 
-/***************************************************************
- * =============================================================
- * MÓDULO 13 - ORDENAR
- * =============================================================
- ***************************************************************/
+    if (isEmpty) {
 
-function ordenarPorColumna(
-  columna
-) {
-
-  if (
-    ordenColumna === columna
-  ) {
-
-    ordenAscendente =
-      !ordenAscendente;
-
-  } else {
-
-    ordenColumna =
-      columna;
-
-    ordenAscendente =
-      true;
-
-  }
-
-
-  const encabezado =
-    datosFiltrados[0];
-
-
-  const datos =
-    datosFiltrados.slice(1);
-
-
-  datos.sort(
-    function(a, b) {
-
-      const valorA =
-        String(
-          a[columna] ??
-          ''
-        ).toLowerCase();
-
-
-      const valorB =
-        String(
-          b[columna] ??
-          ''
-        ).toLowerCase();
-
-
-      const numeroA =
-        Number(
-          valorA.replace(
-            /,/g,
-            ''
-          )
-        );
-
-
-      const numeroB =
-        Number(
-          valorB.replace(
-            /,/g,
-            ''
-          )
-        );
-
-
-      let comparacion;
-
-
-      if (
-        valorA !== '' &&
-        valorB !== '' &&
-        !isNaN(numeroA) &&
-        !isNaN(numeroB)
-      ) {
-
-        comparacion =
-          numeroA -
-          numeroB;
-
-      } else {
-
-        comparacion =
-          valorA.localeCompare(
-            valorB,
-            'es',
-            {
-              numeric: true,
-              sensitivity: 'base'
-            }
-          );
-
-      }
-
-
-      return ordenAscendente
-        ? comparacion
-        : -comparacion;
+      continue;
 
     }
-  );
 
 
-  datosFiltrados =
-    [
-      encabezado,
-      ...datos
-    ];
+    const name =
+      String(
+        row[0] ?? ''
+      ).trim();
 
 
-  paginaActual =
-    1;
+    const lat =
+      parseFloat(
+        row[1]
+      );
 
 
-  renderizarTabla();
+    const lng =
+      parseFloat(
+        row[2]
+      );
 
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 14 - BUSCAR
- * =============================================================
- ***************************************************************/
-
-document
-  .getElementById(
-    'btnBuscar'
-  )
-  .addEventListener(
-    'click',
-    realizarBusqueda
-  );
-
-
-buscador.addEventListener(
-  'keydown',
-  function(evento) {
 
     if (
-      evento.key === 'Enter'
+      !Number.isFinite(lat) ||
+      !Number.isFinite(lng)
     ) {
 
-      realizarBusqueda();
+      continue;
 
     }
 
+
+    const desc1 =
+      String(
+        row[3] ?? ''
+      ).trim();
+
+
+    const desc2 =
+      String(
+        row[4] ?? ''
+      ).trim();
+
+
+    const desc3 =
+      String(
+        row[5] ?? ''
+      ).trim();
+
+
+    const color =
+      normalizeColor(
+        row[6]
+      );
+
+
+    markersData.push({
+
+      id:
+        'point_' +
+        Date.now() +
+        '_' +
+        i,
+
+      row:
+        i + 1,
+
+      order:
+        markersData.length + 1,
+
+      name:
+        name || 'Punto ' + (markersData.length + 1),
+
+      lat:
+        lat,
+
+      lng:
+        lng,
+
+      desc1:
+        desc1,
+
+      desc2:
+        desc2,
+
+      desc3:
+        desc3,
+
+      color:
+        color,
+
+      marker:
+        null
+
+    });
+
   }
-);
 
 
-function realizarBusqueda() {
+  currentFile =
+    fileName;
 
-  const texto =
-    buscador.value
+  currentFileType =
+    'excel';
+
+
+  drawMarkers();
+
+  refreshInterface();
+
+  zoomAll();
+
+
+  document
+    .getElementById('export-box')
+    .style.display = 'block';
+
+
+  showToast(
+    markersData.length +
+    ' puntos cargados desde Excel.'
+  );
+
+}
+
+
+/* =========================================================
+   MÓDULO 16 - NORMALIZACIÓN DE COLORES
+   ========================================================= */
+
+function normalizeColor(value) {
+
+  if (
+    value === null ||
+    value === undefined ||
+    String(value).trim() === ''
+  ) {
+
+    return getAutomaticColor();
+
+  }
+
+
+  let color =
+    String(value)
       .trim()
       .toLowerCase();
 
 
+  /* -------------------------------------------------------
+     HEX
+     ------------------------------------------------------- */
+
   if (
-    !texto
+    /^#[0-9a-f]{6}$/i.test(color)
   ) {
 
-    datosFiltrados =
-      [...datosActuales];
-
-  } else {
-
-    const encabezado =
-      datosActuales[0];
-
-
-    const datos =
-      datosActuales
-        .slice(1)
-        .filter(
-          function(fila) {
-
-            return fila.some(
-              function(valor) {
-
-                return String(
-                  valor
-                )
-                .toLowerCase()
-                .includes(
-                  texto
-                );
-
-              }
-            );
-
-          }
-        );
-
-
-    datosFiltrados =
-      [
-        encabezado,
-        ...datos
-      ];
+    return color;
 
   }
 
 
-  paginaActual =
-    1;
+  if (
+    /^[0-9a-f]{6}$/i.test(color)
+  ) {
+
+    return '#' + color;
+
+  }
 
 
-  actualizarIndicadores();
+  /* -------------------------------------------------------
+     RGB
+     ------------------------------------------------------- */
 
-  renderizarTabla();
+  const rgbMatch =
+    color.match(
+      /^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/
+    );
+
+
+  if (rgbMatch) {
+
+    return rgbToHex(
+      parseInt(rgbMatch[1]),
+      parseInt(rgbMatch[2]),
+      parseInt(rgbMatch[3])
+    );
+
+  }
+
+
+  /* -------------------------------------------------------
+     NOMBRES
+     ------------------------------------------------------- */
+
+  const colors = {
+
+    rojo: '#ff0000',
+    red: '#ff0000',
+
+    verde: '#008000',
+    green: '#008000',
+
+    azul: '#0000ff',
+    blue: '#0000ff',
+
+    amarillo: '#ffff00',
+    yellow: '#ffff00',
+
+    naranja: '#ffa500',
+    orange: '#ffa500',
+
+    morado: '#800080',
+    purple: '#800080',
+
+    rosa: '#ffc0cb',
+    pink: '#ffc0cb',
+
+    negro: '#000000',
+    black: '#000000',
+
+    blanco: '#ffffff',
+    white: '#ffffff',
+
+    gris: '#808080',
+    gray: '#808080',
+
+    café: '#8b4513',
+    cafe: '#8b4513',
+    brown: '#8b4513',
+
+    turquesa: '#40e0d0',
+    turquoise: '#40e0d0',
+
+    cyan: '#00ffff',
+    cian: '#00ffff'
+
+  };
+
+
+  if (
+    colors[color]
+  ) {
+
+    return colors[color];
+
+  }
+
+
+  return getAutomaticColor();
 
 }
 
 
-/***************************************************************
- * =============================================================
- * MÓDULO 15 - LIMPIAR BÚSQUEDA
- * =============================================================
- ***************************************************************/
+/* =========================================================
+   OBTENER COLOR AUTOMÁTICO
+   ========================================================= */
 
-document
-  .getElementById(
-    'btnLimpiarBusqueda'
-  )
-  .addEventListener(
+function getAutomaticColor() {
+
+  const color =
+    DEFAULT_COLORS[
+      automaticColorIndex %
+      DEFAULT_COLORS.length
+    ];
+
+
+  automaticColorIndex++;
+
+
+  return color;
+
+}
+
+
+/* =========================================================
+   RGB A HEX
+   ========================================================= */
+
+function rgbToHex(
+  r,
+  g,
+  b
+) {
+
+  return '#' +
+    [r, g, b]
+      .map(
+        value =>
+          Math.max(
+            0,
+            Math.min(
+              255,
+              value
+            )
+          )
+          .toString(16)
+          .padStart(2, '0')
+      )
+      .join('');
+
+}
+
+
+/* =========================================================
+   MÓDULO 17 - DIBUJAR MARCADORES
+   ========================================================= */
+
+function drawMarkers() {
+
+  clearMarkerLayer();
+
+
+  markersData.forEach(
+    point => {
+
+      const marker =
+        createMarker(point);
+
+
+      point.marker =
+        marker;
+
+
+      marker.addTo(map);
+
+
+      markerLayer.push(marker);
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   CREAR MARCADOR
+   ========================================================= */
+
+function createMarker(point) {
+
+  const marker =
+    L.marker(
+      [
+        point.lat,
+        point.lng
+      ],
+      {
+        icon:
+          createMarkerIcon(point)
+      }
+    );
+
+
+  marker.on(
     'click',
     function() {
 
-      buscador.value =
-        '';
+      if (
+        routeMode &&
+        activeRouteId
+      ) {
+
+        togglePointInRoute(
+          point.id
+        );
+
+        return;
+
+      }
 
 
-      datosFiltrados =
-        [...datosActuales];
-
-
-      paginaActual =
-        1;
-
-
-      actualizarIndicadores();
-
-      renderizarTabla();
+      openPointEditor(
+        point
+      );
 
     }
   );
 
 
-/***************************************************************
- * =============================================================
- * MÓDULO 16 - FILAS POR PÁGINA
- * =============================================================
- ***************************************************************/
+  return marker;
 
-filasPorPaginaInput.addEventListener(
-  'change',
-  function() {
+}
 
-    filasPorPagina =
-      Number(
-        filasPorPaginaInput.value
+
+/* =========================================================
+   ICONO DEL MARCADOR
+   ========================================================= */
+
+function createMarkerIcon(point) {
+
+  let badge = '';
+
+
+  const route =
+    getActiveRoute();
+
+
+  if (route) {
+
+    const index =
+      route.points.indexOf(
+        point.id
       );
 
 
-    paginaActual =
-      1;
+    if (index !== -1) {
 
+      badge =
+        `
+        <div
+          style="
+            position:absolute;
+            top:-13px;
+            right:-13px;
+            z-index:10;
+          "
+        >
+          <span class="route-badge">
+            ${index + 1}
+          </span>
+        </div>
+        `;
 
-    renderizarTabla();
+    }
 
   }
-);
 
 
-/***************************************************************
- * =============================================================
- * MÓDULO 17 - PAGINACIÓN
- * =============================================================
- ***************************************************************/
+  const html =
+    `
+    <div
+      style="
+        position:relative;
+        width:28px;
+        height:28px;
+      "
+    >
 
-function renderizarPaginacion(
-  totalPaginas
+      <div
+        class="custom-marker"
+        style="background:${point.color};"
+      >
+
+        <div class="custom-marker-inner"></div>
+
+      </div>
+
+      ${badge}
+
+    </div>
+    `;
+
+
+  return L.divIcon({
+
+    className: '',
+
+    html: html,
+
+    iconSize: [
+      28,
+      28
+    ],
+
+    iconAnchor: [
+      14,
+      28
+    ],
+
+    popupAnchor: [
+      0,
+      -28
+    ]
+
+  });
+
+}
+
+
+/* =========================================================
+   LIMPIAR CAPA DE MARCADORES
+   ========================================================= */
+
+function clearMarkerLayer() {
+
+  markerLayer.forEach(
+    marker => {
+
+      if (map.hasLayer(marker)) {
+
+        map.removeLayer(marker);
+
+      }
+
+    }
+  );
+
+
+  markerLayer = [];
+
+}
+
+
+/* =========================================================
+   MÓDULO 18 - EDITOR DE PUNTO
+   ========================================================= */
+
+function openPointEditor(point) {
+
+  const popupContent =
+    `
+    <div style="min-width:250px;">
+
+      <div class="popup-title">
+        Editar punto
+      </div>
+
+      <div class="popup-field">
+
+        <label class="input-label">
+          Nombre
+        </label>
+
+        <input
+          class="input-control readonly-field"
+          value="${escapeHtml(point.name)}"
+          readonly
+        >
+
+      </div>
+
+
+      <div class="popup-grid">
+
+        <div class="popup-field">
+
+          <label class="input-label">
+            Latitud
+          </label>
+
+          <input
+            class="input-control readonly-field"
+            value="${point.lat}"
+            readonly
+          >
+
+        </div>
+
+
+        <div class="popup-field">
+
+          <label class="input-label">
+            Longitud
+          </label>
+
+          <input
+            class="input-control readonly-field"
+            value="${point.lng}"
+            readonly
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="popup-field">
+
+        <label class="input-label">
+          Descripción 1
+        </label>
+
+        <input
+          id="popup-desc1-${point.id}"
+          class="input-control editable-field"
+          value="${escapeHtml(point.desc1)}"
+        >
+
+      </div>
+
+
+      <div class="popup-field">
+
+        <label class="input-label">
+          Descripción 2
+        </label>
+
+        <input
+          id="popup-desc2-${point.id}"
+          class="input-control editable-field"
+          value="${escapeHtml(point.desc2)}"
+        >
+
+      </div>
+
+
+      <div class="popup-field">
+
+        <label class="input-label">
+          Descripción 3
+        </label>
+
+        <input
+          id="popup-desc3-${point.id}"
+          class="input-control editable-field"
+          value="${escapeHtml(point.desc3)}"
+        >
+
+      </div>
+
+
+      <div class="popup-field">
+
+        <label class="input-label">
+          Color
+        </label>
+
+        <input
+          id="popup-color-${point.id}"
+          class="color-input"
+          type="color"
+          value="${point.color}"
+        >
+
+      </div>
+
+
+      <button
+        class="btn btn-primary btn-full"
+        onclick="savePointEdit('${point.id}')"
+      >
+
+        <i class="fa-solid fa-floppy-disk"></i>
+
+        Guardar cambios
+
+      </button>
+
+    </div>
+    `;
+
+
+  point.marker
+    .bindPopup(
+      popupContent,
+      {
+        maxWidth: 340
+      }
+    )
+    .openPopup();
+
+}
+
+
+/* =========================================================
+   GUARDAR EDICIÓN DEL PUNTO
+   ========================================================= */
+
+function savePointEdit(id) {
+
+  const point =
+    markersData.find(
+      item =>
+        item.id === id
+    );
+
+
+  if (!point) {
+
+    return;
+
+  }
+
+
+  const desc1 =
+    document.getElementById(
+      'popup-desc1-' + id
+    );
+
+
+  const desc2 =
+    document.getElementById(
+      'popup-desc2-' + id
+    );
+
+
+  const desc3 =
+    document.getElementById(
+      'popup-desc3-' + id
+    );
+
+
+  const color =
+    document.getElementById(
+      'popup-color-' + id
+    );
+
+
+  if (desc1) {
+
+    point.desc1 =
+      desc1.value;
+
+  }
+
+
+  if (desc2) {
+
+    point.desc2 =
+      desc2.value;
+
+  }
+
+
+  if (desc3) {
+
+    point.desc3 =
+      desc3.value;
+
+  }
+
+
+  if (color) {
+
+    point.color =
+      color.value;
+
+  }
+
+
+  redrawPoint(point);
+
+  buildDescriptionFilters();
+
+  buildColorFilters();
+
+  applyFilters();
+
+  renderTable();
+
+  point.marker.closePopup();
+
+
+  showToast(
+    'Punto actualizado.'
+  );
+
+}
+
+
+/* =========================================================
+   REDIBUJAR PUNTO
+   ========================================================= */
+
+function redrawPoint(point) {
+
+  if (!point.marker) {
+
+    return;
+
+  }
+
+
+  point.marker.setIcon(
+    createMarkerIcon(point)
+  );
+
+}
+
+
+/* =========================================================
+   MÓDULO 19 - TABLA
+   ========================================================= */
+
+function renderTable() {
+
+  const tbody =
+    document.getElementById(
+      'data-table-body'
+    );
+
+
+  if (!tbody) {
+
+    return;
+
+  }
+
+
+  tbody.innerHTML = '';
+
+
+  const searchInput =
+    document.getElementById(
+      'table-search-input'
+    );
+
+
+  const search =
+    searchInput
+      ? searchInput.value
+          .trim()
+          .toLowerCase()
+      : '';
+
+
+  markersData
+    .filter(point => {
+
+      if (!search) {
+
+        return true;
+
+      }
+
+
+      return (
+
+        String(point.name)
+          .toLowerCase()
+          .includes(search)
+
+        ||
+
+        String(point.desc1)
+          .toLowerCase()
+          .includes(search)
+
+        ||
+
+        String(point.desc2)
+          .toLowerCase()
+          .includes(search)
+
+        ||
+
+        String(point.desc3)
+          .toLowerCase()
+          .includes(search)
+
+      );
+
+    })
+    .forEach(point => {
+
+      const tr =
+        document.createElement('tr');
+
+
+      tr.innerHTML =
+        `
+        <td>
+          ${point.order}
+        </td>
+
+        <td>
+
+          <span
+            class="table-point-name"
+            onclick="focusPoint('${point.id}')"
+          >
+            ${escapeHtml(point.name)}
+          </span>
+
+        </td>
+
+        <td>
+          ${point.lat}
+        </td>
+
+        <td>
+          ${point.lng}
+        </td>
+
+        <td>
+
+          <input
+            class="table-input"
+            value="${escapeHtml(point.desc1)}"
+            onchange="
+              changeTableValue(
+                '${point.id}',
+                'desc1',
+                this.value
+              )
+            "
+          >
+
+        </td>
+
+        <td>
+
+          <input
+            class="table-input"
+            value="${escapeHtml(point.desc2)}"
+            onchange="
+              changeTableValue(
+                '${point.id}',
+                'desc2',
+                this.value
+              )
+            "
+          >
+
+        </td>
+
+        <td>
+
+          <input
+            class="table-input"
+            value="${escapeHtml(point.desc3)}"
+            onchange="
+              changeTableValue(
+                '${point.id}',
+                'desc3',
+                this.value
+              )
+            "
+          >
+
+        </td>
+
+        <td>
+
+          <input
+            class="color-input"
+            type="color"
+            value="${point.color}"
+            onchange="
+              changeTableColor(
+                '${point.id}',
+                this.value
+              )
+            "
+          >
+
+        </td>
+        `;
+
+
+      tbody.appendChild(tr);
+
+    });
+
+}
+
+
+/* =========================================================
+   CAMBIAR VALOR DESDE TABLA
+   ========================================================= */
+
+function changeTableValue(
+  id,
+  field,
+  value
 ) {
 
-  paginacion.innerHTML =
-    '';
+  const point =
+    markersData.find(
+      item =>
+        item.id === id
+    );
+
+
+  if (!point) {
+
+    return;
+
+  }
 
 
   if (
-    totalPaginas <= 1
+    field === 'name' ||
+    field === 'lat' ||
+    field === 'lng'
   ) {
 
     return;
@@ -1719,386 +3008,2690 @@ function renderizarPaginacion(
   }
 
 
-  const btnAnterior =
-    document.createElement(
-      'button'
+  point[field] =
+    value;
+
+
+  buildDescriptionFilters();
+
+  applyFilters();
+
+  renderPointsList();
+
+  showToast(
+    'Información actualizada.'
+  );
+
+}
+
+
+/* =========================================================
+   CAMBIAR COLOR DESDE TABLA
+   ========================================================= */
+
+function changeTableColor(
+  id,
+  color
+) {
+
+  const point =
+    markersData.find(
+      item =>
+        item.id === id
     );
 
 
-  btnAnterior.className =
-    'pagina';
+  if (!point) {
+
+    return;
+
+  }
 
 
-  btnAnterior.textContent =
-    '‹';
+  point.color =
+    color;
 
 
-  btnAnterior.disabled =
-    paginaActual === 1;
+  redrawPoint(point);
+
+  buildColorFilters();
+
+  applyFilters();
+
+  showToast(
+    'Color actualizado.'
+  );
+
+}
 
 
-  btnAnterior.addEventListener(
-    'click',
-    function() {
+/* =========================================================
+   MÓDULO 20 - FILTROS
+   ========================================================= */
 
-      paginaActual--;
+function buildFilters() {
 
-      renderizarTabla();
+  buildColorFilters();
+
+  buildDescriptionFilters();
+
+}
+
+
+/* =========================================================
+   FILTROS DE COLOR
+   ========================================================= */
+
+function buildColorFilters() {
+
+  const container =
+    document.getElementById(
+      'color-filters'
+    );
+
+
+  if (!container) {
+
+    return;
+
+  }
+
+
+  const values =
+    [
+      ...new Set(
+        markersData.map(
+          point =>
+            point.color
+        )
+      )
+    ]
+    .filter(Boolean)
+    .sort();
+
+
+  container.innerHTML = '';
+
+
+  const allLabel =
+    document.createElement('label');
+
+
+  allLabel.className =
+    'filter-option';
+
+
+  const allChecked =
+    selectedColors.size === 0;
+
+
+  allLabel.innerHTML =
+    `
+    <input
+      type="checkbox"
+      ${allChecked ? 'checked' : ''}
+      onchange="selectAllColors(this.checked)"
+    >
+
+    <span>
+      Todos
+    </span>
+    `;
+
+
+  container.appendChild(
+    allLabel
+  );
+
+
+  values.forEach(color => {
+
+    const label =
+      document.createElement('label');
+
+
+    label.className =
+      'filter-option';
+
+
+    const checked =
+      selectedColors.has(color);
+
+
+    label.innerHTML =
+      `
+      <input
+        type="checkbox"
+        ${checked ? 'checked' : ''}
+        onchange="
+          toggleColorFilter(
+            '${color}',
+            this.checked
+          )
+        "
+      >
+
+      <span
+        class="filter-color-square"
+        style="background:${color};"
+      ></span>
+
+      <span>
+        ${color}
+      </span>
+      `;
+
+
+    container.appendChild(
+      label
+    );
+
+  });
+
+}
+
+
+/* =========================================================
+   TOGGLE COLOR
+   ========================================================= */
+
+function toggleColorFilter(
+  color,
+  checked
+) {
+
+  if (checked) {
+
+    selectedColors.add(color);
+
+  } else {
+
+    selectedColors.delete(color);
+
+  }
+
+
+  buildColorFilters();
+
+  applyFilters();
+
+}
+
+
+/* =========================================================
+   SELECCIONAR TODOS LOS COLORES
+   ========================================================= */
+
+function selectAllColors(checked) {
+
+  selectedColors.clear();
+
+  buildColorFilters();
+
+  applyFilters();
+
+}
+
+
+/* =========================================================
+   FILTROS DE DESCRIPCIONES
+   ========================================================= */
+
+function buildDescriptionFilters() {
+
+  buildDescriptionFilter(
+    'desc1',
+    'desc1-filters',
+    selectedDesc1
+  );
+
+
+  buildDescriptionFilter(
+    'desc2',
+    'desc2-filters',
+    selectedDesc2
+  );
+
+
+  buildDescriptionFilter(
+    'desc3',
+    'desc3-filters',
+    selectedDesc3
+  );
+
+}
+
+
+/* =========================================================
+   CONSTRUIR UN FILTRO DE DESCRIPCIÓN
+   ========================================================= */
+
+function buildDescriptionFilter(
+  field,
+  containerId,
+  selectedSet
+) {
+
+  const container =
+    document.getElementById(
+      containerId
+    );
+
+
+  if (!container) {
+
+    return;
+
+  }
+
+
+  const values =
+    [
+      ...new Set(
+        markersData
+          .map(
+            point =>
+              String(
+                point[field] ?? ''
+              ).trim()
+          )
+      )
+    ]
+    .filter(
+      value =>
+        value !== ''
+    )
+    .sort(
+      (a,b) =>
+        a.localeCompare(
+          b,
+          'es'
+        )
+    );
+
+
+  container.innerHTML = '';
+
+
+  const allLabel =
+    document.createElement('label');
+
+
+  allLabel.className =
+    'filter-option';
+
+
+  allLabel.innerHTML =
+    `
+    <input
+      type="checkbox"
+      ${
+        selectedSet.size === 0
+          ? 'checked'
+          : ''
+      }
+      onchange="
+        selectAllDescriptionValues(
+          '${field}'
+        )
+      "
+    >
+
+    <span>
+      Todos
+    </span>
+    `;
+
+
+  container.appendChild(
+    allLabel
+  );
+
+
+  values.forEach(value => {
+
+    const label =
+      document.createElement('label');
+
+
+    label.className =
+      'filter-option';
+
+
+    label.innerHTML =
+      `
+      <input
+        type="checkbox"
+        ${
+          selectedSet.has(value)
+            ? 'checked'
+            : ''
+        }
+        onchange="
+          toggleDescriptionFilter(
+            '${field}',
+            '${escapeJs(value)}',
+            this.checked
+          )
+        "
+      >
+
+      <span>
+        ${escapeHtml(value)}
+      </span>
+      `;
+
+
+    container.appendChild(
+      label
+    );
+
+  });
+
+}
+
+
+/* =========================================================
+   TOGGLE DESCRIPCIÓN
+   ========================================================= */
+
+function toggleDescriptionFilter(
+  field,
+  value,
+  checked
+) {
+
+  let selectedSet;
+
+
+  if (field === 'desc1') {
+
+    selectedSet =
+      selectedDesc1;
+
+  } else if (field === 'desc2') {
+
+    selectedSet =
+      selectedDesc2;
+
+  } else {
+
+    selectedSet =
+      selectedDesc3;
+
+  }
+
+
+  if (checked) {
+
+    selectedSet.add(value);
+
+  } else {
+
+    selectedSet.delete(value);
+
+  }
+
+
+  buildDescriptionFilters();
+
+  applyFilters();
+
+}
+
+
+/* =========================================================
+   SELECCIONAR TODOS LOS VALORES
+   ========================================================= */
+
+function selectAllDescriptionValues(
+  field
+) {
+
+  if (field === 'desc1') {
+
+    selectedDesc1.clear();
+
+  } else if (field === 'desc2') {
+
+    selectedDesc2.clear();
+
+  } else {
+
+    selectedDesc3.clear();
+
+  }
+
+
+  buildDescriptionFilters();
+
+  applyFilters();
+
+}
+
+
+/* =========================================================
+   OBTENER FILTRO DE DESCRIPCIÓN
+   ========================================================= */
+
+function getSelectedDescriptionValues(
+  field
+) {
+
+  if (field === 'desc1') {
+
+    return selectedDesc1;
+
+  }
+
+
+  if (field === 'desc2') {
+
+    return selectedDesc2;
+
+  }
+
+
+  return selectedDesc3;
+
+}
+
+
+/* =========================================================
+   COMPROBAR FILTRO DE DESCRIPCIÓN
+   ========================================================= */
+
+function matchesDescriptionFilter(
+  point,
+  field,
+  selectedSet
+) {
+
+  if (
+    selectedSet.size === 0
+  ) {
+
+    return true;
+
+  }
+
+
+  const value =
+    String(
+      point[field] ?? ''
+    ).trim();
+
+
+  return selectedSet.has(value);
+
+}
+
+
+/* =========================================================
+   APLICAR FILTROS
+   ========================================================= */
+
+function applyFilters() {
+
+  const searchInput =
+    document.getElementById(
+      'general-filter'
+    );
+
+
+  const search =
+    searchInput
+      ? searchInput.value
+          .trim()
+          .toLowerCase()
+      : '';
+
+
+  let visibleCount = 0;
+
+
+  markersData.forEach(point => {
+
+    let visible = true;
+
+
+    /* -----------------------------------------------------
+       BÚSQUEDA GENERAL
+       ----------------------------------------------------- */
+
+    if (search) {
+
+      const content =
+        [
+          point.name,
+          point.desc1,
+          point.desc2,
+          point.desc3
+        ]
+        .join(' ')
+        .toLowerCase();
+
+
+      if (
+        !content.includes(search)
+      ) {
+
+        visible = false;
+
+      }
+
+    }
+
+
+    /* -----------------------------------------------------
+       COLOR
+       ----------------------------------------------------- */
+
+    if (
+      visible &&
+      selectedColors.size > 0
+    ) {
+
+      if (
+        !selectedColors.has(
+          point.color
+        )
+      ) {
+
+        visible = false;
+
+      }
+
+    }
+
+
+    /* -----------------------------------------------------
+       DESCRIPCIONES
+       ----------------------------------------------------- */
+
+    if (
+      visible &&
+      !matchesDescriptionFilter(
+        point,
+        'desc1',
+        selectedDesc1
+      )
+    ) {
+
+      visible = false;
+
+    }
+
+
+    if (
+      visible &&
+      !matchesDescriptionFilter(
+        point,
+        'desc2',
+        selectedDesc2
+      )
+    ) {
+
+      visible = false;
+
+    }
+
+
+    if (
+      visible &&
+      !matchesDescriptionFilter(
+        point,
+        'desc3',
+        selectedDesc3
+      )
+    ) {
+
+      visible = false;
+
+    }
+
+
+    /* -----------------------------------------------------
+       MOSTRAR / OCULTAR
+       ----------------------------------------------------- */
+
+    if (
+      point.marker
+    ) {
+
+      if (visible) {
+
+        if (
+          !map.hasLayer(
+            point.marker
+          )
+        ) {
+
+          point.marker.addTo(map);
+
+        }
+
+      } else {
+
+        if (
+          map.hasLayer(
+            point.marker
+          )
+        ) {
+
+          map.removeLayer(
+            point.marker
+          );
+
+        }
+
+      }
+
+    }
+
+
+    if (visible) {
+
+      visibleCount++;
+
+    }
+
+  });
+
+
+  const info =
+    document.getElementById(
+      'filter-info'
+    );
+
+
+  if (info) {
+
+    info.textContent =
+      'Mostrando ' +
+      visibleCount +
+      ' de ' +
+      markersData.length +
+      ' puntos.';
+
+  }
+
+}
+
+
+/* =========================================================
+   RESTABLECER FILTROS
+   ========================================================= */
+
+function resetFilters() {
+
+  selectedColors.clear();
+
+  selectedDesc1.clear();
+
+  selectedDesc2.clear();
+
+  selectedDesc3.clear();
+
+
+  const general =
+    document.getElementById(
+      'general-filter'
+    );
+
+
+  if (general) {
+
+    general.value = '';
+
+  }
+
+
+  buildFilters();
+
+  applyFilters();
+
+  showToast(
+    'Filtros restablecidos.'
+  );
+
+}
+
+
+/* =========================================================
+   MÓDULO 21 - LISTA DE PUNTOS
+   ========================================================= */
+
+function renderPointsList() {
+
+  const container =
+    document.getElementById(
+      'points-list'
+    );
+
+
+  if (!container) {
+
+    return;
+
+  }
+
+
+  container.innerHTML = '';
+
+
+  if (
+    markersData.length === 0
+  ) {
+
+    container.innerHTML =
+      `
+      <div
+        style="
+          padding:12px;
+          text-align:center;
+          color:#6b7280;
+          font-size:11px;
+        "
+      >
+        No hay puntos cargados.
+      </div>
+      `;
+
+    return;
+
+  }
+
+
+  markersData.forEach(point => {
+
+    const item =
+      document.createElement('div');
+
+
+    item.className =
+      'point-list-item';
+
+
+    item.onclick =
+      function() {
+
+        focusPoint(
+          point.id
+        );
+
+      };
+
+
+    item.innerHTML =
+      `
+      <span class="point-list-number">
+        ${point.order}
+      </span>
+
+      <span class="point-list-name">
+        ${escapeHtml(point.name)}
+      </span>
+      `;
+
+
+    container.appendChild(
+      item
+    );
+
+  });
+
+}
+
+
+/* =========================================================
+   ENFOCAR PUNTO
+   ========================================================= */
+
+function focusPoint(id) {
+
+  const point =
+    markersData.find(
+      item =>
+        item.id === id
+    );
+
+
+  if (!point) {
+
+    return;
+
+  }
+
+
+  map.setView(
+    [
+      point.lat,
+      point.lng
+    ],
+    17
+  );
+
+
+  if (
+    point.marker
+  ) {
+
+    point.marker.openPopup();
+
+  }
+
+}
+
+
+/* =========================================================
+   VER TODOS LOS PUNTOS
+   ========================================================= */
+
+function zoomAll() {
+
+  const visiblePoints =
+    markersData.filter(
+      point => {
+
+        return (
+          point.marker &&
+          map.hasLayer(
+            point.marker
+          )
+        );
+
+      }
+    );
+
+
+  if (
+    visiblePoints.length === 0
+  ) {
+
+    if (
+      markersData.length > 0
+    ) {
+
+      const bounds =
+        L.latLngBounds(
+          markersData.map(
+            point =>
+              [
+                point.lat,
+                point.lng
+              ]
+          )
+        );
+
+
+      map.fitBounds(
+        bounds,
+        {
+          padding: [
+            40,
+            40
+          ]
+        }
+      );
+
+    }
+
+    return;
+
+  }
+
+
+  const bounds =
+    L.latLngBounds(
+      visiblePoints.map(
+        point =>
+          [
+            point.lat,
+            point.lng
+          ]
+      )
+    );
+
+
+  map.fitBounds(
+    bounds,
+    {
+      padding: [
+        40,
+        40
+      ]
+    }
+  );
+
+}
+
+
+/* =========================================================
+   MÓDULO 22 - RUTAS
+   ========================================================= */
+
+function createRoute() {
+
+  const number =
+    routes.length + 1;
+
+
+  const route = {
+
+    id:
+      'route_' +
+      Date.now(),
+
+    name:
+      'Ruta ' +
+      number,
+
+    points: [],
+
+    startCoordinate: null,
+
+    addReturn: false
+
+  };
+
+
+  routes.push(
+    route
+  );
+
+
+  activeRouteId =
+    route.id;
+
+
+  routeMode =
+    false;
+
+
+  updateRouteSelector();
+
+  updateRoutePanel();
+
+  redrawAllMarkersForRoute();
+
+  switchTab('routes');
+
+
+  showToast(
+    'Nueva ruta creada.'
+  );
+
+}
+
+
+/* =========================================================
+   OBTENER RUTA ACTIVA
+   ========================================================= */
+
+function getActiveRoute() {
+
+  return routes.find(
+    route =>
+      route.id === activeRouteId
+  ) || null;
+
+}
+
+
+/* =========================================================
+   ACTUALIZAR SELECTOR
+   ========================================================= */
+
+function updateRouteSelector() {
+
+  const select =
+    document.getElementById(
+      'route-select'
+    );
+
+
+  if (!select) {
+
+    return;
+
+  }
+
+
+  select.innerHTML =
+    `
+    <option value="">
+      Selecciona una ruta
+    </option>
+    `;
+
+
+  routes.forEach(route => {
+
+    const option =
+      document.createElement(
+        'option'
+      );
+
+
+    option.value =
+      route.id;
+
+
+    option.textContent =
+      route.name;
+
+
+    if (
+      route.id === activeRouteId
+    ) {
+
+      option.selected =
+        true;
+
+    }
+
+
+    select.appendChild(
+      option
+    );
+
+  });
+
+}
+
+
+/* =========================================================
+   SELECCIONAR RUTA
+   ========================================================= */
+
+function selectRoute(id) {
+
+  if (!id) {
+
+    activeRouteId =
+      null;
+
+    routeMode =
+      false;
+
+    updateRoutePanel();
+
+    redrawAllMarkersForRoute();
+
+    return;
+
+  }
+
+
+  activeRouteId =
+    id;
+
+
+  routeMode =
+    false;
+
+
+  updateRoutePanel();
+
+  redrawAllMarkersForRoute();
+
+}
+
+
+/* =========================================================
+   ACTIVAR / DESACTIVAR MODO RUTA
+   ========================================================= */
+
+function toggleRouteMode() {
+
+  const route =
+    getActiveRoute();
+
+
+  if (!route) {
+
+    showToast(
+      'Primero crea o selecciona una ruta.'
+    );
+
+    return;
+
+  }
+
+
+  if (routeMode) {
+
+    routeMode =
+      false;
+
+    updateRoutePanel();
+
+    redrawAllMarkersForRoute();
+
+    showToast(
+      'Selección de puntos desactivada.'
+    );
+
+    return;
+
+  }
+
+
+  if (
+    !validateRouteStartCoordinate()
+  ) {
+
+    return;
+
+  }
+
+
+  routeMode =
+    true;
+
+
+  updateRoutePanel();
+
+  redrawAllMarkersForRoute();
+
+
+  showToast(
+    'Modo selección activo. Haz clic en los puntos del mapa.'
+  );
+
+}
+
+
+/* =========================================================
+   AGREGAR / QUITAR PUNTO DE RUTA
+   ========================================================= */
+
+function togglePointInRoute(
+  pointId
+) {
+
+  const route =
+    getActiveRoute();
+
+
+  if (!route) {
+
+    return;
+
+  }
+
+
+  const index =
+    route.points.indexOf(
+      pointId
+    );
+
+
+  if (index === -1) {
+
+    route.points.push(
+      pointId
+    );
+
+  } else {
+
+    route.points.splice(
+      index,
+      1
+    );
+
+  }
+
+
+  updateRoutePanel();
+
+  redrawAllMarkersForRoute();
+
+
+  const point =
+    markersData.find(
+      item =>
+        item.id === pointId
+    );
+
+
+  if (point) {
+
+    showToast(
+      index === -1
+        ? 'Punto agregado a la ruta.'
+        : 'Punto eliminado de la ruta.'
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   ACTUALIZAR ESTADO DE COORDENADA
+   ========================================================= */
+
+function updateRouteCoordinateState() {
+
+  const route =
+    getActiveRoute();
+
+
+  if (!route) {
+
+    return;
+
+  }
+
+
+  const input =
+    document.getElementById(
+      'route-start-coordinate'
+    );
+
+
+  const checkbox =
+    document.getElementById(
+      'route-return-checkbox'
+    );
+
+
+  route.addReturn =
+    checkbox
+      ? checkbox.checked
+      : false;
+
+
+  if (
+    input
+  ) {
+
+    const value =
+      input.value.trim();
+
+
+    if (!value) {
+
+      route.startCoordinate =
+        null;
+
+    } else {
+
+      const coordinate =
+        parseCoordinate(
+          value
+        );
+
+
+      if (coordinate) {
+
+        route.startCoordinate =
+          coordinate;
+
+      }
+
+    }
+
+  }
+
+
+  updateRoutePanel();
+
+}
+
+
+/* =========================================================
+   PARSEAR COORDENADA
+   ========================================================= */
+
+function parseCoordinate(
+  value
+) {
+
+  if (!value) {
+
+    return null;
+
+  }
+
+
+  const parts =
+    value
+      .split(',')
+      .map(
+        item =>
+          parseFloat(
+            item.trim()
+          )
+      );
+
+
+  if (
+    parts.length !== 2
+  ) {
+
+    return null;
+
+  }
+
+
+  const lat =
+    parts[0];
+
+
+  const lng =
+    parts[1];
+
+
+  if (
+    !Number.isFinite(lat) ||
+    !Number.isFinite(lng)
+  ) {
+
+    return null;
+
+  }
+
+
+  if (
+    lat < -90 ||
+    lat > 90 ||
+    lng < -180 ||
+    lng > 180
+  ) {
+
+    return null;
+
+  }
+
+
+  return {
+
+    lat:
+      lat,
+
+    lng:
+      lng
+
+  };
+
+}
+
+
+/* =========================================================
+   VALIDAR COORDENADA INICIAL
+   ========================================================= */
+
+function validateRouteStartCoordinate() {
+
+  const route =
+    getActiveRoute();
+
+
+  if (!route) {
+
+    return false;
+
+  }
+
+
+  const input =
+    document.getElementById(
+      'route-start-coordinate'
+    );
+
+
+  if (!input) {
+
+    return true;
+
+  }
+
+
+  const value =
+    input.value.trim();
+
+
+  if (!value) {
+
+    route.startCoordinate =
+      null;
+
+    return true;
+
+  }
+
+
+  const coordinate =
+    parseCoordinate(
+      value
+    );
+
+
+  if (!coordinate) {
+
+    showToast(
+      'La coordenada inicial no es válida. Usa: Latitud, Longitud.'
+    );
+
+    input.focus();
+
+    return false;
+
+  }
+
+
+  route.startCoordinate =
+    coordinate;
+
+
+  return true;
+
+}
+
+
+/* =========================================================
+   ACTUALIZAR PANEL DE RUTA
+   ========================================================= */
+
+function updateRoutePanel() {
+
+  const config =
+    document.getElementById(
+      'route-config'
+    );
+
+
+  const route =
+    getActiveRoute();
+
+
+  if (!route) {
+
+    if (config) {
+
+      config.style.display =
+        'none';
+
+    }
+
+    return;
+
+  }
+
+
+  if (config) {
+
+    config.style.display =
+      'block';
+
+  }
+
+
+  const name =
+    document.getElementById(
+      'active-route-name'
+    );
+
+
+  if (name) {
+
+    name.textContent =
+      route.name;
+
+  }
+
+
+  const coordinateInput =
+    document.getElementById(
+      'route-start-coordinate'
+    );
+
+
+  if (
+    coordinateInput &&
+    document.activeElement !== coordinateInput
+  ) {
+
+    if (
+      route.startCoordinate
+    ) {
+
+      coordinateInput.value =
+        route.startCoordinate.lat +
+        ', ' +
+        route.startCoordinate.lng;
+
+    } else {
+
+      coordinateInput.value =
+        '';
+
+    }
+
+  }
+
+
+  const returnCheckbox =
+    document.getElementById(
+      'route-return-checkbox'
+    );
+
+
+  if (returnCheckbox) {
+
+    returnCheckbox.checked =
+      !!route.addReturn;
+
+  }
+
+
+  const modeButton =
+    document.getElementById(
+      'route-mode-button'
+    );
+
+
+  if (modeButton) {
+
+    if (routeMode) {
+
+      modeButton.innerHTML =
+        `
+        <i class="fa-solid fa-stop"></i>
+        Detener selección
+        `;
+
+      modeButton.classList.add(
+        'route-mode-active'
+      );
+
+    } else {
+
+      modeButton.innerHTML =
+        `
+        <i class="fa-solid fa-location-dot"></i>
+        Activar selección de puntos
+        `;
+
+      modeButton.classList.remove(
+        'route-mode-active'
+      );
+
+    }
+
+  }
+
+
+  const count =
+    document.getElementById(
+      'route-points-count'
+    );
+
+
+  if (count) {
+
+    count.textContent =
+      route.points.length +
+      (
+        route.points.length === 1
+          ? ' punto'
+          : ' puntos'
+      );
+
+  }
+
+
+  const distance =
+    calculateRouteDistance(
+      route
+    );
+
+
+  const distanceElement =
+    document.getElementById(
+      'route-distance'
+    );
+
+
+  if (distanceElement) {
+
+    distanceElement.textContent =
+      'Distancia: ' +
+      distance.toFixed(2) +
+      ' km';
+
+  }
+
+
+  renderRoutePoints(
+    route
+  );
+
+
+  renderRoutes();
+
+}
+
+
+/* =========================================================
+   RENDERIZAR PUNTOS DE RUTA
+   ========================================================= */
+
+function renderRoutePoints(
+  route
+) {
+
+  const container =
+    document.getElementById(
+      'route-points-list'
+    );
+
+
+  if (!container) {
+
+    return;
+
+  }
+
+
+  container.innerHTML = '';
+
+
+  if (
+    route.startCoordinate
+  ) {
+
+    const start =
+      document.createElement(
+        'div'
+      );
+
+
+    start.className =
+      'route-point-item';
+
+
+    start.innerHTML =
+      `
+      <div
+        class="route-number"
+        style="background:#16a34a;"
+      >
+        I
+      </div>
+
+      <div>
+        <div class="route-point-name">
+          Punto inicial
+        </div>
+
+        <div
+          style="
+            font-size:9px;
+            color:#6b7280;
+          "
+        >
+          ${route.startCoordinate.lat},
+          ${route.startCoordinate.lng}
+        </div>
+      </div>
+      `;
+
+
+    container.appendChild(
+      start
+    );
+
+  }
+
+
+  route.points.forEach(
+    (pointId, index) => {
+
+      const point =
+        markersData.find(
+          item =>
+            item.id === pointId
+        );
+
+
+      if (!point) {
+
+        return;
+
+      }
+
+
+      const item =
+        document.createElement(
+          'div'
+        );
+
+
+      item.className =
+        'route-point-item';
+
+
+      item.innerHTML =
+        `
+        <div class="route-number">
+          ${index + 1}
+        </div>
+
+        <div>
+          <div class="route-point-name">
+            ${escapeHtml(point.name)}
+          </div>
+
+          <div
+            style="
+              font-size:9px;
+              color:#6b7280;
+            "
+          >
+            ${point.lat},
+            ${point.lng}
+          </div>
+        </div>
+        `;
+
+
+      item.onclick =
+        function() {
+
+          focusPoint(
+            point.id
+          );
+
+        };
+
+
+      container.appendChild(
+        item
+      );
 
     }
   );
 
 
-  paginacion.appendChild(
-    btnAnterior
-  );
+  if (
+    route.addReturn &&
+    route.startCoordinate
+  ) {
+
+    const end =
+      document.createElement(
+        'div'
+      );
 
 
-  /*
-   * Determinar páginas visibles.
-   */
+    end.className =
+      'route-point-item';
 
-  let inicio =
-    Math.max(
-      paginaActual - 2,
-      1
+
+    end.innerHTML =
+      `
+      <div
+        class="route-number"
+        style="background:#dc2626;"
+      >
+        F
+      </div>
+
+      <div>
+        <div class="route-point-name">
+          Regreso al punto inicial
+        </div>
+      </div>
+      `;
+
+
+    container.appendChild(
+      end
     );
 
+  }
 
-  let fin =
-    Math.min(
-      inicio + 4,
-      totalPaginas
-    );
+}
+
+
+/* =========================================================
+   CALCULAR DISTANCIA DE RUTA
+   ========================================================= */
+
+function calculateRouteDistance(
+  route
+) {
+
+  let total = 0;
+
+
+  const coordinates = [];
 
 
   if (
-    fin - inicio < 4
+    route.startCoordinate
   ) {
 
-    inicio =
-      Math.max(
-        fin - 4,
-        1
-      );
+    coordinates.push(
+      [
+        route.startCoordinate.lat,
+        route.startCoordinate.lng
+      ]
+    );
+
+  }
+
+
+  route.points.forEach(
+    pointId => {
+
+      const point =
+        markersData.find(
+          item =>
+            item.id === pointId
+        );
+
+
+      if (point) {
+
+        coordinates.push(
+          [
+            point.lat,
+            point.lng
+          ]
+        );
+
+      }
+
+    }
+  );
+
+
+  if (
+    route.addReturn &&
+    route.startCoordinate &&
+    coordinates.length > 0
+  ) {
+
+    coordinates.push(
+      [
+        route.startCoordinate.lat,
+        route.startCoordinate.lng
+      ]
+    );
 
   }
 
 
   for (
-    let i = inicio;
-    i <= fin;
+    let i = 1;
+    i < coordinates.length;
     i++
   ) {
 
-    const boton =
-      document.createElement(
-        'button'
+    total +=
+      haversineDistance(
+        coordinates[i - 1][0],
+        coordinates[i - 1][1],
+        coordinates[i][0],
+        coordinates[i][1]
       );
-
-
-    boton.className =
-      'pagina';
-
-
-    if (
-      i === paginaActual
-    ) {
-
-      boton.classList.add(
-        'activa'
-      );
-
-    }
-
-
-    boton.textContent =
-      i;
-
-
-    boton.addEventListener(
-      'click',
-      function() {
-
-        paginaActual =
-          i;
-
-        renderizarTabla();
-
-      }
-    );
-
-
-    paginacion.appendChild(
-      boton
-    );
 
   }
 
 
-  const btnSiguiente =
-    document.createElement(
-      'button'
-    );
-
-
-  btnSiguiente.className =
-    'pagina';
-
-
-  btnSiguiente.textContent =
-    '›';
-
-
-  btnSiguiente.disabled =
-    paginaActual === totalPaginas;
-
-
-  btnSiguiente.addEventListener(
-    'click',
-    function() {
-
-      paginaActual++;
-
-      renderizarTabla();
-
-    }
-  );
-
-
-  paginacion.appendChild(
-    btnSiguiente
-  );
+  return total;
 
 }
 
 
-/***************************************************************
- * =============================================================
- * MÓDULO 18 - KML / KMZ
- * =============================================================
- ***************************************************************/
+/* =========================================================
+   HAVERSINE
+   ========================================================= */
 
-kmlInput.addEventListener(
-  'change',
-  cargarKml
-);
-
-
-async function cargarKml(
-  evento
+function haversineDistance(
+  lat1,
+  lon1,
+  lat2,
+  lon2
 ) {
 
-  const archivo =
-    evento.target.files[0];
+  const R =
+    6371;
 
 
-  if (!archivo) {
+  const dLat =
+    degreesToRadians(
+      lat2 - lat1
+    );
+
+
+  const dLon =
+    degreesToRadians(
+      lon2 - lon1
+    );
+
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+
+    Math.cos(
+      degreesToRadians(lat1)
+    ) *
+
+    Math.cos(
+      degreesToRadians(lat2)
+    ) *
+
+    Math.sin(dLon / 2) ** 2;
+
+
+  const c =
+    2 *
+    Math.atan2(
+      Math.sqrt(a),
+      Math.sqrt(1 - a)
+    );
+
+
+  return R * c;
+
+}
+
+
+/* =========================================================
+   GRADOS A RADIANES
+   ========================================================= */
+
+function degreesToRadians(
+  degrees
+) {
+
+  return degrees *
+    Math.PI /
+    180;
+
+}
+
+
+/* =========================================================
+   RENDERIZAR RUTAS
+   ========================================================= */
+
+function renderRoutes() {
+
+  const container =
+    document.getElementById(
+      'routes-list'
+    );
+
+
+  if (!container) {
 
     return;
 
   }
 
 
-  mostrarEstado(
-    estadoKml,
-    'Leyendo archivo KML/KMZ...',
-    'proceso'
-  );
+  container.innerHTML = '';
 
 
-  try {
+  if (
+    routes.length === 0
+  ) {
 
-    let textoKml = '';
-
-
-    const extension =
-      archivo.name
-        .split('.')
-        .pop()
-        .toLowerCase();
-
-
-    /*
-     * KML
-     */
-
-    if (
-      extension === 'kml'
-    ) {
-
-      textoKml =
-        await archivo.text();
-
-    }
-
-
-    /*
-     * KMZ
-     */
-
-    else if (
-      extension === 'kmz'
-    ) {
-
-      const buffer =
-        await archivo.arrayBuffer();
-
-
-      const zip =
-        await JSZip.loadAsync(
-          buffer
-        );
-
-
-      const archivoKml =
-        zip.file(
-          'doc.kml'
-        );
-
-
-      if (!archivoKml) {
-
-        throw new Error(
-          'El KMZ no contiene doc.kml.'
-        );
-
-      }
-
-
-      textoKml =
-        await archivoKml.async(
-          'text'
-        );
-
-    }
-
-
-    else {
-
-      throw new Error(
-        'Formato no compatible.'
-      );
-
-    }
-
-
-    procesarTextoKml(
-      textoKml,
-      archivo.name
-    );
-
-
-  } catch(error) {
-
-    console.error(error);
-
-
-    mostrarEstado(
-      estadoKml,
-      'Error: ' +
-      error.message,
-      'error'
-    );
+    return;
 
   }
+
+
+  routes.forEach(route => {
+
+    const box =
+      document.createElement(
+        'div'
+      );
+
+
+    box.className =
+      'route-box';
+
+
+    box.innerHTML =
+      `
+      <div class="route-header">
+
+        <div class="route-name">
+          ${escapeHtml(route.name)}
+        </div>
+
+        <div
+          style="
+            font-size:10px;
+            color:#6b7280;
+          "
+        >
+          ${route.points.length} puntos
+        </div>
+
+      </div>
+
+      <div
+        style="
+          font-size:10px;
+          color:#6b7280;
+        "
+      >
+        Distancia:
+        ${calculateRouteDistance(route).toFixed(2)}
+        km
+      </div>
+      `;
+
+
+    box.onclick =
+      function() {
+
+        activeRouteId =
+          route.id;
+
+        routeMode =
+          false;
+
+        updateRouteSelector();
+
+        updateRoutePanel();
+
+        redrawAllMarkersForRoute();
+
+      };
+
+
+    container.appendChild(
+      box
+    );
+
+  });
 
 }
 
 
-/***************************************************************
- * =============================================================
- * MÓDULO 19 - PROCESAR XML KML
- * =============================================================
- ***************************************************************/
+/* =========================================================
+   REDIBUJAR MARCADORES SEGÚN RUTA
+   ========================================================= */
 
-function procesarTextoKml(
-  texto,
-  nombreArchivo
+function redrawAllMarkersForRoute() {
+
+  markersData.forEach(
+    point => {
+
+      if (
+        point.marker
+      ) {
+
+        point.marker.setIcon(
+          createMarkerIcon(point)
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   LIMPIAR RUTA
+   ========================================================= */
+
+function clearRoute() {
+
+  const route =
+    getActiveRoute();
+
+
+  if (!route) {
+
+    showToast(
+      'No hay una ruta activa.'
+    );
+
+    return;
+
+  }
+
+
+  route.points = [];
+
+  route.startCoordinate =
+    null;
+
+  route.addReturn =
+    false;
+
+  routeMode =
+    false;
+
+
+  updateRoutePanel();
+
+  redrawAllMarkersForRoute();
+
+
+  showToast(
+    'Ruta limpiada.'
+  );
+
+}
+
+
+/* =========================================================
+   MÓDULO 23 - GOOGLE MAPS
+   ========================================================= */
+
+function openGoogleRoute() {
+
+  const route =
+    getActiveRoute();
+
+
+  if (!route) {
+
+    showToast(
+      'Primero selecciona una ruta.'
+    );
+
+    return;
+
+  }
+
+
+  if (
+    route.points.length === 0
+  ) {
+
+    showToast(
+      'La ruta no contiene puntos.'
+    );
+
+    return;
+
+  }
+
+
+  if (
+    route.startCoordinate
+  ) {
+
+    const valid =
+      validateRouteStartCoordinate();
+
+
+    if (!valid) {
+
+      return;
+
+    }
+
+  }
+
+
+  const pointCoordinates =
+    route.points
+      .map(
+        pointId =>
+          markersData.find(
+            point =>
+              point.id === pointId
+          )
+      )
+      .filter(Boolean)
+      .map(
+        point =>
+          point.lat +
+          ',' +
+          point.lng
+      );
+
+
+  if (
+    pointCoordinates.length === 0
+  ) {
+
+    showToast(
+      'No hay coordenadas válidas en la ruta.'
+    );
+
+    return;
+
+  }
+
+
+  let origin;
+
+  let destination;
+
+  let waypoints = [];
+
+
+  /* -------------------------------------------------------
+     CON COORDENADA INICIAL
+     ------------------------------------------------------- */
+
+  if (
+    route.startCoordinate
+  ) {
+
+    origin =
+      route.startCoordinate.lat +
+      ',' +
+      route.startCoordinate.lng;
+
+
+    destination =
+      pointCoordinates[
+        pointCoordinates.length - 1
+      ];
+
+
+    waypoints =
+      pointCoordinates.slice(
+        0,
+        -1
+      );
+
+  }
+
+  /* -------------------------------------------------------
+     SIN COORDENADA INICIAL
+     ------------------------------------------------------- */
+
+  else {
+
+    origin =
+      pointCoordinates[0];
+
+
+    if (
+      route.addReturn
+    ) {
+
+      destination =
+        pointCoordinates[0];
+
+      waypoints =
+        pointCoordinates.slice(
+          1
+        );
+
+    } else {
+
+      destination =
+        pointCoordinates[
+          pointCoordinates.length - 1
+        ];
+
+      waypoints =
+        pointCoordinates.slice(
+          1,
+          -1
+        );
+
+    }
+
+  }
+
+
+  /* -------------------------------------------------------
+     REGRESO AL PUNTO INICIAL
+     ------------------------------------------------------- */
+
+  if (
+    route.startCoordinate &&
+    route.addReturn
+  ) {
+
+    destination =
+      route.startCoordinate.lat +
+      ',' +
+      route.startCoordinate.lng;
+
+
+    waypoints =
+      pointCoordinates;
+
+  }
+
+
+  let url =
+    'https://www.google.com/maps/dir/?api=1';
+
+
+  url +=
+    '&origin=' +
+    encodeURIComponent(
+      origin
+    );
+
+
+  url +=
+    '&destination=' +
+    encodeURIComponent(
+      destination
+    );
+
+
+  if (
+    waypoints.length > 0
+  ) {
+
+    url +=
+      '&waypoints=' +
+      encodeURIComponent(
+        waypoints.join('|')
+      );
+
+  }
+
+
+  url +=
+    '&travelmode=driving';
+
+
+  window.open(
+    url,
+    '_blank'
+  );
+
+}
+
+
+/* =========================================================
+   MÓDULO 24 - PROCESAR KML
+   ========================================================= */
+
+function processKML(
+  fileName,
+  xmlText
 ) {
+
+  clearMap();
+
+
+  markersData = [];
+
 
   const parser =
     new DOMParser();
 
 
-  documentoKml =
+  const xml =
     parser.parseFromString(
-      texto,
+      xmlText,
       'application/xml'
     );
 
 
-  const errorXml =
-    documentoKml.querySelector(
+  const parserError =
+    xml.querySelector(
       'parsererror'
     );
 
 
-  if (errorXml) {
+  if (parserError) {
 
-    throw new Error(
-      'El archivo KML contiene un XML no válido.'
+    showToast(
+      'El archivo KML/XML no es válido.'
     );
+
+    return;
 
   }
 
 
-  elementosKml =
-    [];
-
-
-  /*
-   * Placemark
-   */
-
   const placemarks =
     Array.from(
-      documentoKml.getElementsByTagName(
+      xml.getElementsByTagName(
         'Placemark'
       )
     );
 
 
-  placemarks.forEach(
-    function(pm, indice) {
+  automaticColorIndex = 0;
 
-      const nombreNodo =
-        pm.getElementsByTagName(
+
+  placemarks.forEach(
+    (placemark, index) => {
+
+      const nameNode =
+        placemark.getElementsByTagName(
           'name'
         )[0];
 
 
-      const descripcionNodo =
-        pm.getElementsByTagName(
-          'description'
+      const name =
+        nameNode
+          ? nameNode.textContent.trim()
+          : 'Punto ' + (index + 1);
+
+
+      const pointNode =
+        placemark.getElementsByTagName(
+          'Point'
         )[0];
 
 
-      const coordenadasNodo =
-        pm.getElementsByTagName(
+      if (!pointNode) {
+
+        return;
+
+      }
+
+
+      const coordinatesNode =
+        pointNode.getElementsByTagName(
           'coordinates'
         )[0];
 
 
-      elementosKml.push({
+      if (!coordinatesNode) {
 
-        indice:
-          indice + 1,
+        return;
 
-        nombre:
-          nombreNodo
-            ? nombreNodo.textContent.trim()
-            : 'Sin nombre',
+      }
 
-        descripcion:
-          descripcionNodo
-            ? descripcionNodo.textContent.trim()
-            : '',
 
-        coordenadas:
-          coordenadasNodo
-            ? coordenadasNodo.textContent.trim()
-            : ''
+      const coordinateText =
+        coordinatesNode.textContent.trim();
+
+
+      const parts =
+        coordinateText
+          .split(',')
+          .map(
+            value =>
+              parseFloat(
+                value.trim()
+              )
+          );
+
+
+      if (
+        parts.length < 2 ||
+        !Number.isFinite(parts[0]) ||
+        !Number.isFinite(parts[1])
+      ) {
+
+        return;
+
+      }
+
+
+      const lng =
+        parts[0];
+
+
+      const lat =
+        parts[1];
+
+
+      const descriptionNode =
+        placemark.getElementsByTagName(
+          'description'
+        )[0];
+
+
+      const description =
+        descriptionNode
+          ? descriptionNode.textContent.trim()
+          : '';
+
+
+      const descriptions =
+        splitDescription(
+          description
+        );
+
+
+      let color =
+        '';
+
+
+      /* -----------------------------------------------------
+         STYLEURL
+         ----------------------------------------------------- */
+
+      const styleUrlNode =
+        placemark.getElementsByTagName(
+          'styleUrl'
+        )[0];
+
+
+      if (
+        styleUrlNode
+      ) {
+
+        const styleId =
+          styleUrlNode.textContent
+            .trim()
+            .replace(
+              '#',
+              ''
+            );
+
+
+        if (styleId) {
+
+          const styleElement =
+            xml.getElementById(
+              styleId
+            );
+
+
+          if (
+            styleElement
+          ) {
+
+            const colorNode =
+              styleElement.getElementsByTagName(
+                'color'
+              )[0];
+
+
+            if (
+              colorNode
+            ) {
+
+              color =
+                kmlColorToHex(
+                  colorNode.textContent.trim()
+                );
+
+            }
+
+          }
+
+        }
+
+      }
+
+
+      /* -----------------------------------------------------
+         STYLE DIRECTO
+         ----------------------------------------------------- */
+
+      if (!color) {
+
+        const colorNode =
+          placemark.getElementsByTagName(
+            'color'
+          )[0];
+
+
+        if (
+          colorNode
+        ) {
+
+          color =
+            kmlColorToHex(
+              colorNode.textContent.trim()
+            );
+
+        }
+
+      }
+
+
+      if (!color) {
+
+        color =
+          getAutomaticColor();
+
+      }
+
+
+      markersData.push({
+
+        id:
+          'kml_' +
+          Date.now() +
+          '_' +
+          index,
+
+        row:
+          index + 1,
+
+        order:
+          markersData.length + 1,
+
+        name:
+          name || 'Punto ' + (index + 1),
+
+        lat:
+          lat,
+
+        lng:
+          lng,
+
+        desc1:
+          descriptions[0] || '',
+
+        desc2:
+          descriptions[1] || '',
+
+        desc3:
+          descriptions[2] || '',
+
+        color:
+          color,
+
+        marker:
+          null
 
       });
 
@@ -2106,652 +5699,688 @@ function procesarTextoKml(
   );
 
 
-  mostrarEstado(
-    estadoKml,
-    'KML cargado correctamente: ' +
-    nombreArchivo +
-    '<br>' +
-    'Elementos encontrados: ' +
-    elementosKml.length,
-    'ok',
-    true
+  currentFile =
+    fileName;
+
+  currentFileType =
+    'kml';
+
+
+  drawMarkers();
+
+  refreshInterface();
+
+  zoomAll();
+
+
+  document
+    .getElementById('export-box')
+    .style.display = 'block';
+
+
+  showToast(
+    markersData.length +
+    ' puntos cargados desde KML.'
   );
-
-
-  mostrarElementosKml();
-
-  construirVisorKml();
 
 }
 
 
-/***************************************************************
- * =============================================================
- * MÓDULO 20 - LISTA KML
- * =============================================================
- ***************************************************************/
+/* =========================================================
+   MÓDULO 25 - DESCRIPCIONES KML
+   ========================================================= */
 
-function mostrarElementosKml() {
+function splitDescription(
+  description
+) {
 
-  const panel =
-    document.getElementById(
-      'panelKmlElementos'
+  if (!description) {
+
+    return [
+      '',
+      '',
+      ''
+    ];
+
+  }
+
+
+  const temp =
+    document.createElement(
+      'div'
     );
 
 
-  panel.style.display =
-    'block';
+  temp.innerHTML =
+    description;
 
 
-  listaKml.innerHTML =
-    '';
+  const text =
+    temp.textContent ||
+    temp.innerText ||
+    description;
 
 
-  if (
-    elementosKml.length === 0
-  ) {
-
-    listaKml.textContent =
-      'No se encontraron Placemark.';
-
-    return;
-
-  }
+  const clean =
+    text
+      .replace(
+        /\r/g,
+        ''
+      )
+      .trim();
 
 
-  elementosKml.forEach(
-    function(elemento) {
-
-      const div =
-        document.createElement(
-          'div'
-        );
-
-
-      div.className =
-        'kml-elemento';
-
-
-      div.innerHTML =
-        '<strong>' +
-        escapeHtml(
-          elemento.nombre
-        ) +
-        '</strong>' +
-        '<br>' +
-        '<span class="text-xs text-gray-500">' +
-        escapeHtml(
-          elemento.coordenadas
-        ) +
-        '</span>';
-
-
-      div.addEventListener(
-        'click',
-        function() {
-
-          mostrarElementoKml(
-            elemento
-          );
-
-        }
+  const lines =
+    clean
+      .split('\n')
+      .map(
+        line =>
+          line.trim()
+      )
+      .filter(
+        line =>
+          line !== ''
       );
 
 
-      listaKml.appendChild(
-        div
-      );
+  return [
 
-    }
-  );
+    lines[0] || '',
+
+    lines[1] || '',
+
+    lines[2] || ''
+
+  ];
 
 }
 
 
-/***************************************************************
- * =============================================================
- * MÓDULO 21 - VISOR KML
- * =============================================================
- *
- * NO requiere API KEY de Google Maps.
- *
- * Utilizamos Google Maps mediante URL de consulta para
- * visualización geográfica.
- *
- ***************************************************************/
+/* =========================================================
+   CONVERTIR COLOR KML A HEX
+   ========================================================= */
 
-function construirVisorKml() {
-
-  /*
-   * Extraer coordenadas.
-   */
-
-  const coordenadas =
-    [];
-
-
-  elementosKml.forEach(
-    function(elemento) {
-
-      const puntos =
-        extraerCoordenadas(
-          elemento.coordenadas
-        );
-
-
-      puntos.forEach(
-        function(punto) {
-
-          coordenadas.push(
-            punto
-          );
-
-        }
-      );
-
-    }
-  );
-
-
-  if (
-    coordenadas.length === 0
-  ) {
-
-    mapa.innerHTML =
-      '<div class="h-full flex items-center justify-center text-gray-500">' +
-      'El KML no contiene coordenadas reconocibles.' +
-      '</div>';
-
-    return;
-
-  }
-
-
-  /*
-   * Centro aproximado.
-   */
-
-  let lat =
-    0;
-
-  let lon =
-    0;
-
-
-  coordenadas.forEach(
-    function(punto) {
-
-      lat +=
-        punto.lat;
-
-      lon +=
-        punto.lon;
-
-    }
-  );
-
-
-  lat /=
-    coordenadas.length;
-
-
-  lon /=
-    coordenadas.length;
-
-
-  /*
-   * Google Maps sin API.
-   *
-   * El parámetro q permite abrir la ubicación.
-   */
-
-  const url =
-    'https://www.google.com/maps/@' +
-    lat +
-    ',' +
-    lon +
-    ',14z';
-
-
-  mapa.innerHTML =
-
-    '<iframe ' +
-      'src="' +
-        url +
-      '"' +
-      'loading="lazy"' +
-      'allowfullscreen' +
-      'referrerpolicy="no-referrer-when-downgrade"' +
-    '>' +
-    '</iframe>';
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 22 - EXTRAER COORDENADAS
- * ============================================================= */
-
-function extraerCoordenadas(
-  texto
+function kmlColorToHex(
+  value
 ) {
 
-  if (!texto) {
+  if (!value) {
 
-    return [];
+    return null;
 
   }
 
 
-  const resultado =
-    [];
-
-
-  const partes =
-    texto
-      .replace(
-        /\n/g,
-        ' '
-      )
+  const color =
+    value
       .trim()
-      .split(
-        /\s+/
+      .replace(
+        '#',
+        ''
       );
 
 
-  partes.forEach(
-    function(parte) {
+  if (
+    color.length !== 8
+  ) {
 
-      const valores =
-        parte.split(',');
+    return null;
+
+  }
 
 
-      if (
-        valores.length >= 2
-      ) {
+  /* -------------------------------------------------------
+     KML = AABBGGRR
+     HEX = #RRGGBB
+     ------------------------------------------------------- */
 
-        const lon =
-          parseFloat(
-            valores[0]
+  const rr =
+    color.substring(
+      6,
+      8
+    );
+
+
+  const gg =
+    color.substring(
+      4,
+      6
+    );
+
+
+  const bb =
+    color.substring(
+      2,
+      4
+    );
+
+
+  return (
+    '#' +
+    rr +
+    gg +
+    bb
+  ).toLowerCase();
+
+}
+
+
+/* =========================================================
+   HEX A COLOR KML
+   ========================================================= */
+
+function hexToKmlColor(
+  hex
+) {
+
+  if (!hex) {
+
+    return 'ff0000ff';
+
+  }
+
+
+  const clean =
+    hex
+      .replace(
+        '#',
+        ''
+      )
+      .toLowerCase();
+
+
+  if (
+    clean.length !== 6
+  ) {
+
+    return 'ff0000ff';
+
+  }
+
+
+  const rr =
+    clean.substring(
+      0,
+      2
+    );
+
+
+  const gg =
+    clean.substring(
+      2,
+      4
+    );
+
+
+  const bb =
+    clean.substring(
+      4,
+      6
+    );
+
+
+  return (
+    'ff' +
+    bb +
+    gg +
+    rr
+  );
+
+}
+
+
+/* =========================================================
+   MÓDULO 26 - DESCARGAR KML
+   ========================================================= */
+
+function downloadKML() {
+
+  if (
+    markersData.length === 0
+  ) {
+
+    showToast(
+      'No hay puntos para exportar.'
+    );
+
+    return;
+
+  }
+
+
+  let kml =
+    `<?xml version="1.0" encoding="UTF-8"?>\n`;
+
+
+  kml +=
+    `<kml xmlns="http://www.opengis.net/kml/2.2">\n`;
+
+
+  kml +=
+    `<Document>\n`;
+
+
+  kml +=
+    `<name>Mapa actualizado</name>\n`;
+
+
+  /* -------------------------------------------------------
+     ESTILOS
+     ------------------------------------------------------- */
+
+  const colors =
+    [
+      ...new Set(
+        markersData.map(
+          point =>
+            point.color
+        )
+      )
+    ];
+
+
+  colors.forEach(
+    (color, index) => {
+
+      kml +=
+        `
+        <Style id="style${index}">
+          <IconStyle>
+            <color>
+              ${hexToKmlColor(color)}
+            </color>
+            <scale>1.1</scale>
+            <Icon>
+              <href>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href>
+            </Icon>
+          </IconStyle>
+        </Style>
+        `;
+
+    }
+  );
+
+
+  /* -------------------------------------------------------
+     PUNTOS
+     ------------------------------------------------------- */
+
+  markersData.forEach(point => {
+
+    const styleIndex =
+      colors.indexOf(
+        point.color
+      );
+
+
+    const description =
+      [
+        point.desc1,
+        point.desc2,
+        point.desc3
+      ]
+      .filter(
+        value =>
+          String(value).trim() !== ''
+      )
+      .map(
+        value =>
+          escapeXml(
+            value
+          )
+      )
+      .join('\n');
+
+
+    kml +=
+      `
+      <Placemark>
+
+        <name>
+          ${escapeXml(point.name)}
+        </name>
+
+        <styleUrl>
+          #style${styleIndex}
+        </styleUrl>
+
+        <description>
+          ${description}
+        </description>
+
+        <Point>
+
+          <coordinates>
+            ${point.lng},${point.lat},0
+          </coordinates>
+
+        </Point>
+
+      </Placemark>
+      `;
+
+  });
+
+
+  /* -------------------------------------------------------
+     RUTAS
+     ------------------------------------------------------- */
+
+  routes.forEach(route => {
+
+    if (
+      route.points.length < 2 &&
+      !route.startCoordinate
+    ) {
+
+      return;
+
+    }
+
+
+    const coordinates = [];
+
+
+    if (
+      route.startCoordinate
+    ) {
+
+      coordinates.push(
+        [
+          route.startCoordinate.lng,
+          route.startCoordinate.lat
+        ]
+      );
+
+    }
+
+
+    route.points.forEach(
+      pointId => {
+
+        const point =
+          markersData.find(
+            item =>
+              item.id === pointId
           );
 
 
-        const lat =
-          parseFloat(
-            valores[1]
+        if (point) {
+
+          coordinates.push(
+            [
+              point.lng,
+              point.lat
+            ]
           );
-
-
-        if (
-          !isNaN(lat) &&
-          !isNaN(lon)
-        ) {
-
-          resultado.push({
-
-            lat:
-              lat,
-
-            lon:
-              lon
-
-          });
 
         }
 
       }
-
-    }
-  );
-
-
-  return resultado;
-
-}
-
-
-/***************************************************************
- * =============================================================
- * MÓDULO 23 - MOSTRAR ELEMENTO KML
- * =============================================================
- ***************************************************************/
-
-function mostrarElementoKml(
-  elemento
-) {
-
-  const puntos =
-    extraerCoordenadas(
-      elemento.coordenadas
     );
 
 
-  if (
-    puntos.length === 0
-  ) {
+    if (
+      route.addReturn &&
+      route.startCoordinate
+    ) {
 
-    return;
+      coordinates.push(
+        [
+          route.startCoordinate.lng,
+          route.startCoordinate.lat
+        ]
+      );
 
-  }
+    }
 
 
-  const punto =
-    puntos[0];
+    if (
+      coordinates.length < 2
+    ) {
+
+      return;
+
+    }
+
+
+    kml +=
+      `
+      <Placemark>
+
+        <name>
+          ${escapeXml(route.name)}
+        </name>
+
+        <Style>
+
+          <LineStyle>
+
+            <color>ff0000ff</color>
+
+            <width>4</width>
+
+          </LineStyle>
+
+        </Style>
+
+        <LineString>
+
+          <tessellate>1</tessellate>
+
+          <coordinates>
+            ${
+              coordinates
+                .map(
+                  coordinate =>
+                    coordinate[0] +
+                    ',' +
+                    coordinate[1] +
+                    ',0'
+                )
+                .join(' ')
+            }
+          </coordinates>
+
+        </LineString>
+
+      </Placemark>
+      `;
+
+  });
+
+
+  kml +=
+    `</Document>\n`;
+
+
+  kml +=
+    `</kml>`;
+
+
+  const blob =
+    new Blob(
+      [kml],
+      {
+        type:
+          'application/vnd.google-earth.kml+xml'
+      }
+    );
 
 
   const url =
-    'https://www.google.com/maps/@' +
-    punto.lat +
-    ',' +
-    punto.lon +
-    ',18z';
+    URL.createObjectURL(
+      blob
+    );
 
 
-  mapa.innerHTML =
+  const link =
+    document.createElement(
+      'a'
+    );
 
-    '<iframe ' +
-      'src="' +
-        url +
-      '"' +
-      'loading="lazy"' +
-      'allowfullscreen' +
-      'referrerpolicy="no-referrer-when-downgrade"' +
-    '>' +
-    '</iframe>';
+
+  link.href =
+    url;
+
+
+  link.download =
+    'mapa_actualizado.kml';
+
+
+  document.body.appendChild(
+    link
+  );
+
+
+  link.click();
+
+
+  document.body.removeChild(
+    link
+  );
+
+
+  URL.revokeObjectURL(
+    url
+  );
+
+
+  showToast(
+    'KML generado correctamente.'
+  );
 
 }
 
 
-/***************************************************************
- * =============================================================
- * MÓDULO 24 - VISTAS DEL MAPA
- * =============================================================
- ***************************************************************/
+/* =========================================================
+   MÓDULO 27 - INTERFAZ
+   ========================================================= */
 
-document
-  .getElementById(
-    'btnMapa'
-  )
-  .addEventListener(
-    'click',
-    function() {
+function refreshInterface() {
 
-      cambiarTipoMapa(
-        'roadmap'
+  const count =
+    document.getElementById(
+      'marker-count'
+    );
+
+
+  if (count) {
+
+    count.textContent =
+      markersData.length +
+      (
+        markersData.length === 1
+          ? ' punto'
+          : ' puntos'
       );
 
-    }
-  );
+  }
 
 
-document
-  .getElementById(
-    'btnSatelite'
-  )
-  .addEventListener(
-    'click',
-    function() {
+  renderPointsList();
 
-      cambiarTipoMapa(
-        'satellite'
-      );
+  renderTable();
 
-    }
-  );
+  buildFilters();
 
+  updateRouteSelector();
 
-document
-  .getElementById(
-    'btnRelieve'
-  )
-  .addEventListener(
-    'click',
-    function() {
+  updateRoutePanel();
 
-      cambiarTipoMapa(
-        'terrain'
-      );
+  renderRoutes();
 
-    }
-  );
+  applyFilters();
+
+}
 
 
-document
-  .getElementById(
-    'btnHibrido'
-  )
-  .addEventListener(
-    'click',
-    function() {
+/* =========================================================
+   MÓDULO 28 - LIMPIAR MAPA
+   ========================================================= */
 
-      cambiarTipoMapa(
-        'hybrid'
-      );
+function clearMap() {
 
-    }
-  );
+  clearMarkerLayer();
+
+}
 
 
-function cambiarTipoMapa(
-  tipo
+/* =========================================================
+   MÓDULO 29 - ESTADO DEL ARCHIVO
+   ========================================================= */
+
+function updateLocalFileStatus(
+  fileName = '',
+  type = ''
 ) {
 
-  const coordenadas =
-    [];
+  const status =
+    document.getElementById(
+      'local-file-status'
+    );
 
 
-  elementosKml.forEach(
-    function(elemento) {
-
-      extraerCoordenadas(
-        elemento.coordenadas
-      )
-      .forEach(
-        function(punto) {
-
-          coordenadas.push(
-            punto
-          );
-
-        }
-      );
-
-    }
-  );
-
-
-  if (
-    coordenadas.length === 0
-  ) {
+  if (!status) {
 
     return;
 
   }
 
 
-  let lat = 0;
-  let lon = 0;
+  if (!fileName) {
 
+    status.innerHTML =
+      `
+      <strong>Archivo:</strong>
+      Ningún archivo cargado.
+      `;
 
-  coordenadas.forEach(
-    function(punto) {
-
-      lat += punto.lat;
-      lon += punto.lon;
-
-    }
-  );
-
-
-  lat /=
-    coordenadas.length;
-
-
-  lon /=
-    coordenadas.length;
-
-
-  /*
-   * Google Maps sin API.
-   *
-   * Se utilizan parámetros de URL.
-   */
-
-  let url =
-    'https://www.google.com/maps/@' +
-    lat +
-    ',' +
-    lon +
-    ',14z';
-
-
-  /*
-   * Para vista satélite se agrega:
-   */
-
-  if (
-    tipo === 'satellite'
-  ) {
-
-    url +=
-      '/data=!3m1!1e3';
+    return;
 
   }
 
 
-  mapa.innerHTML =
+  status.innerHTML =
+    `
+    <strong>Archivo:</strong>
+    ${escapeHtml(fileName)}
 
-    '<iframe ' +
-      'src="' +
-        url +
-      '"' +
-      'loading="lazy"' +
-      'allowfullscreen' +
-      'referrerpolicy="no-referrer-when-downgrade"' +
-    '></iframe>';
+    <br>
+
+    <strong>Tipo:</strong>
+    ${escapeHtml(type)}
+
+    <br>
+
+    <strong>Puntos:</strong>
+    ${markersData.length}
+
+    <br>
+
+    <span
+      style="
+        color:#16a34a;
+        font-weight:600;
+      "
+    >
+      Procesado localmente
+    </span>
+    `;
 
 }
 
 
-/***************************************************************
- * =============================================================
- * MÓDULO 25 - UTILIDADES
- * =============================================================
- ***************************************************************/
-
-function mostrarEstado(
-  elemento,
-  mensaje,
-  tipo,
-  permitirHTML = false
-) {
-
-  elemento.className =
-    'estado';
-
-
-  if (
-    tipo === 'ok'
-  ) {
-
-    elemento.classList.add(
-      'estado-ok'
-    );
-
-  } else if (
-    tipo === 'error'
-  ) {
-
-    elemento.classList.add(
-      'estado-error'
-    );
-
-  } else if (
-    tipo === 'proceso'
-  ) {
-
-    elemento.classList.add(
-      'estado-proceso'
-    );
-
-  } else {
-
-    elemento.classList.add(
-      'estado-normal'
-    );
-
-  }
-
-
-  if (
-    permitirHTML
-  ) {
-
-    elemento.innerHTML =
-      mensaje;
-
-  } else {
-
-    elemento.textContent =
-      mensaje;
-
-  }
-
-}
-
-
-function formatearCelda(
-  valor
-) {
-
-  if (
-    valor === null ||
-    valor === undefined
-  ) {
-
-    return '';
-
-  }
-
-
-  if (
-    valor instanceof Date
-  ) {
-
-    return valor.toLocaleDateString(
-      'es-MX'
-    );
-
-  }
-
-
-  return String(
-    valor
-  );
-
-}
-
-
-function formatearNumero(
-  numero
-) {
-
-  return Number(
-    numero
-  ).toLocaleString(
-    'es-MX'
-  );
-
-}
-
+/* =========================================================
+   MÓDULO 30 - UTILIDADES
+   ========================================================= */
 
 function escapeHtml(
-  texto
+  value
 ) {
 
   return String(
-    texto
+    value ?? ''
   )
   .replace(
     /&/g,
@@ -2777,11 +6406,128 @@ function escapeHtml(
 }
 
 
-/***************************************************************
- * =============================================================
- * FIN DEL INDEX.HTML
- * =============================================================
- ***************************************************************/
+/* =========================================================
+   ESCAPAR PARA JAVASCRIPT
+   ========================================================= */
+
+function escapeJs(
+  value
+) {
+
+  return String(
+    value ?? ''
+  )
+  .replace(
+    /\\/g,
+    '\\\\'
+  )
+  .replace(
+    /'/g,
+    "\\'"
+  )
+  .replace(
+    /\r/g,
+    '\\r'
+  )
+  .replace(
+    /\n/g,
+    '\\n'
+  );
+
+}
+
+
+/* =========================================================
+   ESCAPAR XML
+   ========================================================= */
+
+function escapeXml(
+  value
+) {
+
+  return String(
+    value ?? ''
+  )
+  .replace(
+    /&/g,
+    '&amp;'
+  )
+  .replace(
+    /</g,
+    '&lt;'
+  )
+  .replace(
+    />/g,
+    '&gt;'
+  )
+  .replace(
+    /"/g,
+    '&quot;'
+  )
+  .replace(
+    /'/g,
+    '&apos;'
+  );
+
+}
+
+
+/* =========================================================
+   MÓDULO 31 - TOAST
+   ========================================================= */
+
+let toastTimer = null;
+
+
+function showToast(
+  message
+) {
+
+  const toast =
+    document.getElementById(
+      'toast'
+    );
+
+
+  if (!toast) {
+
+    return;
+
+  }
+
+
+  toast.textContent =
+    message;
+
+
+  toast.classList.add(
+    'show'
+  );
+
+
+  clearTimeout(
+    toastTimer
+  );
+
+
+  toastTimer =
+    setTimeout(
+      function() {
+
+        toast.classList.remove(
+          'show'
+        );
+
+      },
+      2500
+    );
+
+}
+
+
+/* =========================================================
+   FIN DEL JAVASCRIPT
+   ========================================================= */
 
 </script>
 
