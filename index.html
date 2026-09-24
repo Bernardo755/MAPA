@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador KML & Excel con Edición y Google Drive</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- SheetJS (XLSX Parser & Writer) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        #map { height: 100%; width: 100%; z-index: 1; }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .custom-kml-marker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .marker-pin {
+            width: 28px;
+            height: 28px;
+            border-radius: 50% 50% 50% 0;
+            position: absolute;
+            transform: rotate(-45deg);
+            left: 50%;
+            top: 50%;
+            margin: -20px 0 0 -14px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+            border: 2px solid #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .marker-pin::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            margin: 8px 0 0 8px;
+            background: #ffffff;
+            position: absolute;
+            border-radius: 50%;
+        }
+
+        .route-badge {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            background-color: #2563eb;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 11px;
+            min-width: 22px;
+            height: 22px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+            z-index: 10;
+            padding: 0 4px;
+            animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        .leaflet-popup-content-wrapper { border-radius: 12px; padding: 4px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); }
+        .leaflet-popup-content { margin: 12px; font-size: 13px; }
+
+        .editable-cell-input {
+            width: 100%;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            padding: 2px 6px;
+            transition: all 0.2s;
+        }
+        .editable-cell-input:hover { border-color: #cbd5e1; background-color: #f8fafc; }
+        .editable-cell-input:focus { border-color: #3b82f6; background-color: #ffffff; outline: none; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row h-screen bg-slate-100 text-slate-800">
+
+    <!-- Sidebar Layout -->
+    <aside class="w-full md:w-[460px] bg-white shadow-2xl flex flex-col z-20 h-2/5 md:h-full relative border-r border-slate-200">
+        <!-- App Header -->
+        <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base leading-tight">Visualizador KML & Excel</h1>
+                    <p class="text-xs text-slate-400">Edición en Tabla, Desc 3 ↔ Color y Drive</p>
+                </div>
+            </div>
+            <span id="marker-count-badge" class="bg-slate-800 text-slate-300 text-xs px-2.5 py-1 rounded-full border border-slate-700 hidden">
+                0 Puntos
+            </span>
+        </div>
+
+        <!-- Drive Folder Sync Header Bar (Configurada por Código) -->
+        <div class="bg-slate-800 border-b border-slate-700 px-3 py-2 text-xs text-slate-300 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 truncate flex-1">
+                <i class="fa-brands fa-google-drive text-emerald-400 text-sm"></i>
+                <span class="text-[11px] font-medium text-slate-200 truncate">Carpeta Google Drive Vinculada</span>
+            </div>
+            <button onclick="openDriveFolder()" class="text-xs bg-emerald-600 hover:bg-emerald-500 px-2.5 py-1 rounded-md text-white font-medium flex-shrink-0 transition-colors flex items-center gap-1.5 shadow-sm" title="Abrir Carpeta en Google Drive">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir Drive
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex border-b border-slate-200 bg-slate-50 text-xs font-semibold text-slate-600 overflow-x-auto">
+            <button id="tab-btn-data" onclick="switchTab('data')" class="flex-1 py-3 px-2 text-center border-b-2 border-blue-600 text-blue-600 font-bold transition-all flex items-center justify-center gap-1.5 whitespace-nowrap">
+                <i class="fa-solid fa-folder-open"></i> Archivos
+            </button>
+            <button id="tab-btn-table" onclick="switchTab('table')" class="flex-1 py-3 px-2 text-center border-b-2 border-transparent hover:text-slate-900 transition-all flex items-center justify-center gap-1.5 whitespace-nowrap">
+                <i class="fa-solid fa-table"></i> Tabla (Editable)
+            </button>
+            <button id="tab-btn-filter" onclick="switchTab('filter')" class="flex-1 py-3 px-2 text-center border-b-2 border-transparent hover:text-slate-900 transition-all flex items-center justify-center gap-1.5 whitespace-nowrap">
+                <i class="fa-solid fa-filter"></i> Filtros
+            </button>
+            <button id="tab-btn-route" onclick="switchTab('route')" class="flex-1 py-3 px-2 text-center border-b-2 border-transparent hover:text-slate-900 transition-all flex items-center justify-center gap-1.5 relative whitespace-nowrap">
+                <i class="fa-solid fa-route"></i> Rutas
+                <span id="routes-count-tag" class="hidden ml-1 bg-blue-600 text-white rounded-full px-1.5 py-0.2 text-[10px]">0</span>
+            </button>
+        </div>
+
+        <!-- Tab Content Container -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-4">
+
+            <!-- TAB 1: FILE MANAGER & DRIVE DRIVE SYNC -->
+            <div id="tab-content-data" class="space-y-4">
+                
+                <!-- Multi-file workspace selector -->
+                <div class="bg-blue-50/70 border border-blue-200 rounded-xl p-3 space-y-2">
+                    <label class="block text-xs font-bold text-slate-700">Archivos Cargados en Sesión</label>
+                    <select id="file-workspace-select" onchange="switchWorkspaceFile(this.value)" class="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white font-medium">
+                        <option value="none">-- Ningún archivo cargado --</option>
+                    </select>
+                </div>
+
+                <div class="bg-slate-50 border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl p-5 text-center transition-all cursor-pointer group">
+                    <input type="file" id="kml-file-input" accept=".kml,.xml,.csv,.xlsx,.xls,application/vnd.google-earth.kml+xml,text/xml,*" class="hidden" onchange="handleFileUpload(event)">
+                    <label for="kml-file-input" class="cursor-pointer block">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-file-excel text-xl"></i>
+                        </div>
+                        <span class="block font-semibold text-sm text-slate-700 mb-1">Subir Archivo Excel o KML</span>
+                        <span class="block text-xs text-slate-400">Campos: Nombre, Lat, Lng, Desc 1, Desc 2, Desc 3, Desc 4, Color</span>
+                    </label>
+                </div>
+
+                <!-- Export & Save Options -->
+                <div id="export-options-box" class="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-200 hidden">
+                    <h4 class="font-bold text-xs uppercase tracking-wider text-slate-600 mb-2">Guardar y Exportar Archivo Actual</h4>
+                    <button onclick="downloadUpdatedExcel()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-2 px-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-file-excel"></i> Descargar Excel Actualizado (.xlsx)
+                    </button>
+                    <button onclick="exportKMLWithRoutes()" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs py-2 px-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-earth-americas"></i> Descargar KML con Estilos y Rutas (.kml)
+                    </button>
+                </div>
+
+                <!-- Summary list -->
+                <div id="placemarks-summary-box" class="hidden space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-xs uppercase tracking-wider text-slate-500">Puntos Encontrados</h3>
+                        <button onclick="zoomToAllMarkers()" class="text-xs text-blue-600 hover:underline flex items-center gap-1 font-medium">
+                            <i class="fa-solid fa-expand"></i> Ver Todos
+                        </button>
+                    </div>
+                    <div id="placemarks-list" class="space-y-1.5 max-h-52 overflow-y-auto pr-1"></div>
+                </div>
+            </div>
+
+            <!-- TAB 2: EDITABLE TABLE VIEW -->
+            <div id="tab-content-table" class="hidden space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-xs uppercase tracking-wider text-slate-500">Tabla de Datos Editables</h3>
+                    <span id="table-rows-count" class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">0 Registros</span>
+                </div>
+                
+                <p class="text-xs text-slate-500 leading-relaxed bg-amber-50 p-2.5 rounded-lg border border-amber-200">
+                    <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i>
+                    Puedes editar <strong>Desc 1, Desc 2, Desc 3 y Desc 4</strong> directamente. Al cambiar la <strong>Descripción 3</strong> por otra existente, el <strong>color cambiará automáticamente</strong>.
+                </p>
+
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                    <input type="text" id="table-search-input" oninput="filterTableRows()" placeholder="Buscar en las filas de la tabla..." class="w-full pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50 focus:bg-white transition-colors">
+                </div>
+
+                <div class="overflow-x-auto border border-slate-200 rounded-lg max-h-[380px] shadow-inner">
+                    <table class="w-full text-left text-xs border-collapse bg-white">
+                        <thead class="bg-slate-100 text-slate-700 sticky top-0 border-b border-slate-200 z-10 shadow-sm">
+                            <tr>
+                                <th class="p-2 border-r border-slate-200 font-bold">Color</th>
+                                <th class="p-2 border-r border-slate-200 font-bold">Nombre</th>
+                                <th class="p-2 border-r border-slate-200 font-bold">Coordenadas</th>
+                                <th class="p-2 border-r border-slate-200 font-bold min-w-[110px]">Descripción 1</th>
+                                <th class="p-2 border-r border-slate-200 font-bold min-w-[110px]">Descripción 2</th>
+                                <th class="p-2 border-r border-slate-200 font-bold min-w-[120px] bg-blue-50 text-blue-800">Descripción 3 (Color)</th>
+                                <th class="p-2 font-bold min-w-[110px]">Descripción 4</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-table-body" class="divide-y divide-slate-100 text-slate-600">
+                            <tr>
+                                <td colspan="7" class="p-4 text-center italic text-slate-400">Carga un archivo Excel para habilitar la edición de tabla.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: FILTERS -->
+            <div id="tab-content-filter" class="hidden space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-xs uppercase tracking-wider text-slate-500">Filtrar Puntos (Multi-Selección)</h3>
+                    <button onclick="resetFilters()" class="text-xs text-slate-500 hover:text-red-600 transition-colors flex items-center gap-1 font-medium">
+                        <i class="fa-solid fa-rotate-left"></i> Restablecer
+                    </button>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Búsqueda General por Texto</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                        <input type="text" id="filter-search-input" oninput="applyFilters()" placeholder="Buscar en nombre o descripciones..." class="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-xs font-bold text-slate-700">Filtrar por Nombres</label>
+                        <div class="flex gap-2 text-[11px]">
+                            <button onclick="selectAllNames(true)" class="text-blue-600 font-semibold hover:underline">Todos</button>
+                            <span class="text-slate-300">|</span>
+                            <button onclick="selectAllNames(false)" class="text-slate-500 hover:underline">Ninguno</button>
+                        </div>
+                    </div>
+                    <div id="filter-names-list" class="max-h-36 overflow-y-auto space-y-1 pr-1 bg-white p-2 rounded border border-slate-200 text-xs">
+                        <p class="text-slate-400 italic text-center py-2">Carga un archivo para ver nombres.</p>
+                    </div>
+                </div>
+
+                <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-xs font-bold text-slate-700">Filtrar por Descripción 3 (Categoría/Color)</label>
+                        <div class="flex gap-2 text-[11px]">
+                            <button onclick="selectAllDesc3(true)" class="text-blue-600 font-semibold hover:underline">Todos</button>
+                            <span class="text-slate-300">|</span>
+                            <button onclick="selectAllDesc3(false)" class="text-slate-500 hover:underline">Ninguno</button>
+                        </div>
+                    </div>
+                    <div id="filter-desc3-list" class="max-h-36 overflow-y-auto space-y-1 pr-1 bg-white p-2 rounded border border-slate-200 text-xs">
+                        <p class="text-slate-400 italic text-center py-2">Carga un archivo para ver Descripción 3.</p>
+                    </div>
+                </div>
+
+                <div id="filter-results-info" class="text-xs text-slate-600 bg-slate-100 p-2.5 rounded-lg border border-slate-200 flex justify-between items-center font-medium">
+                    <span>Carga un archivo Excel para comenzar a aplicar filtros.</span>
+                </div>
+            </div>
+
+            <!-- TAB 4: ROUTE BUILDER -->
+            <div id="tab-content-route" class="hidden space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-xs uppercase tracking-wider text-slate-500">Gestor de Rutas (1 a N)</h3>
+                    <button onclick="createNewRoute()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition-colors flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-plus"></i> Nueva Ruta
+                    </button>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Ruta Seleccionada</label>
+                    <select id="active-route-select" onchange="selectActiveRoute(this.value)" class="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white font-medium">
+                        <option value="none">-- Sin Ruta Activa --</option>
+                    </select>
+                </div>
+
+                <div id="route-controls-box" class="hidden space-y-3 bg-blue-50/60 p-3.5 rounded-xl border border-blue-200">
+                    <div class="flex items-center justify-between bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <span id="route-edit-indicator" class="w-3 h-3 rounded-full bg-slate-300"></span>
+                            <span class="text-xs font-bold text-slate-700">Modo Selección (1 a N)</span>
+                        </div>
+                        <button id="toggle-edit-btn" onclick="toggleRouteEditMode()" class="px-2.5 py-1 text-xs rounded-md font-semibold bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors">
+                            Desactivado
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 text-center">
+                        <div class="bg-white p-2 rounded-lg border border-slate-200">
+                            <span class="block text-[10px] text-slate-400 font-bold uppercase">Puntos</span>
+                            <span id="route-stops-count" class="text-base font-extrabold text-blue-600">0</span>
+                        </div>
+                        <div class="bg-white p-2 rounded-lg border border-slate-200">
+                            <span class="block text-[10px] text-slate-400 font-bold uppercase">Distancia Total</span>
+                            <span id="route-distance-text" class="text-base font-extrabold text-slate-800">0 km</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-bold text-slate-700">Secuencia de la Ruta</span>
+                            <button onclick="clearCurrentRouteStops()" class="text-[11px] text-red-600 hover:underline">Limpiar Secuencia</button>
+                        </div>
+                        <div id="route-stops-list" class="space-y-1 max-h-40 overflow-y-auto pr-1 bg-white p-2 rounded-lg border border-slate-200">
+                            <p class="text-xs text-slate-400 text-center py-3 italic">No hay puntos seleccionados.</p>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-blue-200/80 space-y-2">
+                        <button onclick="deleteActiveRoute()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs py-1.5 rounded-lg font-semibold transition-colors flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-trash-can"></i> Eliminar Ruta
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </aside>
+
+    <!-- Map Container -->
+    <main class="flex-1 relative h-3/5 md:h-full bg-slate-200">
+        <div id="map"></div>
+        
+        <!-- Toast Notification Box -->
+        <div id="toast-msg" class="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-2xl transition-all duration-300 opacity-0 pointer-events-none translate-y-[-20px] flex items-center gap-2">
+            <i id="toast-icon" class="fa-solid fa-circle-info text-blue-400"></i>
+            <span id="toast-text">Notificación</span>
+        </div>
+    </main>
+
+    <!-- Application Script Logic -->
+    <script>
+        // =========================================================================
+        // CONFIGURACIÓN DE GOOGLE DRIVE:
+        // Pega aquí el enlace directo a tu carpeta predeterminada de Google Drive
+        // =========================================================================
+        const DEFAULT_DRIVE_FOLDER_URL = "https://drive.google.com/drive/folders/1d2wnOQ5fyEpVuMpVV80z6sClGRERU-BY?usp=sharing";
+
+        let map;
+        let loadedFiles = []; // Database of loaded files: { id, fileName, rawData, pointsData, desc3ColorMap }
+        let currentFileId = null;
+        
+        let markersData = []; // Current active file markers
+        let desc3ColorMap = {}; // Dictionary mapping "Descripción 3" -> Hex Color
+        
+        // Color palette generator for new Description 3 categories
+        const PRESET_COLORS = [
+            '#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', 
+            '#ec4899', '#06b6d4', '#f97316', '#a855f7', '#14b8a6'
+        ];
+        let colorCounter = 0;
+
+        // Filter states
+        let selectedFilterNames = new Set();
+        let selectedFilterDesc3 = new Set();
+
+        // Routes State
+        let routes = [];
+        let activeRouteId = null;
+        let isRouteEditMode = false;
+
+        const DEFAULT_COLOR = '#ef4444';
+
+        window.onload = function() {
+            initMap();
+        };
+
+        function initMap() {
+            const googleStreets = L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+                maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: '&copy; Google Maps'
+            });
+
+            const googleSatellite = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+                maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: '&copy; Google Maps'
+            });
+
+            const googleHybrid = L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+                maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: '&copy; Google Maps'
+            });
+
+            map = L.map('map', {
+                center: [19.4326, -99.1332],
+                zoom: 5,
+                layers: [googleStreets]
+            });
+
+            L.control.layers({
+                "Google Calles": googleStreets,
+                "Google Satélite": googleSatellite,
+                "Google Híbrido": googleHybrid
+            }, null, { position: 'topright' }).addTo(map);
+
+            map.attributionControl.setPrefix(false);
+        }
+
+        // --- GOOGLE DRIVE FOLDER MANAGEMENT ---
+        function openDriveFolder() {
+            if (DEFAULT_DRIVE_FOLDER_URL && !DEFAULT_DRIVE_FOLDER_URL.includes("TU_ID_DE_CARPETA_AQUI")) {
+                window.open(DEFAULT_DRIVE_FOLDER_URL, '_blank');
+            } else {
+                showToast('Ingresa la dirección de tu carpeta en la constante DEFAULT_DRIVE_FOLDER_URL del código', 'info');
+            }
+        }
+
+        // --- FILE UPLOAD & PARSING LOGIC ---
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const fileName = file.name;
+            showToast(`Procesando ${fileName}...`, 'info');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+                    processExcelFile(fileName, jsonRows);
+                } catch (error) {
+                    console.error("Error al procesar el archivo:", error);
+                    showToast('Error al procesar el archivo Excel. Verifica el formato.', 'error');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function processExcelFile(fileName, rows) {
+            if (!rows || rows.length === 0) {
+                showToast('El archivo cargado está vacío.', 'error');
+                return;
+            }
+
+            clearCurrentMapMarkers();
+
+            const fileId = `file_${Date.now()}`;
+            const filePoints = [];
+            const localDesc3ColorMap = {};
+
+            const sample = rows[0];
+            const keys = Object.keys(sample);
+
+            // Flexible Column Finder
+            let nameKey = keys.find(k => k.toLowerCase().match(/^(nombre|nombre del punto|punto|label|id)$/i)) || keys[0];
+            let latKey = keys.find(k => k.toLowerCase().match(/^(lat|latitud|latitude|y)$/i));
+            let lngKey = keys.find(k => k.toLowerCase().match(/^(lng|long|longitud|longitude|x)$/i));
+            let desc1Key = keys.find(k => k.toLowerCase().match(/^(descripción 1|descripcion 1|desc 1|desc1)$/i));
+            let desc2Key = keys.find(k => k.toLowerCase().match(/^(descripción 2|descripcion 2|desc 2|desc2)$/i));
+            let desc3Key = keys.find(k => k.toLowerCase().match(/^(descripción 3|descripcion 3|desc 3|desc3)$/i));
+            let desc4Key = keys.find(k => k.toLowerCase().match(/^(descripción 4|descripcion 4|desc 4|desc4)$/i));
+            let colorKey = keys.find(k => k.toLowerCase().match(/^(color|colour|hex)$/i));
+
+            const bounds = [];
+
+            rows.forEach((row, index) => {
+                let lat = parseFloat(row[latKey]);
+                let lng = parseFloat(row[lngKey]);
+
+                if (isNaN(lat) || isNaN(lng)) return;
+
+                const name = String(row[nameKey] || `Punto ${index + 1}`).trim();
+                const desc1 = desc1Key ? String(row[desc1Key]).trim() : '';
+                const desc2 = desc2Key ? String(row[desc2Key]).trim() : '';
+                const desc3 = desc3Key ? String(row[desc3Key]).trim() : '';
+                const desc4 = desc4Key ? String(row[desc4Key]).trim() : '';
+
+                // Extract color or assign according to Description 3
+                let rawColor = colorKey && row[colorKey] ? String(row[colorKey]).trim() : null;
+                if (rawColor && !rawColor.startsWith('#') && rawColor.length === 6) rawColor = '#' + rawColor;
+
+                let color = rawColor;
+
+                if (desc3) {
+                    if (localDesc3ColorMap[desc3]) {
+                        color = localDesc3ColorMap[desc3];
+                    } else {
+                        if (!color) {
+                            color = PRESET_COLORS[colorCounter % PRESET_COLORS.length];
+                            colorCounter++;
+                        }
+                        localDesc3ColorMap[desc3] = color;
+                    }
+                } else if (!color) {
+                    color = DEFAULT_COLOR;
+                }
+
+                const markerId = `pm_${index}_${Date.now()}`;
+                const pointItem = {
+                    id: markerId,
+                    name: name,
+                    lat: lat,
+                    lng: lng,
+                    desc1: desc1,
+                    desc2: desc2,
+                    desc3: desc3,
+                    desc4: desc4,
+                    color: color,
+                    leafletMarker: null
+                };
+
+                const leafletMarker = createLeafletMarker(pointItem);
+                pointItem.leafletMarker = leafletMarker;
+
+                filePoints.push(pointItem);
+                bounds.push([lat, lng]);
+            });
+
+            if (filePoints.length === 0) {
+                showToast('No se encontraron coordenadas válidas (Latitud/Longitud) en el archivo.', 'error');
+                return;
+            }
+
+            const fileRecord = {
+                id: fileId,
+                fileName: fileName,
+                pointsData: filePoints,
+                desc3ColorMap: localDesc3ColorMap
+            };
+
+            loadedFiles.push(fileRecord);
+            currentFileId = fileId;
+            markersData = filePoints;
+            desc3ColorMap = localDesc3ColorMap;
+
+            updateWorkspaceDropdown();
+            document.getElementById('export-options-box').classList.remove('hidden');
+
+            if (bounds.length > 0) {
+                map.fitBounds(bounds, { padding: [40, 40] });
+            }
+
+            refreshUIAllTabs();
+            showToast(`¡Se cargaron ${filePoints.length} puntos desde ${fileName}!`, 'success');
+        }
+
+        function createLeafletMarker(item) {
+            const customIcon = L.divIcon({
+                className: 'custom-kml-marker',
+                html: `
+                    <div id="marker-icon-${item.id}" class="marker-pin-wrapper relative">
+                        <div class="marker-pin" style="background-color: ${item.color};"></div>
+                    </div>
+                `,
+                iconSize: [28, 28],
+                iconAnchor: [14, 28],
+                popupAnchor: [0, -28]
+            });
+
+            const marker = L.marker([item.lat, item.lng], { icon: customIcon }).addTo(map);
+            bindMarkerPopup(marker, item);
+
+            marker.on('click', function() {
+                if (isRouteEditMode && activeRouteId) {
+                    addMarkerToActiveRoute(item.id);
+                }
+            });
+
+            return marker;
+        }
+
+        function bindMarkerPopup(marker, item) {
+            let popupHtml = `<div class="p-1 space-y-1.5 min-w-[180px]">`;
+            popupHtml += `<div class="flex items-center gap-2 border-b border-slate-200 pb-1.5">`;
+            popupHtml += `<span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${item.color}"></span>`;
+            popupHtml += `<h4 class="font-bold text-sm text-slate-800">${escapeXml(item.name)}</h4>`;
+            popupHtml += `</div>`;
+
+            popupHtml += `<div class="space-y-1 text-xs text-slate-600 mt-1">`;
+            if (item.desc1) popupHtml += `<div><strong class="text-slate-700">Desc 1:</strong> ${escapeXml(item.desc1)}</div>`;
+            if (item.desc2) popupHtml += `<div><strong class="text-slate-700">Desc 2:</strong> ${escapeXml(item.desc2)}</div>`;
+            if (item.desc3) popupHtml += `<div class="bg-blue-50 text-blue-900 p-1 rounded font-medium"><strong class="text-blue-800">Desc 3:</strong> ${escapeXml(item.desc3)}</div>`;
+            if (item.desc4) popupHtml += `<div><strong class="text-slate-700">Desc 4:</strong> ${escapeXml(item.desc4)}</div>`;
+            popupHtml += `<div class="text-[10px] text-slate-400 font-mono mt-1">${item.lat.toFixed(5)}, ${item.lng.toFixed(5)}</div>`;
+            popupHtml += `</div></div>`;
+
+            marker.bindPopup(popupHtml);
+        }
+
+        function populateDataTable() {
+            const body = document.getElementById('data-table-body');
+            const tableCountTag = document.getElementById('table-rows-count');
+
+            if (!body) return;
+
+            if (markersData.length === 0) {
+                body.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="p-4 text-center italic text-slate-400">Carga un archivo Excel para visualizar la tabla.</td>
+                    </tr>
+                `;
+                if (tableCountTag) tableCountTag.textContent = '0 Registros';
+                return;
+            }
+
+            let bodyHtml = '';
+            markersData.forEach((m) => {
+                bodyHtml += `<tr class="table-row-item hover:bg-blue-50/40 transition-colors" data-marker-id="${m.id}">`;
+                bodyHtml += `<td class="p-2 border-r border-slate-200 text-center"><span class="marker-color-dot-${m.id} w-3.5 h-3.5 rounded-full inline-block shadow-sm" style="background-color: ${m.color}"></span></td>`;
+                bodyHtml += `<td class="p-2 border-r border-slate-200 font-semibold text-slate-800 whitespace-nowrap cursor-pointer hover:text-blue-600" onclick="focusMarkerFromTable('${m.id}')">${escapeXml(m.name)}</td>`;
+                bodyHtml += `<td class="p-2 border-r border-slate-200 font-mono text-[10px] text-slate-400 whitespace-nowrap">${m.lat.toFixed(5)}, ${m.lng.toFixed(5)}</td>`;
+                
+                // Editable Description inputs
+                bodyHtml += `<td class="p-1 border-r border-slate-200"><input type="text" class="editable-cell-input" value="${escapeHtmlAttr(m.desc1)}" onchange="updatePointDescription('${m.id}', 'desc1', this.value)"></td>`;
+                bodyHtml += `<td class="p-1 border-r border-slate-200"><input type="text" class="editable-cell-input" value="${escapeHtmlAttr(m.desc2)}" onchange="updatePointDescription('${m.id}', 'desc2', this.value)"></td>`;
+                bodyHtml += `<td class="p-1 border-r border-slate-200 bg-blue-50/30"><input type="text" class="editable-cell-input font-bold text-blue-900" value="${escapeHtmlAttr(m.desc3)}" onchange="updatePointDescription3('${m.id}', this.value)"></td>`;
+                bodyHtml += `<td class="p-1"><input type="text" class="editable-cell-input" value="${escapeHtmlAttr(m.desc4)}" onchange="updatePointDescription('${m.id}', 'desc4', this.value)"></td>`;
+
+                bodyHtml += `</tr>`;
+            });
+
+            body.innerHTML = bodyHtml;
+            if (tableCountTag) tableCountTag.textContent = `${markersData.length} Registros`;
+        }
+
+        function updatePointDescription(markerId, field, newValue) {
+            const point = markersData.find(m => m.id === markerId);
+            if (!point) return;
+
+            point[field] = newValue.trim();
+            bindMarkerPopup(point.leafletMarker, point);
+            showToast(`Punto "${point.name}" actualizado`, 'info');
+        }
+
+        // CRITICAL REQUIREMENT: Automatic color link based on Descripción 3
+        function updatePointDescription3(markerId, newDesc3Value) {
+            const point = markersData.find(m => m.id === markerId);
+            if (!point) return;
+
+            const cleanDesc3 = newDesc3Value.trim();
+            point.desc3 = cleanDesc3;
+
+            if (cleanDesc3) {
+                if (desc3ColorMap[cleanDesc3]) {
+                    // Match existing Description 3 color!
+                    point.color = desc3ColorMap[cleanDesc3];
+                } else {
+                    // Create new color mapping for this new Description 3 value
+                    const newColor = PRESET_COLORS[colorCounter % PRESET_COLORS.length];
+                    colorCounter++;
+                    desc3ColorMap[cleanDesc3] = newColor;
+                    point.color = newColor;
+                }
+            } else {
+                point.color = DEFAULT_COLOR;
+            }
+
+            // Update Leaflet Marker Visual Color
+            updateMarkerPinColor(point);
+            bindMarkerPopup(point.leafletMarker, point);
+
+            // Update Color dot in table row
+            const colorDot = document.querySelector(`.marker-color-dot-${point.id}`);
+            if (colorDot) colorDot.style.backgroundColor = point.color;
+
+            // Refresh Filter list & summaries
+            populateFilterOptions();
+            populatePlacemarksSummary();
+
+            showToast(`Descripción 3 actualizada. Color vinculado: ${point.color}`, 'success');
+        }
+
+        function updateMarkerPinColor(point) {
+            const markerPinElem = document.querySelector(`#marker-icon-${point.id} .marker-pin`);
+            if (markerPinElem) {
+                markerPinElem.style.backgroundColor = point.color;
+            }
+        }
+
+        function focusMarkerFromTable(markerId) {
+            const m = markersData.find(item => item.id === markerId);
+            if (m && m.leafletMarker) {
+                map.setView([m.lat, m.lng], 16);
+                m.leafletMarker.openPopup();
+            }
+        }
+
+        // WORKSPACE MULTI-FILE SWITCHING
+        function updateWorkspaceDropdown() {
+            const select = document.getElementById('file-workspace-select');
+            if (loadedFiles.length === 0) {
+                select.innerHTML = `<option value="none">-- Ningún archivo cargado --</option>`;
+                return;
+            }
+
+            select.innerHTML = loadedFiles.map(f => `
+                <option value="${f.id}" ${f.id === currentFileId ? 'selected' : ''}>${escapeXml(f.fileName)} (${f.pointsData.length} puntos)</option>
+            `).join('');
+        }
+
+        function switchWorkspaceFile(fileId) {
+            if (fileId === 'none') return;
+            const targetFile = loadedFiles.find(f => f.id === fileId);
+            if (!targetFile) return;
+
+            clearCurrentMapMarkers();
+
+            currentFileId = fileId;
+            markersData = targetFile.pointsData;
+            desc3ColorMap = targetFile.desc3ColorMap;
+
+            const bounds = [];
+            markersData.forEach(m => {
+                m.leafletMarker = createLeafletMarker(m);
+                bounds.push([m.lat, m.lng]);
+            });
+
+            if (bounds.length > 0) {
+                map.fitBounds(bounds, { padding: [40, 40] });
+            }
+
+            refreshUIAllTabs();
+            showToast(`Cambiado al archivo ${targetFile.fileName}`, 'info');
+        }
+
+        function clearCurrentMapMarkers() {
+            markersData.forEach(m => {
+                if (m.leafletMarker) map.removeLayer(m.leafletMarker);
+            });
+            markersData = [];
+        }
+
+        function refreshUIAllTabs() {
+            populatePlacemarksSummary();
+            populateDataTable();
+            populateFilterOptions();
+            updateBadgeCount();
+        }
+
+        function updateBadgeCount() {
+            const badge = document.getElementById('marker-count-badge');
+            badge.textContent = `${markersData.length} Puntos`;
+            badge.classList.remove('hidden');
+        }
+
+        function populatePlacemarksSummary() {
+            const listContainer = document.getElementById('placemarks-list');
+            listContainer.innerHTML = '';
+            document.getElementById('placemarks-summary-box').classList.remove('hidden');
+
+            markersData.forEach(m => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors cursor-pointer text-xs';
+                item.innerHTML = `
+                    <div class="flex items-center gap-2 truncate">
+                        <span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${m.color}"></span>
+                        <span class="font-medium text-slate-700 truncate">${escapeXml(m.name)}</span>
+                    </div>
+                    <i class="fa-solid fa-location-crosshairs text-slate-400 hover:text-blue-600"></i>
+                `;
+                item.onclick = () => {
+                    map.setView([m.lat, m.lng], 16);
+                    m.leafletMarker.openPopup();
+                };
+                listContainer.appendChild(item);
+            });
+        }
+
+        function zoomToAllMarkers() {
+            const visibleBounds = markersData
+                .filter(m => map.hasLayer(m.leafletMarker))
+                .map(m => [m.lat, m.lng]);
+            if (visibleBounds.length > 0) {
+                map.fitBounds(visibleBounds, { padding: [40, 40] });
+            }
+        }
+
+        function populateFilterOptions() {
+            const namesContainer = document.getElementById('filter-names-list');
+            namesContainer.innerHTML = '';
+            const sortedNames = Array.from(new Set(markersData.map(m => m.name))).sort();
+
+            if (sortedNames.length === 0) {
+                namesContainer.innerHTML = `<p class="text-slate-400 italic text-center py-2">No hay nombres disponibles.</p>`;
+            } else {
+                sortedNames.forEach(name => {
+                    const item = document.createElement('label');
+                    item.className = 'flex items-center gap-2 p-1 hover:bg-slate-50 rounded cursor-pointer';
+                    item.innerHTML = `
+                        <input type="checkbox" value="${escapeHtmlAttr(name)}" onchange="toggleNameFilter(this)" class="rounded text-blue-600 focus:ring-blue-500 h-3.5 w-3.5">
+                        <span class="text-slate-700 truncate">${escapeXml(name)}</span>
+                    `;
+                    namesContainer.appendChild(item);
+                });
+            }
+
+            const desc3Container = document.getElementById('filter-desc3-list');
+            desc3Container.innerHTML = '';
+            const sortedDesc3 = Array.from(new Set(markersData.map(m => m.desc3).filter(Boolean))).sort();
+
+            if (sortedDesc3.length === 0) {
+                desc3Container.innerHTML = `<p class="text-slate-400 italic text-center py-2">No hay Descripción 3 asignada.</p>`;
+            } else {
+                sortedDesc3.forEach(desc => {
+                    const color = desc3ColorMap[desc] || DEFAULT_COLOR;
+                    const item = document.createElement('label');
+                    item.className = 'flex items-center gap-2 p-1 hover:bg-slate-50 rounded cursor-pointer';
+                    item.innerHTML = `
+                        <input type="checkbox" value="${escapeHtmlAttr(desc)}" onchange="toggleDesc3Filter(this)" class="rounded text-blue-600 focus:ring-blue-500 h-3.5 w-3.5">
+                        <span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${color}"></span>
+                        <span class="text-slate-700 truncate font-medium">${escapeXml(desc)}</span>
+                    `;
+                    desc3Container.appendChild(item);
+                });
+            }
+
+            updateFilterSummaryInfo(markersData.length);
+        }
+
+        function toggleNameFilter(cb) {
+            if (cb.checked) selectedFilterNames.add(cb.value);
+            else selectedFilterNames.delete(cb.value);
+            applyFilters();
+        }
+
+        function toggleDesc3Filter(cb) {
+            if (cb.checked) selectedFilterDesc3.add(cb.value);
+            else selectedFilterDesc3.delete(cb.value);
+            applyFilters();
+        }
+
+        function selectAllNames(enable) {
+            document.querySelectorAll('#filter-names-list input[type="checkbox"]').forEach(cb => {
+                cb.checked = enable;
+                if (enable) selectedFilterNames.add(cb.value);
+                else selectedFilterNames.delete(cb.value);
+            });
+            applyFilters();
+        }
+
+        function selectAllDesc3(enable) {
+            document.querySelectorAll('#filter-desc3-list input[type="checkbox"]').forEach(cb => {
+                cb.checked = enable;
+                if (enable) selectedFilterDesc3.add(cb.value);
+                else selectedFilterDesc3.delete(cb.value);
+            });
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const searchText = document.getElementById('filter-search-input').value.toLowerCase().trim();
+            let visibleCount = 0;
+
+            markersData.forEach(m => {
+                let matchSearch = true;
+                let matchName = true;
+                let matchDesc3 = true;
+
+                if (searchText) {
+                    matchSearch = m.name.toLowerCase().includes(searchText) ||
+                                  m.desc1.toLowerCase().includes(searchText) ||
+                                  m.desc2.toLowerCase().includes(searchText) ||
+                                  m.desc3.toLowerCase().includes(searchText) ||
+                                  m.desc4.toLowerCase().includes(searchText);
+                }
+
+                if (selectedFilterNames.size > 0) matchName = selectedFilterNames.has(m.name);
+                if (selectedFilterDesc3.size > 0) matchDesc3 = selectedFilterDesc3.has(m.desc3);
+
+                const isVisible = matchSearch && matchName && matchDesc3;
+
+                if (isVisible) {
+                    if (!map.hasLayer(m.leafletMarker)) map.addLayer(m.leafletMarker);
+                    visibleCount++;
+                } else {
+                    if (map.hasLayer(m.leafletMarker)) map.removeLayer(m.leafletMarker);
+                }
+            });
+
+            updateFilterSummaryInfo(visibleCount);
+        }
+
+        function updateFilterSummaryInfo(visibleCount) {
+            const info = document.getElementById('filter-results-info');
+            info.innerHTML = `<span>Mostrando <strong>${visibleCount}</strong> de <strong>${markersData.length}</strong> puntos</span>`;
+        }
+
+        function resetFilters() {
+            document.getElementById('filter-search-input').value = '';
+            selectAllNames(false);
+            selectAllDesc3(false);
+            applyFilters();
+            showToast('Filtros restablecidos', 'info');
+        }
+
+        // --- EXPORT FUNCTIONALITIES ---
+        function downloadUpdatedExcel() {
+            if (markersData.length === 0) {
+                showToast('No hay datos para exportar a Excel.', 'error');
+                return;
+            }
+
+            const exportRows = markersData.map(m => ({
+                "Nombre del punto": m.name,
+                "Latitud": m.lat,
+                "Longitud": m.lng,
+                "Descripción 1": m.desc1,
+                "Descripción 2": m.desc2,
+                "Descripción 3": m.desc3,
+                "Descripción 4": m.desc4,
+                "Color": m.color
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(exportRows);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Puntos Actualizados");
+
+            const currentFile = loadedFiles.find(f => f.id === currentFileId);
+            const outName = currentFile ? `actualizado_${currentFile.fileName}` : 'puntos_actualizados.xlsx';
+
+            XLSX.writeFile(workbook, outName);
+            showToast('¡Archivo Excel descargado con éxito!', 'success');
+        }
+
+        function exportKMLWithRoutes() {
+            if (markersData.length === 0) {
+                showToast('No hay datos para exportar a KML.', 'error');
+                return;
+            }
+
+            let kmlString = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+            kmlString += `<kml xmlns="http://www.opengis.net/kml/2.2">\n`;
+            kmlString += `  <Document>\n`;
+            kmlString += `    <name>Puntos y Rutas Exportadas</name>\n`;
+
+            markersData.forEach(m => {
+                kmlString += `    <Placemark>\n`;
+                kmlString += `      <name>${escapeXml(m.name)}</name>\n`;
+                kmlString += `      <description><![CDATA[Desc 1: ${escapeXml(m.desc1)}<br>Desc 2: ${escapeXml(m.desc2)}<br>Desc 3: ${escapeXml(m.desc3)}<br>Desc 4: ${escapeXml(m.desc4)}]]></description>\n`;
+                kmlString += `      <Style><IconStyle><color>${hexToKmlColor(m.color)}</color></IconStyle></Style>\n`;
+                kmlString += `      <Point>\n`;
+                kmlString += `        <coordinates>${m.lng},${m.lat},0</coordinates>\n`;
+                kmlString += `      </Point>\n`;
+                kmlString += `    </Placemark>\n`;
+            });
+
+            routes.forEach(r => {
+                if (r.stops.length > 0) {
+                    kmlString += `    <Placemark>\n`;
+                    kmlString += `      <name>${escapeXml(r.name)}</name>\n`;
+                    kmlString += `      <LineString>\n`;
+                    kmlString += `        <coordinates>\n`;
+                    r.stops.forEach(mId => {
+                        const m = markersData.find(item => item.id === mId);
+                        if (m) kmlString += `          ${m.lng},${m.lat},0\n`;
+                    });
+                    kmlString += `        </coordinates>\n`;
+                    kmlString += `      </LineString>\n`;
+                    kmlString += `    </Placemark>\n`;
+                }
+            });
+
+            kmlString += `  </Document>\n`;
+            kmlString += `</kml>`;
+
+            downloadFile(kmlString, 'mapa_actualizado.kml', 'application/vnd.google-earth.kml+xml');
+            showToast('¡Archivo KML descargado correctamente!', 'success');
+        }
+
+        function hexToKmlColor(hex) {
+            if (!hex || !hex.startsWith('#')) return 'ff0000ff';
+            const clean = hex.replace('#', '');
+            if (clean.length !== 6) return 'ff0000ff';
+            const r = clean.substring(0,2);
+            const g = clean.substring(2,4);
+            const b = clean.substring(4,6);
+            return `ff${b}${g}${r}`;
+        }
+
+        // --- ROUTE CREATION ---
+        function createNewRoute() {
+            const routeNumber = routes.length + 1;
+            const routeId = `route_${Date.now()}`;
+            const assignedColor = PRESET_COLORS[routes.length % PRESET_COLORS.length];
+
+            const newRoute = { id: routeId, name: `Ruta ${routeNumber}`, color: assignedColor, stops: [], polyline: null };
+            routes.push(newRoute);
+            updateRouteSelectDropdown();
+            selectActiveRoute(routeId);
+            showToast(`¡${newRoute.name} creada!`, 'success');
+        }
+
+        function updateRouteSelectDropdown() {
+            const select = document.getElementById('active-route-select');
+            const tag = document.getElementById('routes-count-tag');
+
+            if (routes.length === 0) {
+                select.innerHTML = `<option value="none">-- Sin Ruta Activa --</option>`;
+                tag.classList.add('hidden');
+                return;
+            }
+
+            tag.textContent = routes.length;
+            tag.classList.remove('hidden');
+            select.innerHTML = routes.map(r => `<option value="${r.id}">${r.name} (${r.stops.length} puntos)</option>`).join('');
+        }
+
+        function selectActiveRoute(routeId) {
+            activeRouteId = (routeId === 'none') ? null : routeId;
+            const controlsBox = document.getElementById('route-controls-box');
+
+            if (!activeRouteId) {
+                controlsBox.classList.add('hidden');
+                setRouteEditMode(false);
+            } else {
+                controlsBox.classList.remove('hidden');
+                document.getElementById('active-route-select').value = activeRouteId;
+            }
+            renderRouteVisuals();
+        }
+
+        function toggleRouteEditMode() { setRouteEditMode(!isRouteEditMode); }
+
+        function setRouteEditMode(enabled) {
+            isRouteEditMode = enabled;
+            const btn = document.getElementById('toggle-edit-btn');
+            const indicator = document.getElementById('route-edit-indicator');
+
+            if (isRouteEditMode) {
+                btn.textContent = 'ACTIVADO';
+                btn.className = 'px-2.5 py-1 text-xs rounded-md font-semibold bg-blue-600 text-white shadow-sm';
+                indicator.className = 'w-3 h-3 rounded-full bg-blue-500 animate-ping';
+                showToast('Modo Selección activo: Haz clic en los puntos del mapa', 'info');
+            } else {
+                btn.textContent = 'Desactivado';
+                btn.className = 'px-2.5 py-1 text-xs rounded-md font-semibold bg-slate-200 text-slate-700 hover:bg-slate-300';
+                indicator.className = 'w-3 h-3 rounded-full bg-slate-300';
+            }
+        }
+
+        function addMarkerToActiveRoute(markerId) {
+            if (!activeRouteId) return;
+            const route = routes.find(r => r.id === activeRouteId);
+            if (!route) return;
+
+            route.stops.push(markerId);
+            updateRouteSelectDropdown();
+            renderRouteVisuals();
+            showToast(`Punto agregado a ${route.name}`, 'success');
+        }
+
+        function renderRouteVisuals() {
+            markersData.forEach(m => {
+                const el = document.getElementById(`marker-icon-${m.id}`);
+                if (el) {
+                    const badge = el.querySelector('.route-badge');
+                    if (badge) badge.remove();
+                }
+            });
+
+            routes.forEach(r => { if (r.polyline) map.removeLayer(r.polyline); });
+
+            if (!activeRouteId) return;
+            const activeRoute = routes.find(r => r.id === activeRouteId);
+            if (!activeRoute) return;
+
+            const latLngs = [];
+            activeRoute.stops.forEach((mId, index) => {
+                const m = markersData.find(item => item.id === mId);
+                if (m) {
+                    latLngs.push([m.lat, m.lng]);
+                    const iconElem = document.getElementById(`marker-icon-${m.id}`);
+                    if (iconElem) {
+                        let badge = document.createElement('div');
+                        badge.className = 'route-badge';
+                        badge.style.backgroundColor = activeRoute.color;
+                        badge.textContent = (index + 1);
+                        iconElem.appendChild(badge);
+                    }
+                }
+            });
+
+            if (latLngs.length > 1) {
+                activeRoute.polyline = L.polyline(latLngs, { color: activeRoute.color, weight: 4, opacity: 0.85, dashArray: '6, 8' }).addTo(map);
+            }
+
+            document.getElementById('route-stops-count').textContent = activeRoute.stops.length;
+        }
+
+        function clearCurrentRouteStops() {
+            if (!activeRouteId) return;
+            const route = routes.find(r => r.id === activeRouteId);
+            if (route) { route.stops = []; updateRouteSelectDropdown(); renderRouteVisuals(); }
+        }
+
+        function deleteActiveRoute() {
+            if (!activeRouteId) return;
+            const idx = routes.findIndex(r => r.id === activeRouteId);
+            if (idx !== -1) {
+                if (routes[idx].polyline) map.removeLayer(routes[idx].polyline);
+                routes.splice(idx, 1);
+                activeRouteId = routes.length > 0 ? routes[0].id : null;
+                updateRouteSelectDropdown();
+                selectActiveRoute(activeRouteId || 'none');
+            }
+        }
+
+        // --- HELPER FUNCTIONS ---
+        function escapeXml(unsafe) {
+            if (!unsafe) return '';
+            return String(unsafe).replace(/[<>&'"]/g, function (c) {
+                switch (c) {
+                    case '<': return '&lt;'; case '>': return '&gt;';
+                    case '&': return '&amp;'; case '\'': return '&apos;'; case '"': return '&quot;';
+                }
+            });
+        }
+
+        function escapeHtmlAttr(str) {
+            return String(str || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function downloadFile(content, fileName, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function switchTab(tabKey) {
+            ['data', 'table', 'filter', 'route'].forEach(key => {
+                const btn = document.getElementById(`tab-btn-${key}`);
+                const content = document.getElementById(`tab-content-${key}`);
+
+                if (key === tabKey) {
+                    btn.className = 'flex-1 py-3 px-2 text-center border-b-2 border-blue-600 text-blue-600 font-bold transition-all flex items-center justify-center gap-1.5 whitespace-nowrap';
+                    content.classList.remove('hidden');
+                } else {
+                    btn.className = 'flex-1 py-3 px-2 text-center border-b-2 border-transparent hover:text-slate-900 transition-all flex items-center justify-center gap-1.5 whitespace-nowrap';
+                    content.classList.add('hidden');
+                }
+            });
+        }
+
+        function showToast(msg, type = 'info') {
+            const toast = document.getElementById('toast-msg');
+            const icon = document.getElementById('toast-icon');
+            const text = document.getElementById('toast-text');
+
+            text.textContent = msg;
+
+            if (type === 'error') icon.className = 'fa-solid fa-circle-exclamation text-red-400';
+            else if (type === 'success') icon.className = 'fa-solid fa-circle-check text-emerald-400';
+            else icon.className = 'fa-solid fa-circle-info text-blue-400';
+
+            toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-[-20px]');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-[-20px]');
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
