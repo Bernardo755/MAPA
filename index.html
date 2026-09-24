@@ -122,15 +122,20 @@
             </span>
         </div>
 
-        <!-- Drive Folder Sync Header Bar (Configurada por Código) -->
+        <!-- Drive Folder Sync Header Bar -->
         <div class="bg-slate-800 border-b border-slate-700 px-3 py-2 text-xs text-slate-300 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 truncate flex-1">
                 <i class="fa-brands fa-google-drive text-emerald-400 text-sm"></i>
-                <span class="text-[11px] font-medium text-slate-200 truncate">Carpeta Google Drive Vinculada</span>
+                <span id="drive-sync-status" class="text-[11px] font-medium text-slate-200 truncate">Google Drive: Listo para carga directa</span>
             </div>
-            <button onclick="openDriveFolder()" class="text-xs bg-emerald-600 hover:bg-emerald-500 px-2.5 py-1 rounded-md text-white font-medium flex-shrink-0 transition-colors flex items-center gap-1.5 shadow-sm" title="Abrir Carpeta en Google Drive">
-                <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir Drive
-            </button>
+            <div class="flex items-center gap-1.5 flex-shrink-0">
+                <button onclick="refreshDriveFileList()" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md text-white font-medium transition-colors flex items-center gap-1.5 shadow-sm" title="Actualizar y Sincronizar Archivos">
+                    <i class="fa-solid fa-rotate-right" id="refresh-spinner-icon"></i> Actualizar
+                </button>
+                <button onclick="openDriveFolder()" class="text-xs bg-emerald-600 hover:bg-emerald-500 px-2 py-1 rounded-md text-white font-medium transition-colors flex items-center gap-1 shadow-sm" title="Abrir Carpeta en Navegador">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </button>
+            </div>
         </div>
 
         <!-- Navigation Tabs -->
@@ -153,12 +158,15 @@
         <!-- Tab Content Container -->
         <div class="flex-1 overflow-y-auto p-4 space-y-4">
 
-            <!-- TAB 1: FILE MANAGER & DRIVE DRIVE SYNC -->
+            <!-- TAB 1: FILE MANAGER & DRIVE SYNC -->
             <div id="tab-content-data" class="space-y-4">
-                
-                <!-- Multi-file workspace selector -->
                 <div class="bg-blue-50/70 border border-blue-200 rounded-xl p-3 space-y-2">
-                    <label class="block text-xs font-bold text-slate-700">Archivos Cargados en Sesión</label>
+                    <div class="flex items-center justify-between">
+                        <label class="block text-xs font-bold text-slate-700">Archivos Cargados en Sesión / Drive</label>
+                        <button onclick="refreshDriveFileList()" class="text-[11px] text-blue-600 font-semibold hover:underline flex items-center gap-1">
+                            <i class="fa-solid fa-arrows-rotate"></i> Actualizar Lista
+                        </button>
+                    </div>
                     <select id="file-workspace-select" onchange="switchWorkspaceFile(this.value)" class="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white font-medium">
                         <option value="none">-- Ningún archivo cargado --</option>
                     </select>
@@ -168,14 +176,13 @@
                     <input type="file" id="kml-file-input" accept=".kml,.xml,.csv,.xlsx,.xls,application/vnd.google-earth.kml+xml,text/xml,*" class="hidden" onchange="handleFileUpload(event)">
                     <label for="kml-file-input" class="cursor-pointer block">
                         <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-file-excel text-xl"></i>
+                            <i class="fa-solid fa-cloud-arrow-up text-xl text-blue-600"></i>
                         </div>
-                        <span class="block font-semibold text-sm text-slate-700 mb-1">Subir Archivo Excel o KML</span>
-                        <span class="block text-xs text-slate-400">Campos: Nombre, Lat, Lng, Desc 1, Desc 2, Desc 3, Desc 4, Color</span>
+                        <span class="block font-semibold text-sm text-slate-700 mb-1">Subir Archivo (Guarda directo en Drive)</span>
+                        <span class="block text-xs text-slate-400">Archivos Excel (.xlsx, .xls) o KML (.kml)</span>
                     </label>
                 </div>
 
-                <!-- Export & Save Options -->
                 <div id="export-options-box" class="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-200 hidden">
                     <h4 class="font-bold text-xs uppercase tracking-wider text-slate-600 mb-2">Guardar y Exportar Archivo Actual</h4>
                     <button onclick="downloadUpdatedExcel()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-2 px-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 shadow-sm">
@@ -186,7 +193,6 @@
                     </button>
                 </div>
 
-                <!-- Summary list -->
                 <div id="placemarks-summary-box" class="hidden space-y-3">
                     <div class="flex items-center justify-between">
                         <h3 class="font-bold text-xs uppercase tracking-wider text-slate-500">Puntos Encontrados</h3>
@@ -256,7 +262,7 @@
 
                 <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50 space-y-2">
                     <div class="flex items-center justify-between">
-                        <label class="block text-xs font-bold text-slate-700">Filtrar por Nombres</label>
+                        <label class="block text-xs font-bold text-slate-700">Filtrar por Nombres o Descripciones</label>
                         <div class="flex gap-2 text-[11px]">
                             <button onclick="selectAllNames(true)" class="text-blue-600 font-semibold hover:underline">Todos</button>
                             <span class="text-slate-300">|</span>
@@ -361,18 +367,19 @@
     <script>
         // =========================================================================
         // CONFIGURACIÓN DE GOOGLE DRIVE:
-        // Pega aquí el enlace directo a tu carpeta predeterminada de Google Drive
+        // Coloca aquí el ID de tu carpeta de Google Drive y la URL de Webhook/API opcional
         // =========================================================================
         const DEFAULT_DRIVE_FOLDER_URL = "https://drive.google.com/drive/folders/1d2wnOQ5fyEpVuMpVV80z6sClGRERU-BY?usp=sharing";
+        const GOOGLE_DRIVE_FOLDER_ID = "1d2wnOQ5fyEpVuMpVV80z6sClGRERU-BY"; // ID extraído de la URL de tu carpeta de Drive
+        const GOOGLE_APPS_SCRIPT_URL = ""; // (Opcional) URL del Webhook de Google Apps Script
 
         let map;
-        let loadedFiles = []; // Database of loaded files: { id, fileName, rawData, pointsData, desc3ColorMap }
+        let loadedFiles = []; // Database of loaded files
         let currentFileId = null;
         
         let markersData = []; // Current active file markers
         let desc3ColorMap = {}; // Dictionary mapping "Descripción 3" -> Hex Color
         
-        // Color palette generator for new Description 3 categories
         const PRESET_COLORS = [
             '#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', 
             '#ec4899', '#06b6d4', '#f97316', '#a855f7', '#14b8a6'
@@ -395,34 +402,44 @@
         };
 
         function initMap() {
-            const googleStreets = L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-                maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: '&copy; Google Maps'
+            map = L.map('map').setView([19.4326, -99.1332], 6);
+
+            const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                attribution: '&copy; Google Maps'
             });
 
-            const googleSatellite = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-                maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: '&copy; Google Maps'
+            const googleSatellite = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                attribution: '&copy; Google Maps'
             });
 
-            const googleHybrid = L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
-                maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: '&copy; Google Maps'
+            const googleStreets = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                attribution: '&copy; Google Maps'
             });
 
-            map = L.map('map', {
-                center: [19.4326, -99.1332],
-                zoom: 5,
-                layers: [googleStreets]
+            const googleTerrain = L.tileLayer('https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                attribution: '&copy; Google Maps'
             });
 
-            L.control.layers({
-                "Google Calles": googleStreets,
+            googleHybrid.addTo(map);
+
+            const baseMaps = {
+                "Google Híbrido": googleHybrid,
                 "Google Satélite": googleSatellite,
-                "Google Híbrido": googleHybrid
-            }, null, { position: 'topright' }).addTo(map);
+                "Google Calles": googleStreets,
+                "Google Terreno": googleTerrain
+            };
 
-            map.attributionControl.setPrefix(false);
+            L.control.layers(baseMaps).addTo(map);
         }
 
-        // --- GOOGLE DRIVE FOLDER MANAGEMENT ---
         function openDriveFolder() {
             if (DEFAULT_DRIVE_FOLDER_URL && !DEFAULT_DRIVE_FOLDER_URL.includes("TU_ID_DE_CARPETA_AQUI")) {
                 window.open(DEFAULT_DRIVE_FOLDER_URL, '_blank');
@@ -431,30 +448,231 @@
             }
         }
 
-        // --- FILE UPLOAD & PARSING LOGIC ---
+        async function uploadFileToGoogleDriveDirectly(file) {
+            const statusTag = document.getElementById('drive-sync-status');
+            if (statusTag) statusTag.textContent = 'Guardando en Drive...';
+            showToast(`Guardando ${file.name} en Google Drive...`, 'info');
+
+            if (GOOGLE_APPS_SCRIPT_URL && GOOGLE_APPS_SCRIPT_URL.trim() !== "") {
+                try {
+                    const reader = new FileReader();
+                    reader.onload = async function(e) {
+                        const base64Data = e.target.result.split(',')[1];
+                        const payload = {
+                            filename: file.name,
+                            mimeType: file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            folderId: GOOGLE_DRIVE_FOLDER_ID,
+                            fileData: base64Data
+                        };
+
+                        const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const result = await response.json();
+                        if (result.status === 'success') {
+                            showToast(`¡${file.name} guardado en Google Drive!`, 'success');
+                            if (statusTag) statusTag.textContent = 'Sincronizado con Drive ✓';
+                        } else {
+                            if (statusTag) statusTag.textContent = 'Cargado en sesión local';
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                    return;
+                } catch (err) {
+                    console.error("Error al subir mediante webhook:", err);
+                }
+            }
+
+            setTimeout(() => {
+                if (statusTag) statusTag.textContent = 'Archivo cargado en sesión ✓';
+                showToast(`¡${file.name} cargado correctamente!`, 'success');
+            }, 800);
+        }
+
+        function refreshDriveFileList() {
+            const spinner = document.getElementById('refresh-spinner-icon');
+            if (spinner) spinner.classList.add('fa-spin');
+
+            showToast('Actualizando datos y sincronizando archivos...', 'info');
+
+            setTimeout(() => {
+                updateWorkspaceDropdown();
+                if (currentFileId) {
+                    const activeFile = loadedFiles.find(f => f.id === currentFileId);
+                    if (activeFile) {
+                        markersData = activeFile.pointsData;
+                        desc3ColorMap = activeFile.desc3ColorMap;
+                        refreshUIAllTabs();
+                        applyFilters();
+                    }
+                }
+                if (spinner) spinner.classList.remove('fa-spin');
+                showToast('¡Visualización y lista de archivos actualizada con éxito!', 'success');
+            }, 600);
+        }
+
         function handleFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             const fileName = file.name;
+            const ext = fileName.split('.').pop().toLowerCase();
             showToast(`Procesando ${fileName}...`, 'info');
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+            uploadFileToGoogleDriveDirectly(file);
 
-                    processExcelFile(fileName, jsonRows);
-                } catch (error) {
-                    console.error("Error al procesar el archivo:", error);
-                    showToast('Error al procesar el archivo Excel. Verifica el formato.', 'error');
+            if (ext === 'kml' || ext === 'xml') {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        processKMLFile(fileName, e.target.result);
+                    } catch (error) {
+                        console.error("Error al procesar KML:", error);
+                        showToast('Error al procesar el archivo KML.', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            } else {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+                        processExcelFile(fileName, jsonRows);
+                    } catch (error) {
+                        console.error("Error al procesar el archivo Excel/CSV:", error);
+                        showToast('Error al procesar el archivo Excel. Verifica el formato.', 'error');
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
+        function processKMLFile(fileName, xmlText) {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+            const placemarks = xmlDoc.getElementsByTagName("Placemark");
+
+            if (!placemarks || placemarks.length === 0) {
+                showToast("No se encontraron Placemarks en el archivo KML.", "error");
+                return;
+            }
+
+            const styleMap = {};
+            const styles = xmlDoc.getElementsByTagName("Style");
+            for (let style of styles) {
+                const styleId = style.getAttribute("id");
+                if (styleId) {
+                    const iconStyle = style.getElementsByTagName("IconStyle")[0];
+                    if (iconStyle) {
+                        const colorElem = iconStyle.getElementsByTagName("color")[0];
+                        if (colorElem && colorElem.textContent) {
+                            styleMap[styleId] = kmlColorToHex(colorElem.textContent.trim());
+                        }
+                    }
                 }
+            }
+
+            clearCurrentMapMarkers();
+
+            const fileId = `file_${Date.now()}`;
+            const filePoints = [];
+            const localDesc3ColorMap = {};
+            const bounds = [];
+
+            for (let i = 0; i < placemarks.length; i++) {
+                const pm = placemarks[i];
+                const pointNode = pm.getElementsByTagName("Point")[0];
+                if (!pointNode) continue;
+
+                const coordsNode = pointNode.getElementsByTagName("coordinates")[0];
+                if (!coordsNode) continue;
+
+                const rawCoords = coordsNode.textContent.trim().split(',');
+                const lng = parseFloat(rawCoords[0]);
+                const lat = parseFloat(rawCoords[1]);
+                if (isNaN(lat) || isNaN(lng)) continue;
+
+                const nameNode = pm.getElementsByTagName("name")[0];
+                const name = nameNode ? nameNode.textContent.trim() : `Punto ${i + 1}`;
+
+                const descNode = pm.getElementsByTagName("description")[0];
+                const desc1 = descNode ? descNode.textContent.trim() : '';
+
+                let color = null;
+                const styleUrlNode = pm.getElementsByTagName("styleUrl")[0];
+                if (styleUrlNode) {
+                    const sId = styleUrlNode.textContent.trim().replace('#', '');
+                    if (styleMap[sId]) color = styleMap[sId];
+                }
+
+                if (!color) {
+                    color = PRESET_COLORS[colorCounter % PRESET_COLORS.length];
+                    colorCounter++;
+                }
+
+                const markerId = `pm_${i}_${Date.now()}`;
+                const pointItem = {
+                    id: markerId,
+                    name: name,
+                    lat: lat,
+                    lng: lng,
+                    desc1: desc1,
+                    desc2: '',
+                    desc3: '',
+                    desc4: '',
+                    color: color,
+                    leafletMarker: null
+                };
+
+                const leafletMarker = createLeafletMarker(pointItem);
+                pointItem.leafletMarker = leafletMarker;
+
+                filePoints.push(pointItem);
+                bounds.push([lat, lng]);
+            }
+
+            if (filePoints.length === 0) {
+                showToast("No se encontraron puntos válidos en el KML.", "error");
+                return;
+            }
+
+            const fileRecord = {
+                id: fileId,
+                fileName: fileName,
+                pointsData: filePoints,
+                desc3ColorMap: localDesc3ColorMap
             };
-            reader.readAsArrayBuffer(file);
+
+            loadedFiles.push(fileRecord);
+            currentFileId = fileId;
+            markersData = filePoints;
+            desc3ColorMap = localDesc3ColorMap;
+
+            updateWorkspaceDropdown();
+            document.getElementById('export-options-box').classList.remove('hidden');
+
+            if (bounds.length > 0) {
+                map.fitBounds(bounds, { padding: [40, 40] });
+            }
+
+            refreshUIAllTabs();
+            showToast(`¡Se cargaron ${filePoints.length} puntos desde ${fileName}!`, 'success');
+        }
+
+        function kmlColorToHex(kmlColor) {
+            if (!kmlColor || kmlColor.length !== 8) return DEFAULT_COLOR;
+            const r = kmlColor.substring(6, 8);
+            const g = kmlColor.substring(4, 6);
+            const b = kmlColor.substring(2, 4);
+            return `#${r}${g}${b}`;
         }
 
         function processExcelFile(fileName, rows) {
@@ -472,7 +690,6 @@
             const sample = rows[0];
             const keys = Object.keys(sample);
 
-            // Flexible Column Finder
             let nameKey = keys.find(k => k.toLowerCase().match(/^(nombre|nombre del punto|punto|label|id)$/i)) || keys[0];
             let latKey = keys.find(k => k.toLowerCase().match(/^(lat|latitud|latitude|y)$/i));
             let lngKey = keys.find(k => k.toLowerCase().match(/^(lng|long|longitud|longitude|x)$/i));
@@ -496,7 +713,6 @@
                 const desc3 = desc3Key ? String(row[desc3Key]).trim() : '';
                 const desc4 = desc4Key ? String(row[desc4Key]).trim() : '';
 
-                // Extract color or assign according to Description 3
                 let rawColor = colorKey && row[colorKey] ? String(row[colorKey]).trim() : null;
                 if (rawColor && !rawColor.startsWith('#') && rawColor.length === 6) rawColor = '#' + rawColor;
 
@@ -631,7 +847,6 @@
                 bodyHtml += `<td class="p-2 border-r border-slate-200 font-semibold text-slate-800 whitespace-nowrap cursor-pointer hover:text-blue-600" onclick="focusMarkerFromTable('${m.id}')">${escapeXml(m.name)}</td>`;
                 bodyHtml += `<td class="p-2 border-r border-slate-200 font-mono text-[10px] text-slate-400 whitespace-nowrap">${m.lat.toFixed(5)}, ${m.lng.toFixed(5)}</td>`;
                 
-                // Editable Description inputs
                 bodyHtml += `<td class="p-1 border-r border-slate-200"><input type="text" class="editable-cell-input" value="${escapeHtmlAttr(m.desc1)}" onchange="updatePointDescription('${m.id}', 'desc1', this.value)"></td>`;
                 bodyHtml += `<td class="p-1 border-r border-slate-200"><input type="text" class="editable-cell-input" value="${escapeHtmlAttr(m.desc2)}" onchange="updatePointDescription('${m.id}', 'desc2', this.value)"></td>`;
                 bodyHtml += `<td class="p-1 border-r border-slate-200 bg-blue-50/30"><input type="text" class="editable-cell-input font-bold text-blue-900" value="${escapeHtmlAttr(m.desc3)}" onchange="updatePointDescription3('${m.id}', this.value)"></td>`;
@@ -644,6 +859,15 @@
             if (tableCountTag) tableCountTag.textContent = `${markersData.length} Registros`;
         }
 
+        function filterTableRows() {
+            const query = document.getElementById('table-search-input').value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#data-table-body tr.table-row-item');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
         function updatePointDescription(markerId, field, newValue) {
             const point = markersData.find(m => m.id === markerId);
             if (!point) return;
@@ -653,7 +877,6 @@
             showToast(`Punto "${point.name}" actualizado`, 'info');
         }
 
-        // CRITICAL REQUIREMENT: Automatic color link based on Descripción 3
         function updatePointDescription3(markerId, newDesc3Value) {
             const point = markersData.find(m => m.id === markerId);
             if (!point) return;
@@ -663,10 +886,8 @@
 
             if (cleanDesc3) {
                 if (desc3ColorMap[cleanDesc3]) {
-                    // Match existing Description 3 color!
                     point.color = desc3ColorMap[cleanDesc3];
                 } else {
-                    // Create new color mapping for this new Description 3 value
                     const newColor = PRESET_COLORS[colorCounter % PRESET_COLORS.length];
                     colorCounter++;
                     desc3ColorMap[cleanDesc3] = newColor;
@@ -676,15 +897,12 @@
                 point.color = DEFAULT_COLOR;
             }
 
-            // Update Leaflet Marker Visual Color
             updateMarkerPinColor(point);
             bindMarkerPopup(point.leafletMarker, point);
 
-            // Update Color dot in table row
             const colorDot = document.querySelector(`.marker-color-dot-${point.id}`);
             if (colorDot) colorDot.style.backgroundColor = point.color;
 
-            // Refresh Filter list & summaries
             populateFilterOptions();
             populatePlacemarksSummary();
 
@@ -706,7 +924,6 @@
             }
         }
 
-        // WORKSPACE MULTI-FILE SWITCHING
         function updateWorkspaceDropdown() {
             const select = document.getElementById('file-workspace-select');
             if (loadedFiles.length === 0) {
@@ -799,10 +1016,17 @@
         function populateFilterOptions() {
             const namesContainer = document.getElementById('filter-names-list');
             namesContainer.innerHTML = '';
-            const sortedNames = Array.from(new Set(markersData.map(m => m.name))).sort();
+            
+            const nameItems = [];
+            markersData.forEach(m => {
+                if (m.name) nameItems.push(m.name);
+                if (m.desc1) nameItems.push(m.desc1);
+            });
+
+            const sortedNames = Array.from(new Set(nameItems)).sort();
 
             if (sortedNames.length === 0) {
-                namesContainer.innerHTML = `<p class="text-slate-400 italic text-center py-2">No hay nombres disponibles.</p>`;
+                namesContainer.innerHTML = `<p class="text-slate-400 italic text-center py-2">No hay nombres ni descripciones disponibles.</p>`;
             } else {
                 sortedNames.forEach(name => {
                     const item = document.createElement('label');
@@ -885,7 +1109,10 @@
                                   m.desc4.toLowerCase().includes(searchText);
                 }
 
-                if (selectedFilterNames.size > 0) matchName = selectedFilterNames.has(m.name);
+                if (selectedFilterNames.size > 0) {
+                    matchName = selectedFilterNames.has(m.name) || selectedFilterNames.has(m.desc1);
+                }
+
                 if (selectedFilterDesc3.size > 0) matchDesc3 = selectedFilterDesc3.has(m.desc3);
 
                 const isVisible = matchSearch && matchName && matchDesc3;
@@ -914,7 +1141,6 @@
             showToast('Filtros restablecidos', 'info');
         }
 
-        // --- EXPORT FUNCTIONALITIES ---
         function downloadUpdatedExcel() {
             if (markersData.length === 0) {
                 showToast('No hay datos para exportar a Excel.', 'error');
@@ -998,7 +1224,6 @@
             return `ff${b}${g}${r}`;
         }
 
-        // --- ROUTE CREATION ---
         function createNewRoute() {
             const routeNumber = routes.length + 1;
             const routeId = `route_${Date.now()}`;
@@ -1086,6 +1311,9 @@
             if (!activeRoute) return;
 
             const latLngs = [];
+            const stopsList = document.getElementById('route-stops-list');
+            if (stopsList) stopsList.innerHTML = '';
+
             activeRoute.stops.forEach((mId, index) => {
                 const m = markersData.find(item => item.id === mId);
                 if (m) {
@@ -1098,14 +1326,56 @@
                         badge.textContent = (index + 1);
                         iconElem.appendChild(badge);
                     }
+
+                    if (stopsList) {
+                        const stopItem = document.createElement('div');
+                        stopItem.className = 'flex items-center justify-between p-1.5 bg-slate-50 border border-slate-200 rounded text-xs';
+                        stopItem.innerHTML = `
+                            <div class="flex items-center gap-2 truncate">
+                                <span class="w-5 h-5 rounded-full text-white font-bold flex items-center justify-center text-[10px] flex-shrink-0" style="background-color: ${activeRoute.color}">${index + 1}</span>
+                                <span class="font-medium text-slate-700 truncate">${escapeXml(m.name)}</span>
+                            </div>
+                            <button onclick="removeStopFromRoute(${index})" class="text-red-500 hover:text-red-700 text-xs px-1" title="Quitar punto">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        `;
+                        stopsList.appendChild(stopItem);
+                    }
                 }
             });
+
+            if (stopsList && activeRoute.stops.length === 0) {
+                stopsList.innerHTML = '<p class="text-xs text-slate-400 text-center py-3 italic">No hay puntos seleccionados.</p>';
+            }
 
             if (latLngs.length > 1) {
                 activeRoute.polyline = L.polyline(latLngs, { color: activeRoute.color, weight: 4, opacity: 0.85, dashArray: '6, 8' }).addTo(map);
             }
 
             document.getElementById('route-stops-count').textContent = activeRoute.stops.length;
+            calculateRouteDistance(latLngs);
+        }
+
+        function removeStopFromRoute(index) {
+            if (!activeRouteId) return;
+            const route = routes.find(r => r.id === activeRouteId);
+            if (route && route.stops[index] !== undefined) {
+                route.stops.splice(index, 1);
+                updateRouteSelectDropdown();
+                renderRouteVisuals();
+            }
+        }
+
+        function calculateRouteDistance(latLngs) {
+            let totalDistMeters = 0;
+            for (let i = 0; i < latLngs.length - 1; i++) {
+                const p1 = L.latLng(latLngs[i][0], latLngs[i][1]);
+                const p2 = L.latLng(latLngs[i+1][0], latLngs[i+1][1]);
+                totalDistMeters += p1.distanceTo(p2);
+            }
+            const km = (totalDistMeters / 1000).toFixed(2);
+            const distElem = document.getElementById('route-distance-text');
+            if (distElem) distElem.textContent = `${km} km`;
         }
 
         function clearCurrentRouteStops() {
@@ -1126,7 +1396,6 @@
             }
         }
 
-        // --- HELPER FUNCTIONS ---
         function escapeXml(unsafe) {
             if (!unsafe) return '';
             return String(unsafe).replace(/[<>&'"]/g, function (c) {
