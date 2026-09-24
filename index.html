@@ -17,21 +17,22 @@
        MÓDULO 01 - LIBRERÍAS
        ========================================================= -->
 
-  <script src="https://cdn.tailwindcss.com"></script>
-
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   >
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  ></script>
 
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-  >
+  <script
+    src="https://cdn.tailwindcss.com"
+  ></script>
 
-  <script src="https://cdn.sheetjs.com/xlsx-0.18.5/package/dist/xlsx.full.min.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"
+  ></script>
 
 
   <!-- =========================================================
@@ -46,21 +47,22 @@
 
     html,
     body {
-      margin: 0;
-      padding: 0;
       width: 100%;
       height: 100%;
+      margin: 0;
+      padding: 0;
       overflow: hidden;
       font-family:
         Inter,
-        ui-sans-serif,
-        system-ui,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
+        Arial,
+        Helvetica,
         sans-serif;
-      background: #f8fafc;
+      background: #f1f5f9;
     }
+
+    /* =========================================================
+       MAPA
+       ========================================================= */
 
     #map {
       position: fixed;
@@ -68,6 +70,19 @@
       width: 100%;
       height: 100%;
       z-index: 1;
+      background: #dbeafe;
+    }
+
+    .leaflet-container {
+      width: 100%;
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
+
+    .leaflet-control-layers {
+      border-radius: 12px !important;
+      overflow: hidden;
+      box-shadow: 0 5px 20px rgba(0,0,0,.18) !important;
     }
 
 
@@ -75,22 +90,31 @@
        PANEL PRINCIPAL
        ========================================================= */
 
-    #controlPanel {
+    #mainPanel {
+
       position: fixed;
-      z-index: 1000;
-      left: 14px;
+
       top: 14px;
+      left: 14px;
       bottom: 14px;
+
       width: 470px;
-      background: rgba(255, 255, 255, 0.97);
-      border: 1px solid rgba(226, 232, 240, 0.95);
+
+      background: rgba(255,255,255,.97);
+
       border-radius: 18px;
+
       box-shadow:
-        0 18px 50px rgba(15, 23, 42, 0.20);
+        0 15px 45px rgba(15,23,42,.25);
+
+      z-index: 1000;
+
       display: flex;
       flex-direction: column;
+
       overflow: hidden;
-      backdrop-filter: blur(12px);
+
+      backdrop-filter: blur(8px);
     }
 
 
@@ -98,272 +122,337 @@
        ENCABEZADO
        ========================================================= */
 
-    .app-header {
-      padding: 16px 18px 14px;
-      background: linear-gradient(
-        135deg,
-        #0f172a,
-        #1e293b
-      );
+    .appHeader {
+
+      padding: 17px 18px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #0f172a,
+          #1e293b
+        );
+
       color: white;
+
       flex-shrink: 0;
     }
 
-    .app-header-top {
+    .headerTop {
+
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
     }
 
-    .app-title {
-      font-size: 18px;
+    .appTitle {
+
+      font-size: 19px;
       font-weight: 800;
-      letter-spacing: -0.3px;
+      letter-spacing: -.3px;
     }
 
-    .app-subtitle {
-      margin-top: 2px;
-      font-size: 11px;
-      color: #cbd5e1;
-    }
+    .appSubtitle {
 
-    .marker-counter {
-      min-width: 72px;
-      padding: 7px 10px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.10);
-      border: 1px solid rgba(255,255,255,0.12);
-      text-align: center;
-    }
-
-    .marker-counter-number {
-      font-size: 16px;
-      font-weight: 800;
-      line-height: 1;
-    }
-
-    .marker-counter-label {
       margin-top: 3px;
-      font-size: 9px;
+
+      font-size: 11px;
+
       color: #cbd5e1;
+    }
+
+    .pointCounter {
+
+      min-width: 70px;
+
+      padding: 7px 10px;
+
+      border-radius: 10px;
+
+      background: rgba(255,255,255,.12);
+
+      text-align: center;
+
+      font-size: 12px;
+      font-weight: 700;
     }
 
 
     /* =========================================================
-       PESTAÑAS
+       TABS
        ========================================================= */
 
     .tabs {
-      display: flex;
-      padding: 7px;
-      gap: 5px;
-      background: #f1f5f9;
+
+      display: grid;
+
+      grid-template-columns:
+        repeat(4, 1fr);
+
+      background: #f8fafc;
+
       border-bottom: 1px solid #e2e8f0;
+
       flex-shrink: 0;
     }
 
-    .tab-button {
-      flex: 1;
+    .tabButton {
+
       border: 0;
-      border-radius: 9px;
-      padding: 8px 5px;
+
       background: transparent;
-      color: #64748b;
+
+      padding: 11px 5px;
+
       font-size: 11px;
+
       font-weight: 700;
+
+      color: #64748b;
+
       cursor: pointer;
-      transition: 0.18s ease;
+
+      transition: .2s;
     }
 
-    .tab-button:hover {
-      background: #e2e8f0;
-      color: #334155;
+    .tabButton:hover {
+      background: #f1f5f9;
     }
 
-    .tab-button.active {
-      background: white;
+    .tabButton.active {
+
       color: #2563eb;
-      box-shadow: 0 2px 7px rgba(15, 23, 42, 0.08);
+
+      background: white;
+
+      box-shadow:
+        inset 0 -2px 0 #2563eb;
     }
 
 
     /* =========================================================
-       CONTENIDO DE PESTAÑAS
+       CONTENIDO
        ========================================================= */
 
-    .tab-content {
-      display: none;
+    #content {
+
       flex: 1;
+
       min-height: 0;
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding: 13px;
+
+      overflow: hidden;
     }
 
-    .tab-content.active {
+    .tabContent {
+
+      display: none;
+
+      height: 100%;
+
+      overflow-y: auto;
+
+      overflow-x: hidden;
+
+      padding: 14px;
+    }
+
+    .tabContent.active {
       display: block;
     }
 
 
     /* =========================================================
-       TARJETAS GENERALES
+       TARJETAS
        ========================================================= */
 
-    .section-card {
-      border: 1px solid #e2e8f0;
-      border-radius: 13px;
+    .sectionCard {
+
       background: white;
-      padding: 12px;
-      margin-bottom: 11px;
+
+      border: 1px solid #e2e8f0;
+
+      border-radius: 14px;
+
+      padding: 13px;
+
+      margin-bottom: 12px;
+
+      box-shadow:
+        0 3px 10px rgba(15,23,42,.04);
     }
 
-    .section-title {
+    .sectionTitle {
+
       display: flex;
+
       align-items: center;
-      gap: 8px;
-      font-size: 12px;
+
+      justify-content: space-between;
+
+      gap: 10px;
+
+      font-size: 13px;
+
       font-weight: 800;
+
       color: #0f172a;
-      margin-bottom: 9px;
-    }
 
-    .section-title i {
-      color: #2563eb;
-    }
-
-    .section-description {
-      font-size: 10px;
-      line-height: 1.45;
-      color: #64748b;
       margin-bottom: 10px;
     }
 
 
     /* =========================================================
-       CARGA DE ARCHIVOS - DISEÑO CORREGIDO
+       CARGA DE ARCHIVOS
        ========================================================= */
 
-    .file-upload-box {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 155px;
-      padding: 18px;
-      border: 1.5px dashed #93c5fd;
+    .uploadArea {
+
+      border: 2px dashed #cbd5e1;
+
       border-radius: 15px;
+
+      padding: 20px 15px;
+
+      text-align: center;
+
       background:
         linear-gradient(
           180deg,
-          #f8fbff,
-          #eff6ff
+          #f8fafc,
+          #ffffff
         );
-      cursor: pointer;
-      transition: 0.2s ease;
-      text-align: center;
+
+      transition: .2s;
     }
 
-    .file-upload-box:hover {
-      border-color: #2563eb;
+    .uploadArea:hover {
+
+      border-color: #60a5fa;
+
       background: #eff6ff;
-      transform: translateY(-1px);
     }
 
-    .file-upload-box input {
-      display: none;
-    }
+    .uploadIcon {
 
-    .upload-icon {
-      width: 58px;
-      height: 58px;
+      width: 50px;
+      height: 50px;
+
+      margin: 0 auto 10px;
+
+      border-radius: 14px;
+
       display: flex;
+
       align-items: center;
       justify-content: center;
-      border-radius: 17px;
-      background: white;
-      color: #2563eb;
-      border: 1px solid #dbeafe;
-      box-shadow:
-        0 7px 18px rgba(37, 99, 235, 0.12);
-      margin-bottom: 10px;
-    }
 
-    .upload-icon svg {
-      width: 31px;
-      height: 31px;
-      stroke: currentColor;
-    }
-
-    .upload-title {
-      font-size: 13px;
-      font-weight: 800;
-      color: #1e293b;
-    }
-
-    .upload-description {
-      margin-top: 4px;
-      font-size: 10px;
-      color: #64748b;
-    }
-
-    .upload-formats {
-      display: inline-flex;
-      margin-top: 8px;
-      padding: 4px 8px;
-      border-radius: 999px;
       background: #dbeafe;
-      color: #1d4ed8;
-      font-size: 9px;
+
+      color: #2563eb;
+    }
+
+    .uploadIcon svg {
+
+      width: 27px;
+      height: 27px;
+    }
+
+    .uploadTitle {
+
+      font-size: 14px;
+
       font-weight: 800;
+
+      color: #0f172a;
+    }
+
+    .uploadText {
+
+      margin-top: 4px;
+
+      color: #64748b;
+
+      font-size: 11px;
+
+      line-height: 1.5;
+    }
+
+    .uploadButton {
+
+      display: inline-flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      gap: 7px;
+
+      margin-top: 13px;
+
+      padding: 9px 14px;
+
+      border-radius: 10px;
+
+      background: #2563eb;
+
+      color: white;
+
+      font-size: 12px;
+
+      font-weight: 800;
+
+      cursor: pointer;
+
+      transition: .2s;
+    }
+
+    .uploadButton:hover {
+      background: #1d4ed8;
+    }
+
+    #fileInput {
+      display: none;
     }
 
 
     /* =========================================================
-       ESTADO DEL ARCHIVO
+       ESTADO
        ========================================================= */
 
-    .status-box {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      padding: 10px;
+    .statusBox {
+
+      padding: 10px 11px;
+
       border-radius: 10px;
+
       background: #f8fafc;
+
       border: 1px solid #e2e8f0;
-      margin-top: 10px;
-    }
 
-    .status-icon {
-      width: 31px;
-      height: 31px;
-      border-radius: 9px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #e0f2fe;
-      color: #0284c7;
-      flex-shrink: 0;
-    }
-
-    .status-text {
-      min-width: 0;
-    }
-
-    .status-name {
       font-size: 11px;
-      font-weight: 800;
-      color: #334155;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+
+      color: #475569;
+
+      line-height: 1.5;
     }
 
-    .status-detail {
-      margin-top: 2px;
-      font-size: 9px;
-      color: #64748b;
+    .statusBox.success {
+
+      background: #f0fdf4;
+
+      border-color: #bbf7d0;
+
+      color: #166534;
+    }
+
+    .statusBox.error {
+
+      background: #fef2f2;
+
+      border-color: #fecaca;
+
+      color: #991b1b;
     }
 
 
@@ -372,54 +461,63 @@
        ========================================================= */
 
     .btn {
+
       border: 0;
+
       border-radius: 9px;
+
       padding: 8px 11px;
-      font-size: 10px;
+
+      font-size: 11px;
+
       font-weight: 800;
+
       cursor: pointer;
-      transition: 0.18s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
+
+      transition: .2s;
     }
 
-    .btn:hover {
-      transform: translateY(-1px);
-    }
+    .btnPrimary {
 
-    .btn-primary {
       background: #2563eb;
+
       color: white;
     }
 
-    .btn-primary:hover {
+    .btnPrimary:hover {
       background: #1d4ed8;
     }
 
-    .btn-secondary {
-      background: #e2e8f0;
+    .btnSecondary {
+
+      background: #f1f5f9;
+
       color: #334155;
+
+      border: 1px solid #e2e8f0;
     }
 
-    .btn-secondary:hover {
-      background: #cbd5e1;
+    .btnSecondary:hover {
+      background: #e2e8f0;
     }
 
-    .btn-danger {
+    .btnDanger {
+
       background: #fee2e2;
-      color: #b91c1c;
+
+      color: #991b1b;
     }
 
-    .btn-success {
-      background: #dcfce7;
-      color: #166534;
+    .btnDanger:hover {
+      background: #fecaca;
     }
 
-    .button-row {
+    .buttonRow {
+
       display: flex;
+
       flex-wrap: wrap;
+
       gap: 7px;
     }
 
@@ -428,169 +526,112 @@
        LISTA MODERNA DE PUNTOS
        ========================================================= */
 
-    .points-list {
+    #pointsList {
+
       display: flex;
+
       flex-direction: column;
-      gap: 7px;
-      max-height: 420px;
+
+      gap: 8px;
+
+      max-height: 46vh;
+
       overflow-y: auto;
-      padding: 2px;
+
+      padding-right: 3px;
     }
 
-    .point-card {
+    .pointCard {
+
       display: flex;
+
       align-items: center;
-      gap: 9px;
-      width: 100%;
-      padding: 9px;
-      background: #ffffff;
+
+      gap: 10px;
+
+      padding: 10px;
+
+      background: white;
+
       border: 1px solid #e2e8f0;
-      border-radius: 12px;
+
+      border-radius: 13px;
+
       cursor: pointer;
+
       transition:
-        transform 0.15s ease,
-        border-color 0.15s ease,
-        box-shadow 0.15s ease,
-        background 0.15s ease;
+        transform .15s,
+        box-shadow .15s,
+        border-color .15s;
     }
 
-    .point-card:hover {
+    .pointCard:hover {
+
       transform: translateY(-1px);
-      border-color: #bfdbfe;
-      background: #f8fbff;
+
+      border-color: #93c5fd;
+
       box-shadow:
-        0 5px 15px rgba(15, 23, 42, 0.07);
+        0 5px 16px rgba(37,99,235,.10);
     }
 
-    .point-order {
-      width: 32px;
-      height: 32px;
-      flex-shrink: 0;
+    .pointNumber {
+
+      flex: 0 0 34px;
+
+      width: 34px;
+      height: 34px;
+
+      border-radius: 11px;
+
       display: flex;
+
       align-items: center;
       justify-content: center;
-      border-radius: 10px;
-      background: #eff6ff;
-      color: #2563eb;
-      font-size: 10px;
+
+      color: white;
+
+      font-size: 11px;
+
       font-weight: 900;
     }
 
-    .point-card-main {
+    .pointInfo {
+
       flex: 1;
+
       min-width: 0;
     }
 
-    .point-card-title {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      min-width: 0;
-      color: #1e293b;
-      font-size: 11px;
+    .pointName {
+
+      font-size: 12px;
+
       font-weight: 800;
-    }
 
-    .point-color-dot {
-      width: 9px;
-      height: 9px;
-      flex-shrink: 0;
-      border-radius: 50%;
-      border: 1px solid rgba(15,23,42,0.12);
-    }
+      color: #0f172a;
 
-    .point-card-name {
+      white-space: nowrap;
+
       overflow: hidden;
+
       text-overflow: ellipsis;
-      white-space: nowrap;
     }
 
-    .point-card-meta {
-      display: flex;
-      gap: 8px;
-      margin-top: 4px;
-      font-size: 8px;
-      color: #64748b;
-      white-space: nowrap;
-    }
+    .pointCoords {
 
-    .point-card-desc {
-      margin-top: 4px;
+      margin-top: 3px;
+
       font-size: 9px;
-      color: #475569;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
 
-    .point-card-arrow {
-      width: 23px;
-      height: 23px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 7px;
-      background: #f1f5f9;
       color: #64748b;
-      font-size: 15px;
-      flex-shrink: 0;
     }
 
+    .pointArrow {
 
-    /* =========================================================
-       CAMPOS
-       ========================================================= */
+      color: #94a3b8;
 
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .field {
-      margin-bottom: 8px;
-    }
-
-    .field.full {
-      grid-column: 1 / -1;
-    }
-
-    .field label {
-      display: block;
-      margin-bottom: 4px;
-      font-size: 9px;
-      font-weight: 800;
-      color: #475569;
-    }
-
-    .field input,
-    .field textarea,
-    .field select {
-      width: 100%;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      padding: 7px 8px;
-      background: white;
-      color: #334155;
-      font-size: 10px;
-      outline: none;
-    }
-
-    .field textarea {
-      min-height: 65px;
-      resize: vertical;
-    }
-
-    .field input:focus,
-    .field textarea:focus,
-    .field select:focus {
-      border-color: #60a5fa;
-      box-shadow: 0 0 0 3px rgba(59,130,246,0.10);
-    }
-
-    .readonly {
-      background: #f8fafc !important;
-      color: #64748b !important;
+      font-size: 16px;
     }
 
 
@@ -598,136 +639,146 @@
        TABLA
        ========================================================= */
 
-    .table-tools {
-      display: flex;
-      gap: 7px;
+    .tableSearch {
+
+      width: 100%;
+
+      padding: 9px 10px;
+
+      border: 1px solid #cbd5e1;
+
+      border-radius: 9px;
+
+      outline: none;
+
+      font-size: 11px;
+
       margin-bottom: 9px;
     }
 
-    .table-search {
-      flex: 1;
-      position: relative;
+    .tableSearch:focus {
+
+      border-color: #60a5fa;
+
+      box-shadow:
+        0 0 0 3px rgba(59,130,246,.10);
     }
 
-    .table-search input {
-      width: 100%;
-      height: 35px;
-      border: 1px solid #cbd5e1;
-      border-radius: 9px;
-      padding: 0 10px 0 31px;
-      font-size: 10px;
-      outline: none;
-    }
+    .tableViewport {
 
-    .table-search i {
-      position: absolute;
-      left: 11px;
-      top: 11px;
-      color: #94a3b8;
-      font-size: 11px;
-    }
+      height: calc(100vh - 250px);
 
-    /*
-      IMPORTANTE:
-      La tabla tiene su propio espacio de desplazamiento.
-      Así la barra horizontal queda al final del área visible
-      y no después de todos los registros.
-    */
+      min-height: 280px;
 
-    .table-container {
-      height: calc(100vh - 255px);
-      min-height: 300px;
+      max-height: calc(100vh - 250px);
+
       overflow: auto;
+
       border: 1px solid #e2e8f0;
-      border-radius: 11px;
-      background: white;
-      position: relative;
-      scrollbar-width: auto;
-    }
 
-    .table-container::-webkit-scrollbar {
-      width: 10px;
-      height: 10px;
-    }
-
-    .table-container::-webkit-scrollbar-track {
-      background: #f1f5f9;
-    }
-
-    .table-container::-webkit-scrollbar-thumb {
-      background: #94a3b8;
       border-radius: 10px;
-      border: 2px solid #f1f5f9;
+
+      background: white;
+
+      position: relative;
     }
 
-    .data-table {
+    table {
+
       width: max-content;
+
       min-width: 100%;
+
       border-collapse: separate;
+
       border-spacing: 0;
-      font-size: 9px;
+
+      font-size: 10px;
     }
 
-    .data-table th {
+    th {
+
       position: sticky;
+
       top: 0;
-      z-index: 10;
-      background: #0f172a;
-      color: white;
-      padding: 9px 8px;
-      text-align: left;
-      white-space: nowrap;
+
+      z-index: 5;
+
+      background: #f1f5f9;
+
+      color: #334155;
+
       font-weight: 800;
-      border-right: 1px solid #334155;
+
+      padding: 8px;
+
+      border-bottom: 1px solid #cbd5e1;
+
+      white-space: nowrap;
     }
 
-    .data-table td {
-      padding: 6px 7px;
-      border-bottom: 1px solid #e2e8f0;
-      color: #334155;
+    td {
+
+      padding: 6px 8px;
+
+      border-bottom: 1px solid #f1f5f9;
+
       white-space: nowrap;
+
       background: white;
     }
 
-    .data-table tr:hover td {
+    tr:hover td {
       background: #f8fafc;
     }
 
-    .table-name {
+    .tablePointLink {
+
       color: #2563eb;
+
       font-weight: 800;
+
       cursor: pointer;
     }
 
-    .table-name:hover {
+    .tablePointLink:hover {
       text-decoration: underline;
     }
 
-    .table-input {
-      width: 140px;
+    .tableInput {
+
+      width: 125px;
+
       border: 1px solid transparent;
+
       background: transparent;
+
       padding: 4px;
-      border-radius: 5px;
-      font-size: 9px;
-    }
 
-    .table-input:hover {
-      border-color: #cbd5e1;
-    }
+      font-size: 10px;
 
-    .table-input:focus {
-      border-color: #60a5fa;
       outline: none;
-      background: white;
     }
 
-    .color-input {
-      width: 31px;
-      height: 23px;
-      padding: 1px;
+    .tableInput:focus {
+
+      border-color: #93c5fd;
+
+      background: white;
+
+      border-radius: 5px;
+    }
+
+    .colorCell {
+
+      width: 28px;
+
+      height: 20px;
+
+      border-radius: 5px;
+
       border: 1px solid #cbd5e1;
-      border-radius: 6px;
+
       cursor: pointer;
     }
 
@@ -736,174 +787,124 @@
        FILTROS DESPLEGABLES
        ========================================================= */
 
-    .filter-search {
-      position: relative;
+    .filterSearch {
+
+      width: 100%;
+
+      padding: 9px 10px;
+
+      border: 1px solid #cbd5e1;
+
+      border-radius: 9px;
+
+      outline: none;
+
+      font-size: 11px;
+
       margin-bottom: 9px;
     }
 
-    .filter-search input {
-      width: 100%;
-      height: 35px;
-      padding: 0 10px 0 32px;
-      border: 1px solid #cbd5e1;
-      border-radius: 9px;
-      font-size: 10px;
-      outline: none;
-    }
+    .filterDropdown {
 
-    .filter-search i {
-      position: absolute;
-      left: 11px;
-      top: 11px;
-      color: #94a3b8;
-      font-size: 11px;
-    }
+      border: 1px solid #e2e8f0;
 
-    .filters-container {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .filter-dropdown {
-      position: relative;
-      width: 100%;
-    }
-
-    .filter-dropdown-button {
-      width: 100%;
-      min-height: 39px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 8px 10px;
-      border: 1px solid #dbe2ea;
       border-radius: 10px;
+
+      margin-bottom: 7px;
+
       background: white;
-      color: #334155;
-      cursor: pointer;
-      font-size: 10px;
-      font-weight: 800;
-      text-align: left;
-      transition: 0.15s ease;
-    }
 
-    .filter-dropdown-button:hover,
-    .filter-dropdown.open .filter-dropdown-button {
-      border-color: #93c5fd;
-      background: #f8fbff;
-    }
-
-    .filter-button-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .filter-button-left i {
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 6px;
-      background: #eff6ff;
-      color: #2563eb;
-      font-size: 9px;
-    }
-
-    .filter-summary {
-      max-width: 160px;
       overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      color: #64748b;
-      font-size: 9px;
-      font-weight: 700;
     }
 
-    .filter-chevron {
-      color: #94a3b8;
-      font-size: 9px;
-      transition: transform 0.15s ease;
+    .filterDropdownHeader {
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      width: 100%;
+
+      padding: 10px;
+
+      border: 0;
+
+      background: #f8fafc;
+
+      cursor: pointer;
+
+      font-size: 11px;
+
+      font-weight: 800;
+
+      color: #334155;
     }
 
-    .filter-dropdown.open .filter-chevron {
+    .filterDropdownHeader:hover {
+      background: #f1f5f9;
+    }
+
+    .filterArrow {
+
+      transition: transform .2s;
+    }
+
+    .filterDropdown.open
+    .filterArrow {
+
       transform: rotate(180deg);
     }
 
-    .filter-dropdown-menu {
+    .filterDropdownBody {
+
       display: none;
-      position: absolute;
-      z-index: 2000;
-      top: calc(100% + 5px);
-      left: 0;
-      right: 0;
-      max-height: 245px;
+
+      padding: 9px;
+
+      border-top: 1px solid #e2e8f0;
+
+      max-height: 180px;
+
       overflow-y: auto;
-      padding: 6px;
-      border: 1px solid #dbe2ea;
-      border-radius: 11px;
-      background: white;
-      box-shadow:
-        0 12px 30px rgba(15,23,42,0.14);
     }
 
-    .filter-dropdown.open .filter-dropdown-menu {
+    .filterDropdown.open
+    .filterDropdownBody {
       display: block;
     }
 
-    .dropdown-option {
+    .filterOption {
+
       display: flex;
+
       align-items: center;
-      gap: 8px;
-      min-height: 34px;
-      padding: 6px 8px;
-      border-radius: 8px;
-      cursor: pointer;
+
+      gap: 7px;
+
+      padding: 5px 2px;
+
       font-size: 10px;
-      color: #334155;
-    }
 
-    .dropdown-option:hover {
-      background: #f8fafc;
-    }
+      color: #475569;
 
-    .dropdown-option input {
-      width: 14px;
-      height: 14px;
-      accent-color: #2563eb;
       cursor: pointer;
     }
 
-    .dropdown-option-text {
-      flex: 1;
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    .filterOption input {
+      accent-color: #2563eb;
     }
 
-    .dropdown-option-color {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      border: 1px solid rgba(15,23,42,0.12);
-      flex-shrink: 0;
-    }
+    .selectedCount {
 
-    .dropdown-divider {
-      height: 1px;
-      background: #e2e8f0;
-      margin: 5px 3px;
-    }
-
-    .dropdown-empty {
-      padding: 14px 8px;
-      text-align: center;
-      color: #94a3b8;
       font-size: 9px;
+
+      color: #2563eb;
+
+      margin-left: auto;
+
+      margin-right: 8px;
     }
 
 
@@ -911,73 +912,226 @@
        RUTAS
        ========================================================= */
 
-    .route-list {
+    .routeInput {
+
+      width: 100%;
+
+      padding: 8px 9px;
+
+      border: 1px solid #cbd5e1;
+
+      border-radius: 8px;
+
+      outline: none;
+
+      font-size: 11px;
+    }
+
+    .routeInput:focus {
+
+      border-color: #60a5fa;
+    }
+
+    .routePoint {
+
       display: flex;
-      flex-direction: column;
-      gap: 7px;
-      margin-top: 8px;
-    }
 
-    .route-card {
-      padding: 9px;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      background: #f8fafc;
-    }
-
-    .route-card.active {
-      border-color: #93c5fd;
-      background: #eff6ff;
-    }
-
-    .route-card-header {
-      display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
 
-    .route-name {
+      gap: 7px;
+
+      padding: 7px;
+
+      border-bottom: 1px solid #f1f5f9;
+
       font-size: 10px;
-      font-weight: 800;
-      color: #334155;
     }
 
-    .route-info {
-      margin-top: 4px;
-      font-size: 9px;
-      color: #64748b;
-    }
+    .routeBadge {
 
-    .route-point-list {
-      margin-top: 8px;
+      width: 23px;
+      height: 23px;
+
+      border-radius: 8px;
+
       display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
 
-    .route-point {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      padding: 5px 7px;
-      background: white;
-      border-radius: 7px;
-      border: 1px solid #e2e8f0;
-      font-size: 9px;
-    }
-
-    .route-point-number {
-      width: 20px;
-      height: 20px;
-      border-radius: 6px;
-      display: flex;
       align-items: center;
       justify-content: center;
+
       background: #2563eb;
+
       color: white;
-      font-size: 8px;
+
+      font-size: 9px;
+
+      font-weight: 900;
+
+      flex-shrink: 0;
+    }
+
+    .routeMode {
+
+      padding: 9px;
+
+      background: #eff6ff;
+
+      border: 1px solid #bfdbfe;
+
+      border-radius: 9px;
+
+      color: #1e40af;
+
+      font-size: 10px;
+
+      line-height: 1.4;
+    }
+
+
+    /* =========================================================
+       MODAL DE PUNTO
+       ========================================================= */
+
+    #pointModal {
+
+      display: none;
+
+      position: fixed;
+
+      inset: 0;
+
+      z-index: 5000;
+
+      background: rgba(15,23,42,.48);
+
+      align-items: center;
+
+      justify-content: center;
+
+      padding: 15px;
+    }
+
+    #pointModal.show {
+      display: flex;
+    }
+
+    .modalCard {
+
+      width: min(440px, 100%);
+
+      max-height: 90vh;
+
+      overflow-y: auto;
+
+      background: white;
+
+      border-radius: 17px;
+
+      box-shadow:
+        0 25px 70px rgba(15,23,42,.30);
+
+      padding: 17px;
+    }
+
+    .modalHeader {
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      margin-bottom: 14px;
+    }
+
+    .modalTitle {
+
+      font-size: 15px;
+
+      font-weight: 900;
+
+      color: #0f172a;
+    }
+
+    .closeButton {
+
+      width: 31px;
+      height: 31px;
+
+      border: 0;
+
+      border-radius: 9px;
+
+      background: #f1f5f9;
+
+      cursor: pointer;
+
+      font-size: 18px;
+
+      color: #475569;
+    }
+
+    .formGroup {
+
+      margin-bottom: 10px;
+    }
+
+    .formLabel {
+
+      display: block;
+
+      margin-bottom: 5px;
+
+      font-size: 10px;
+
       font-weight: 800;
+
+      color: #475569;
+    }
+
+    .formInput {
+
+      width: 100%;
+
+      padding: 9px;
+
+      border: 1px solid #cbd5e1;
+
+      border-radius: 8px;
+
+      outline: none;
+
+      font-size: 11px;
+    }
+
+    .formInput:focus {
+
+      border-color: #60a5fa;
+
+      box-shadow:
+        0 0 0 3px rgba(59,130,246,.08);
+    }
+
+    textarea.formInput {
+
+      min-height: 65px;
+
+      resize: vertical;
+    }
+
+    .colorInput {
+
+      width: 50px;
+
+      height: 35px;
+
+      border: 0;
+
+      padding: 0;
+
+      cursor: pointer;
+
+      background: transparent;
     }
 
 
@@ -986,115 +1140,46 @@
        ========================================================= */
 
     #toast {
+
       position: fixed;
-      z-index: 9999;
+
       left: 50%;
-      bottom: 22px;
-      transform: translateX(-50%) translateY(20px);
-      padding: 10px 14px;
+
+      bottom: 20px;
+
+      transform:
+        translate(-50%, 120px);
+
+      z-index: 10000;
+
+      padding: 11px 15px;
+
       border-radius: 10px;
+
       background: #0f172a;
+
       color: white;
-      font-size: 10px;
+
+      font-size: 11px;
+
       font-weight: 700;
-      opacity: 0;
+
+      box-shadow:
+        0 10px 30px rgba(0,0,0,.25);
+
+      transition: .25s;
+
       pointer-events: none;
-      transition: 0.25s ease;
-      box-shadow: 0 10px 30px rgba(15,23,42,0.25);
+
       max-width: 90vw;
+
       text-align: center;
     }
 
     #toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
 
-
-    /* =========================================================
-       BADGE DE RUTA EN MARCADOR
-       ========================================================= */
-
-    .route-badge {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: #2563eb;
-      border: 3px solid white;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      font-weight: 900;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.28);
-    }
-
-
-    /* =========================================================
-       MODAL / EDITOR
-       ========================================================= */
-
-    .modal-backdrop {
-      position: fixed;
-      z-index: 5000;
-      inset: 0;
-      background: rgba(15,23,42,0.48);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-
-    .modal-backdrop.show {
-      display: flex;
-    }
-
-    .modal {
-      width: 100%;
-      max-width: 430px;
-      max-height: 90vh;
-      overflow-y: auto;
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 25px 70px rgba(15,23,42,0.30);
-    }
-
-    .modal-header {
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    .modal-title {
-      font-size: 13px;
-      font-weight: 900;
-      color: #0f172a;
-    }
-
-    .modal-close {
-      width: 29px;
-      height: 29px;
-      border: 0;
-      border-radius: 8px;
-      background: #f1f5f9;
-      color: #64748b;
-      cursor: pointer;
-    }
-
-    .modal-body {
-      padding: 15px;
-    }
-
-    .modal-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 7px;
-      padding: 12px 15px;
-      border-top: 1px solid #e2e8f0;
+      transform:
+        translate(-50%, 0);
     }
 
 
@@ -1102,48 +1187,37 @@
        RESPONSIVE
        ========================================================= */
 
-    @media (max-width: 700px) {
+    @media(max-width: 760px) {
 
-      #controlPanel {
-        left: 7px;
-        right: 7px;
-        top: 7px;
-        bottom: auto;
+      #mainPanel {
+
+        top: auto;
+
+        left: 8px;
+        right: 8px;
+
+        bottom: 8px;
+
         width: auto;
-        height: 43vh;
-        max-height: 43vh;
-        border-radius: 15px;
+
+        height: 48vh;
+
+        border-radius: 16px;
       }
 
-      .app-header {
-        padding: 11px 13px;
+      .tableViewport {
+
+        height: calc(48vh - 150px);
+
+        min-height: 220px;
+
+        max-height: calc(48vh - 150px);
       }
 
-      .app-title {
-        font-size: 15px;
+      #pointsList {
+        max-height: 30vh;
       }
 
-      .tabs {
-        padding: 5px;
-      }
-
-      .tab-button {
-        font-size: 9px;
-        padding: 7px 3px;
-      }
-
-      .tab-content {
-        padding: 9px;
-      }
-
-      .table-container {
-        height: calc(43vh - 105px);
-        min-height: 170px;
-      }
-
-      .points-list {
-        max-height: 260px;
-      }
     }
 
   </style>
@@ -1162,43 +1236,37 @@
 
 
   <!-- =========================================================
-       MÓDULO 04 - PANEL DE CONTROL
+       MÓDULO 04 - PANEL PRINCIPAL
        ========================================================= -->
 
-  <div id="controlPanel">
+  <div id="mainPanel">
 
 
     <!-- =======================================================
          ENCABEZADO
          ======================================================= -->
 
-    <div class="app-header">
+    <div class="appHeader">
 
-      <div class="app-header-top">
+      <div class="headerTop">
 
         <div>
-          <div class="app-title">
+
+          <div class="appTitle">
             Visualizador KML & Excel
           </div>
 
-          <div class="app-subtitle">
+          <div class="appSubtitle">
             KML + Excel + Google Maps
           </div>
+
         </div>
 
-        <div class="marker-counter">
-
-          <div
-            class="marker-counter-number"
-            id="markerCount"
-          >
-            0
-          </div>
-
-          <div class="marker-counter-label">
-            PUNTOS
-          </div>
-
+        <div
+          class="pointCounter"
+          id="pointCounter"
+        >
+          0 puntos
         </div>
 
       </div>
@@ -1213,34 +1281,30 @@
     <div class="tabs">
 
       <button
-        class="tab-button active"
-        onclick="showTab('archivos', this)"
+        class="tabButton active"
+        data-tab="filesTab"
       >
-        <i class="fa-solid fa-folder-open"></i>
         Archivos
       </button>
 
       <button
-        class="tab-button"
-        onclick="showTab('tabla', this)"
+        class="tabButton"
+        data-tab="tableTab"
       >
-        <i class="fa-solid fa-table"></i>
         Tabla
       </button>
 
       <button
-        class="tab-button"
-        onclick="showTab('filtros', this)"
+        class="tabButton"
+        data-tab="filtersTab"
       >
-        <i class="fa-solid fa-filter"></i>
         Filtros
       </button>
 
       <button
-        class="tab-button"
-        onclick="showTab('rutas', this)"
+        class="tabButton"
+        data-tab="routesTab"
       >
-        <i class="fa-solid fa-route"></i>
         Rutas
       </button>
 
@@ -1248,568 +1312,524 @@
 
 
     <!-- =======================================================
-         MÓDULO 05 - ARCHIVOS
+         CONTENIDO
          ======================================================= -->
 
-    <div
-      id="tab-archivos"
-      class="tab-content active"
-    >
-
-      <div class="section-card">
-
-        <div class="section-title">
-          <i class="fa-solid fa-file-import"></i>
-          Cargar archivo
-        </div>
-
-        <div class="section-description">
-          Carga un archivo Excel o KML para visualizar sus puntos
-          directamente sobre el mapa.
-        </div>
-
-
-        <!-- Área de carga corregida -->
-
-        <label class="file-upload-box">
-
-          <input
-            type="file"
-            id="fileInput"
-            accept=".xlsx,.xls,.kml,.xml"
-            onchange="handleFileUpload(event)"
-          >
-
-          <div class="upload-icon">
-
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M12 16V4"></path>
-              <path d="M7 9l5-5 5 5"></path>
-              <path d="M5 20h14"></path>
-            </svg>
-
-          </div>
-
-          <div class="upload-title">
-            Seleccionar archivo
-          </div>
-
-          <div class="upload-description">
-            Haz clic aquí para cargar tu información
-          </div>
-
-          <div class="upload-formats">
-            XLSX · XLS · KML · XML
-          </div>
-
-        </label>
-
-
-        <div
-          id="fileStatus"
-          class="status-box"
-          style="display:none;"
-        >
-
-          <div class="status-icon">
-            <i class="fa-solid fa-file"></i>
-          </div>
-
-          <div class="status-text">
-
-            <div
-              class="status-name"
-              id="fileStatusName"
-            >
-              -
-            </div>
-
-            <div
-              class="status-detail"
-              id="fileStatusDetail"
-            >
-              -
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
+    <div id="content">
 
 
       <!-- =====================================================
-           EXPORTACIÓN
+           MÓDULO 05 - ARCHIVOS
            ===================================================== -->
 
-      <div class="section-card">
+      <section
+        id="filesTab"
+        class="tabContent active"
+      >
 
-        <div class="section-title">
-          <i class="fa-solid fa-download"></i>
-          Exportar
+        <div class="sectionCard">
+
+          <div class="sectionTitle">
+            <span>Cargar archivo</span>
+          </div>
+
+
+          <div class="uploadArea">
+
+            <!-- ICONO SVG, SIN FONT AWESOME -->
+
+            <div class="uploadIcon">
+
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+
+                <path
+                  d="M12 16V4"
+                />
+
+                <path
+                  d="M7 9l5-5 5 5"
+                />
+
+                <path
+                  d="M5 20h14"
+                />
+
+              </svg>
+
+            </div>
+
+            <div class="uploadTitle">
+              Selecciona un archivo
+            </div>
+
+            <div class="uploadText">
+              Puedes cargar archivos Excel
+              (.xlsx, .xls) o KML/XML.
+            </div>
+
+            <label
+              for="fileInput"
+              class="uploadButton"
+            >
+
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+
+                <path d="M12 16V4"></path>
+                <path d="M7 9l5-5 5 5"></path>
+                <path d="M5 20h14"></path>
+
+              </svg>
+
+              Seleccionar archivo
+
+            </label>
+
+            <input
+              id="fileInput"
+              type="file"
+              accept=".xlsx,.xls,.kml,.xml"
+            >
+
+          </div>
+
         </div>
 
-        <div class="button-row">
 
-          <button
-            class="btn btn-primary"
-            onclick="downloadKML()"
+        <div class="sectionCard">
+
+          <div class="sectionTitle">
+            <span>Estado</span>
+          </div>
+
+          <div
+            id="fileStatus"
+            class="statusBox"
           >
-            <i class="fa-solid fa-file-code"></i>
-            Descargar KML
-          </button>
+            No se ha cargado ningún archivo.
+          </div>
 
         </div>
 
-      </div>
+
+        <div class="sectionCard">
+
+          <div class="sectionTitle">
+
+            <span>
+              Exportar
+            </span>
+
+          </div>
+
+          <div class="buttonRow">
+
+            <button
+              class="btn btnPrimary"
+              onclick="downloadKML()"
+            >
+              Descargar KML
+            </button>
+
+            <button
+              class="btn btnSecondary"
+              onclick="fitAllPoints()"
+            >
+              Ver todos
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <div class="sectionCard">
+
+          <div class="sectionTitle">
+            <span>Puntos cargados</span>
+          </div>
+
+          <div id="pointsList">
+
+            <div class="statusBox">
+              Carga un archivo para visualizar
+              sus puntos.
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
 
 
       <!-- =====================================================
-           PUNTOS CARGADOS
+           MÓDULO 06 - TABLA
            ===================================================== -->
 
-      <div class="section-card">
+      <section
+        id="tableTab"
+        class="tabContent"
+      >
 
-        <div class="section-title">
-          <i class="fa-solid fa-location-dot"></i>
-          Puntos cargados
-        </div>
+        <div class="sectionCard">
 
-        <div
-          id="pointsList"
-          class="points-list"
-        ></div>
+          <div class="sectionTitle">
+            <span>Información de los puntos</span>
 
-        <button
-          id="showAllButton"
-          class="btn btn-secondary"
-          style="width:100%; margin-top:9px;"
-          onclick="fitAllPoints()"
-        >
-          <i class="fa-solid fa-expand"></i>
-          Ver todos los puntos
-        </button>
+            <span
+              id="tableCounter"
+              style="
+                font-size:9px;
+                color:#64748b;
+              "
+            >
+              0 registros
+            </span>
 
-      </div>
-
-    </div>
-
-
-    <!-- =======================================================
-         MÓDULO 06 - TABLA
-         ======================================================= -->
-
-    <div
-      id="tab-tabla"
-      class="tab-content"
-    >
-
-      <div class="table-tools">
-
-        <div class="table-search">
-
-          <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
 
           <input
-            type="text"
             id="tableSearch"
+            class="tableSearch"
+            type="text"
             placeholder="Buscar en la tabla..."
-            oninput="renderTable()"
           >
 
+
+          <div class="tableViewport">
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>Orden</th>
+
+                  <th>Nombre</th>
+
+                  <th>Latitud</th>
+
+                  <th>Longitud</th>
+
+                  <th>Desc. 1</th>
+
+                  <th>Desc. 2</th>
+
+                  <th>Desc. 3</th>
+
+                  <th>Color</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody
+                id="tableBody"
+              ></tbody>
+
+            </table>
+
+          </div>
+
         </div>
 
-      </div>
+      </section>
 
 
-      <!--
-        Este contenedor tiene una altura fija.
-        Por eso la barra horizontal queda visible
-        en la parte inferior del área mostrada.
-      -->
+      <!-- =====================================================
+           MÓDULO 07 - FILTROS
+           ===================================================== -->
 
-      <div class="table-container">
+      <section
+        id="filtersTab"
+        class="tabContent"
+      >
 
-        <table class="data-table">
+        <div class="sectionCard">
 
-          <thead>
+          <div class="sectionTitle">
+            <span>Filtros</span>
 
-            <tr>
+            <button
+              class="btn btnSecondary"
+              onclick="resetFilters()"
+            >
+              Restablecer
+            </button>
 
-              <th>Orden</th>
-              <th>Nombre</th>
-              <th>Latitud</th>
-              <th>Longitud</th>
-              <th>Desc. 1</th>
-              <th>Desc. 2</th>
-              <th>Desc. 3</th>
-              <th>Color</th>
+          </div>
 
-            </tr>
-
-          </thead>
-
-          <tbody id="tableBody"></tbody>
-
-        </table>
-
-      </div>
-
-    </div>
-
-
-    <!-- =======================================================
-         MÓDULO 07 - FILTROS
-         ======================================================= -->
-
-    <div
-      id="tab-filtros"
-      class="tab-content"
-    >
-
-      <div class="section-card">
-
-        <div class="section-title">
-          <i class="fa-solid fa-filter"></i>
-          Filtrar puntos
-        </div>
-
-        <div class="section-description">
-          Despliega cada lista para seleccionar los valores que
-          deseas visualizar.
-        </div>
-
-
-        <!-- Búsqueda general -->
-
-        <div class="filter-search">
-
-          <i class="fa-solid fa-magnifying-glass"></i>
 
           <input
-            type="text"
             id="generalFilter"
-            placeholder="Buscar por nombre o coordenadas..."
-            oninput="applyFilters()"
+            class="filterSearch"
+            type="text"
+            placeholder="Buscar..."
           >
 
-        </div>
 
-
-        <div class="filters-container">
-
-
-          <!-- =================================================
-               FILTRO DE COLORES
-               ================================================= -->
+          <!-- COLOR -->
 
           <div
-            class="filter-dropdown"
-            id="color-dropdown"
+            class="filterDropdown"
+            id="dropdownColor"
           >
 
             <button
-              type="button"
-              class="filter-dropdown-button"
-              onclick="toggleFilterDropdown('color-dropdown', event)"
+              class="filterDropdownHeader"
+              onclick="toggleDropdown('dropdownColor')"
             >
 
-              <span class="filter-button-left">
-
-                <i class="fa-solid fa-palette"></i>
-
-                <span>Colores</span>
-
+              <span>
+                Color
               </span>
 
               <span
-                class="filter-summary"
-                id="color-filter-summary"
-              >
-                Todos
-              </span>
+                class="selectedCount"
+                id="colorCount"
+              ></span>
 
-              <span class="filter-chevron">
-                <i class="fa-solid fa-chevron-down"></i>
+              <span class="filterArrow">
+                ▼
               </span>
 
             </button>
 
             <div
-              class="filter-dropdown-menu"
-              id="color-filters"
+              class="filterDropdownBody"
+              id="colorOptions"
             ></div>
 
           </div>
 
 
-          <!-- =================================================
-               FILTRO DESCRIPCIÓN 1
-               ================================================= -->
+          <!-- DESC 1 -->
 
           <div
-            class="filter-dropdown"
-            id="desc1-dropdown"
+            class="filterDropdown"
+            id="dropdownDesc1"
           >
 
             <button
-              type="button"
-              class="filter-dropdown-button"
-              onclick="toggleFilterDropdown('desc1-dropdown', event)"
+              class="filterDropdownHeader"
+              onclick="toggleDropdown('dropdownDesc1')"
             >
 
-              <span class="filter-button-left">
-
-                <i class="fa-solid fa-align-left"></i>
-
-                <span>Descripción 1</span>
-
+              <span>
+                Descripción 1
               </span>
 
               <span
-                class="filter-summary"
-                id="desc1-filter-summary"
-              >
-                Todos
-              </span>
+                class="selectedCount"
+                id="desc1Count"
+              ></span>
 
-              <span class="filter-chevron">
-                <i class="fa-solid fa-chevron-down"></i>
+              <span class="filterArrow">
+                ▼
               </span>
 
             </button>
 
             <div
-              class="filter-dropdown-menu"
-              id="desc1-filters"
+              class="filterDropdownBody"
+              id="desc1Options"
             ></div>
 
           </div>
 
 
-          <!-- =================================================
-               FILTRO DESCRIPCIÓN 2
-               ================================================= -->
+          <!-- DESC 2 -->
 
           <div
-            class="filter-dropdown"
-            id="desc2-dropdown"
+            class="filterDropdown"
+            id="dropdownDesc2"
           >
 
             <button
-              type="button"
-              class="filter-dropdown-button"
-              onclick="toggleFilterDropdown('desc2-dropdown', event)"
+              class="filterDropdownHeader"
+              onclick="toggleDropdown('dropdownDesc2')"
             >
 
-              <span class="filter-button-left">
-
-                <i class="fa-solid fa-align-left"></i>
-
-                <span>Descripción 2</span>
-
+              <span>
+                Descripción 2
               </span>
 
               <span
-                class="filter-summary"
-                id="desc2-filter-summary"
-              >
-                Todos
-              </span>
+                class="selectedCount"
+                id="desc2Count"
+              ></span>
 
-              <span class="filter-chevron">
-                <i class="fa-solid fa-chevron-down"></i>
+              <span class="filterArrow">
+                ▼
               </span>
 
             </button>
 
             <div
-              class="filter-dropdown-menu"
-              id="desc2-filters"
+              class="filterDropdownBody"
+              id="desc2Options"
             ></div>
 
           </div>
 
 
-          <!-- =================================================
-               FILTRO DESCRIPCIÓN 3
-               ================================================= -->
+          <!-- DESC 3 -->
 
           <div
-            class="filter-dropdown"
-            id="desc3-dropdown"
+            class="filterDropdown"
+            id="dropdownDesc3"
           >
 
             <button
-              type="button"
-              class="filter-dropdown-button"
-              onclick="toggleFilterDropdown('desc3-dropdown', event)"
+              class="filterDropdownHeader"
+              onclick="toggleDropdown('dropdownDesc3')"
             >
 
-              <span class="filter-button-left">
-
-                <i class="fa-solid fa-align-left"></i>
-
-                <span>Descripción 3</span>
-
+              <span>
+                Descripción 3
               </span>
 
               <span
-                class="filter-summary"
-                id="desc3-filter-summary"
-              >
-                Todos
-              </span>
+                class="selectedCount"
+                id="desc3Count"
+              ></span>
 
-              <span class="filter-chevron">
-                <i class="fa-solid fa-chevron-down"></i>
+              <span class="filterArrow">
+                ▼
               </span>
 
             </button>
 
             <div
-              class="filter-dropdown-menu"
-              id="desc3-filters"
+              class="filterDropdownBody"
+              id="desc3Options"
             ></div>
 
           </div>
 
-
-          <!-- =================================================
-               BOTÓN RESTABLECER
-               ================================================= -->
-
-          <button
-            class="btn btn-secondary"
-            style="width:100%; margin-top:4px;"
-            onclick="resetFilters()"
-          >
-
-            <i class="fa-solid fa-rotate-left"></i>
-
-            Restablecer filtros
-
-          </button>
-
         </div>
 
-      </div>
-
-    </div>
+      </section>
 
 
-    <!-- =======================================================
-         MÓDULO 08 - RUTAS
-         ======================================================= -->
+      <!-- =====================================================
+           MÓDULO 08 - RUTAS
+           ===================================================== -->
 
-    <div
-      id="tab-rutas"
-      class="tab-content"
-    >
+      <section
+        id="routesTab"
+        class="tabContent"
+      >
 
-      <div class="section-card">
+        <div class="sectionCard">
 
-        <div class="section-title">
-          <i class="fa-solid fa-route"></i>
-          Crear ruta
-        </div>
-
-        <div class="section-description">
-          Selecciona puntos en el orden en que deseas agregarlos
-          a una ruta.
-        </div>
-
-
-        <div class="field">
-
-          <label>
-            Nombre de la ruta
-          </label>
+          <div class="sectionTitle">
+            <span>Nueva ruta</span>
+          </div>
 
           <input
-            type="text"
             id="routeName"
-            placeholder="Ejemplo: Ruta principal"
+            class="routeInput"
+            placeholder="Nombre de la ruta"
           >
 
-        </div>
+          <div style="height:7px"></div>
 
+          <input
+            id="routeInitial"
+            class="routeInput"
+            placeholder="Coordenada inicial opcional: lat,lng"
+          >
 
-        <div class="field">
+          <label
+            style="
+              display:flex;
+              align-items:center;
+              gap:7px;
+              margin-top:9px;
+              font-size:10px;
+              color:#475569;
+            "
+          >
 
-          <label>
-            Coordenada inicial opcional
+            <input
+              id="returnInitial"
+              type="checkbox"
+            >
+
+            Regresar al punto inicial
+
           </label>
 
-          <input
-            type="text"
-            id="routeInitial"
-            placeholder="Ejemplo: 20.12345, -98.12345"
-          >
-
-        </div>
-
-
-        <label
-          class="dropdown-option"
-          style="padding-left:0;"
-        >
-
-          <input
-            type="checkbox"
-            id="returnInitial"
-          >
-
-          <span class="dropdown-option-text">
-            Regresar al punto inicial
-          </span>
-
-        </label>
-
-
-        <div class="button-row">
+          <div style="height:9px"></div>
 
           <button
-            class="btn btn-primary"
+            class="btn btnPrimary"
             onclick="createRoute()"
           >
-            <i class="fa-solid fa-plus"></i>
             Crear ruta
           </button>
 
+        </div>
+
+
+        <div
+          class="sectionCard"
+          id="routeSelectionCard"
+        >
+
+          <div class="sectionTitle">
+            <span>Seleccionar puntos</span>
+          </div>
+
+          <div class="routeMode">
+            Activa el modo de selección y después
+            haz clic en los puntos del mapa para
+            agregarlos a la ruta.
+          </div>
+
+          <div style="height:9px"></div>
+
           <button
-            class="btn btn-secondary"
-            onclick="startRouteSelection()"
+            id="routeModeButton"
+            class="btn btnSecondary"
+            onclick="toggleRouteMode()"
           >
-            <i class="fa-solid fa-location-crosshairs"></i>
-            Seleccionar puntos
+            Activar selección de ruta
           </button>
 
         </div>
 
-      </div>
-
-
-      <div class="section-card">
-
-        <div class="section-title">
-          <i class="fa-solid fa-list-ol"></i>
-          Rutas
-        </div>
 
         <div
-          id="routeList"
-          class="route-list"
-        ></div>
+          class="sectionCard"
+          id="routesList"
+        >
 
-      </div>
+          <div class="statusBox">
+            No hay rutas creadas.
+          </div>
+
+        </div>
+
+      </section>
 
     </div>
 
@@ -1817,156 +1837,156 @@
 
 
   <!-- =========================================================
-       MÓDULO 09 - MODAL EDITOR DE PUNTO
+       MÓDULO 09 - MODAL INFORMACIÓN DEL PUNTO
        ========================================================= -->
 
-  <div
-    id="pointModal"
-    class="modal-backdrop"
-  >
+  <div id="pointModal">
 
-    <div class="modal">
+    <div class="modalCard">
 
-      <div class="modal-header">
+      <div class="modalHeader">
 
-        <div class="modal-title">
+        <div class="modalTitle">
           Información del punto
         </div>
 
         <button
-          class="modal-close"
-          onclick="closePointEditor()"
+          class="closeButton"
+          onclick="closePointModal()"
         >
-          <i class="fa-solid fa-xmark"></i>
+          ×
         </button>
 
       </div>
 
 
-      <div class="modal-body">
+      <div class="formGroup">
 
-        <div class="form-grid">
+        <label class="formLabel">
+          Nombre
+        </label>
 
+        <input
+          id="pointName"
+          class="formInput"
+          readonly
+        >
 
-          <div class="field full">
-
-            <label>
-              Nombre
-            </label>
-
-            <input
-              id="editName"
-              class="readonly"
-              readonly
-            >
-
-          </div>
+      </div>
 
 
-          <div class="field">
+      <div
+        style="
+          display:grid;
+          grid-template-columns:1fr 1fr;
+          gap:8px;
+        "
+      >
 
-            <label>
-              Latitud
-            </label>
+        <div class="formGroup">
 
-            <input
-              id="editLat"
-              class="readonly"
-              readonly
-            >
+          <label class="formLabel">
+            Latitud
+          </label>
 
-          </div>
+          <input
+            id="pointLat"
+            class="formInput"
+            readonly
+          >
 
-
-          <div class="field">
-
-            <label>
-              Longitud
-            </label>
-
-            <input
-              id="editLng"
-              class="readonly"
-              readonly
-            >
-
-          </div>
+        </div>
 
 
-          <div class="field full">
+        <div class="formGroup">
 
-            <label>
-              Descripción 1
-            </label>
+          <label class="formLabel">
+            Longitud
+          </label>
 
-            <textarea
-              id="editDesc1"
-            ></textarea>
-
-          </div>
-
-
-          <div class="field full">
-
-            <label>
-              Descripción 2
-            </label>
-
-            <textarea
-              id="editDesc2"
-            ></textarea>
-
-          </div>
-
-
-          <div class="field full">
-
-            <label>
-              Descripción 3
-            </label>
-
-            <textarea
-              id="editDesc3"
-            ></textarea>
-
-          </div>
-
-
-          <div class="field">
-
-            <label>
-              Color
-            </label>
-
-            <input
-              type="color"
-              id="editColor"
-              class="color-input"
-            >
-
-          </div>
-
+          <input
+            id="pointLng"
+            class="formInput"
+            readonly
+          >
 
         </div>
 
       </div>
 
 
-      <div class="modal-footer">
+      <div class="formGroup">
+
+        <label class="formLabel">
+          Descripción 1
+        </label>
+
+        <textarea
+          id="pointDesc1"
+          class="formInput"
+        ></textarea>
+
+      </div>
+
+
+      <div class="formGroup">
+
+        <label class="formLabel">
+          Descripción 2
+        </label>
+
+        <textarea
+          id="pointDesc2"
+          class="formInput"
+        ></textarea>
+
+      </div>
+
+
+      <div class="formGroup">
+
+        <label class="formLabel">
+          Descripción 3
+        </label>
+
+        <textarea
+          id="pointDesc3"
+          class="formInput"
+        ></textarea>
+
+      </div>
+
+
+      <div class="formGroup">
+
+        <label class="formLabel">
+          Color
+        </label>
+
+        <input
+          id="pointColor"
+          class="colorInput"
+          type="color"
+          value="#2563eb"
+        >
+
+      </div>
+
+
+      <div class="buttonRow">
 
         <button
-          class="btn btn-secondary"
-          onclick="closePointEditor()"
+          class="btn btnPrimary"
+          onclick="savePointChanges()"
         >
-          Cancelar
+          Guardar cambios
         </button>
 
         <button
-          class="btn btn-primary"
-          onclick="savePointEditor()"
+          class="btn btnSecondary"
+          onclick="closePointModal()"
         >
-          <i class="fa-solid fa-check"></i>
-          Guardar cambios
+          Cerrar
         </button>
 
       </div>
@@ -1994,33 +2014,31 @@
        VARIABLES GLOBALES
        ========================================================= */
 
-    let map;
+    let map = null;
 
-    let markersData = [];
+    let markersLayer = null;
 
-    let markerLayer;
+    let initialMarkerLayer = null;
 
-    let routeLayers = [];
+    let routeLayer = null;
+
+    let routeMarkersLayer = null;
+
+    let points = [];
 
     let routes = [];
 
-    let activeRouteId = null;
+    let currentPointId = null;
 
-    let routeSelectionMode = false;
+    let currentRouteId = null;
 
-    let editingPointId = null;
+    let routeMode = false;
 
-    let currentFileType = null;
+    let markerObjects = {};
 
-    let originalKML = null;
+    let pointIdCounter = 1;
 
-    let selectedColors = new Set();
-
-    let selectedDesc1 = new Set();
-
-    let selectedDesc2 = new Set();
-
-    let selectedDesc3 = new Set();
+    let routeIdCounter = 1;
 
 
     /* =========================================================
@@ -2029,144 +2047,230 @@
 
     function initializeMap() {
 
-      map = L.map("map", {
-        zoomControl: true,
-        preferCanvas: true
-      }).setView(
-        [23.6345, -102.5528],
-        5
-      );
+      try {
 
+        if (
+          typeof L === "undefined"
+        ) {
 
-      /*
-       * Google Maps - Calles
-       * No requiere Google Maps JavaScript API.
-       */
+          throw new Error(
+            "Leaflet no pudo cargarse."
+          );
 
-      const googleStreets = L.tileLayer(
-        "https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
-        {
-          maxZoom: 21,
-          attribution: "Google"
         }
-      );
 
-
-      /*
-       * Google Maps - Satélite
-       */
-
-      const googleSatellite = L.tileLayer(
-        "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
-        {
-          maxZoom: 21,
-          attribution: "Google"
+        if (map) {
+          return;
         }
-      );
 
 
-      /*
-       * Google Maps - Híbrido
-       */
-
-      const googleHybrid = L.tileLayer(
-        "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
-        {
-          maxZoom: 21,
-          attribution: "Google"
-        }
-      );
-
-
-      /*
-       * Google Maps - Terreno
-       */
-
-      const googleTerrain = L.tileLayer(
-        "https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}",
-        {
-          maxZoom: 21,
-          attribution: "Google"
-        }
-      );
+        map = L.map(
+          "map",
+          {
+            zoomControl: true,
+            preferCanvas: true
+          }
+        ).setView(
+          [23.6345, -102.5528],
+          5
+        );
 
 
-      googleHybrid.addTo(map);
+        const googleHybrid =
+          L.tileLayer(
+            "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+            {
+              maxZoom: 21,
+              attribution:
+                "Google Maps"
+            }
+          );
 
 
-      L.control.layers(
-        {
-          "Google Híbrido": googleHybrid,
-          "Google Calles": googleStreets,
-          "Google Satélite": googleSatellite,
-          "Google Terreno": googleTerrain
-        },
-        {},
-        {
-          position: "topright"
-        }
-      ).addTo(map);
+        const googleSatellite =
+          L.tileLayer(
+            "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
+            {
+              maxZoom: 21,
+              attribution:
+                "Google Maps"
+            }
+          );
 
 
-      markerLayer = L.layerGroup().addTo(map);
+        const googleStreets =
+          L.tileLayer(
+            "https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+            {
+              maxZoom: 21,
+              attribution:
+                "Google Maps"
+            }
+          );
+
+
+        const googleTerrain =
+          L.tileLayer(
+            "https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}",
+            {
+              maxZoom: 21,
+              attribution:
+                "Google Maps"
+            }
+          );
+
+
+        googleHybrid.addTo(map);
+
+
+        L.control.layers(
+          {
+            "Google Híbrido":
+              googleHybrid,
+
+            "Google Satélite":
+              googleSatellite,
+
+            "Google Mapa":
+              googleStreets,
+
+            "Google Terreno":
+              googleTerrain
+          },
+          null,
+          {
+            collapsed: true
+          }
+        ).addTo(map);
+
+
+        markersLayer =
+          L.layerGroup().addTo(map);
+
+
+        routeLayer =
+          L.layerGroup().addTo(map);
+
+
+        routeMarkersLayer =
+          L.layerGroup().addTo(map);
+
+
+        initialMarkerLayer =
+          L.layerGroup().addTo(map);
+
+
+        map.on(
+          "click",
+          function(e) {
+
+            if (
+              routeMode &&
+              currentRouteId
+            ) {
+
+              addPointToCurrentRouteByCoordinate(
+                e.latlng.lat,
+                e.latlng.lng
+              );
+
+            }
+
+          }
+        );
+
+
+      } catch (error) {
+
+        console.error(error);
+
+        showStatus(
+          "No se pudo iniciar el visor: " +
+          error.message,
+          "error"
+        );
+
+      }
 
     }
 
 
     /* =========================================================
-       MÓDULO 13 - CAMBIO DE PESTAÑAS
+       MÓDULO 13 - PESTAÑAS
        ========================================================= */
 
-    function showTab(tabName, button) {
+    function initializeTabs() {
 
       document
-        .querySelectorAll(".tab-content")
-        .forEach(tab => {
-          tab.classList.remove("active");
-        });
+        .querySelectorAll(".tabButton")
+        .forEach(
+          button => {
+
+            button.addEventListener(
+              "click",
+              function() {
+
+                document
+                  .querySelectorAll(".tabButton")
+                  .forEach(
+                    b =>
+                      b.classList.remove(
+                        "active"
+                      )
+                  );
 
 
-      document
-        .querySelectorAll(".tab-button")
-        .forEach(btn => {
-          btn.classList.remove("active");
-        });
+                document
+                  .querySelectorAll(".tabContent")
+                  .forEach(
+                    content =>
+                      content.classList.remove(
+                        "active"
+                      )
+                  );
 
 
-      const selectedTab =
-        document.getElementById(
-          "tab-" + tabName
+                this.classList.add(
+                  "active"
+                );
+
+
+                const tab =
+                  document.getElementById(
+                    this.dataset.tab
+                  );
+
+
+                if (tab) {
+
+                  tab.classList.add(
+                    "active"
+                  );
+
+                }
+
+
+                if (
+                  this.dataset.tab ===
+                  "filesTab"
+                ) {
+
+                  setTimeout(
+                    () => {
+                      if (map) {
+                        map.invalidateSize();
+                      }
+                    },
+                    100
+                  );
+
+                }
+
+              }
+            );
+
+          }
         );
-
-      if (selectedTab) {
-        selectedTab.classList.add("active");
-      }
-
-
-      if (button) {
-        button.classList.add("active");
-      }
-
-
-      if (tabName === "tabla") {
-        renderTable();
-      }
-
-      if (tabName === "filtros") {
-        buildFilters();
-      }
-
-      if (tabName === "rutas") {
-        renderRoutes();
-      }
-
-      setTimeout(() => {
-
-        if (map) {
-          map.invalidateSize();
-        }
-
-      }, 100);
 
     }
 
@@ -2175,35 +2279,58 @@
        MÓDULO 14 - CARGA DE ARCHIVOS
        ========================================================= */
 
-    function handleFileUpload(event) {
+    function initializeFileInput() {
 
-      const file =
-        event.target.files &&
-        event.target.files[0];
+      const input =
+        document.getElementById(
+          "fileInput"
+        );
 
-      if (!file) {
+
+      if (!input) {
         return;
       }
 
 
-      const fileName =
-        file.name.toLowerCase();
+      input.addEventListener(
+        "change",
+        function(event) {
+
+          const file =
+            event.target.files[0];
 
 
-      showFileStatus(
-        file.name,
-        "Procesando archivo..."
+          if (!file) {
+            return;
+          }
+
+
+          loadFile(file);
+
+        }
+      );
+
+    }
+
+
+    function loadFile(file) {
+
+      showStatus(
+        "Cargando: " + file.name,
+        "normal"
       );
 
 
+      const name =
+        file.name.toLowerCase();
+
+
       if (
-        fileName.endsWith(".xlsx") ||
-        fileName.endsWith(".xls")
+        name.endsWith(".xlsx") ||
+        name.endsWith(".xls")
       ) {
 
-        currentFileType = "excel";
-
-        readExcelFile(file);
+        loadExcel(file);
 
         return;
 
@@ -2211,220 +2338,257 @@
 
 
       if (
-        fileName.endsWith(".kml") ||
-        fileName.endsWith(".xml")
+        name.endsWith(".kml") ||
+        name.endsWith(".xml")
       ) {
 
-        currentFileType = "kml";
-
-        readKMLFile(file);
+        loadKML(file);
 
         return;
 
       }
 
 
-      showToast(
-        "Formato de archivo no compatible."
+      showStatus(
+        "Formato de archivo no compatible.",
+        "error"
       );
 
     }
 
 
     /* =========================================================
-       MÓDULO 15 - LECTURA EXCEL
+       MÓDULO 15 - EXCEL
        ========================================================= */
 
-    function readExcelFile(file) {
+    function loadExcel(file) {
 
-      const reader = new FileReader();
-
-
-      reader.onload = function(e) {
-
-        try {
-
-          const data =
-            new Uint8Array(e.target.result);
-
-          const workbook =
-            XLSX.read(
-              data,
-              {
-                type: "array"
-              }
-            );
+      const reader =
+        new FileReader();
 
 
-          if (
-            !workbook.SheetNames ||
-            workbook.SheetNames.length === 0
-          ) {
+      reader.onload =
+        function(event) {
 
-            throw new Error(
-              "El archivo no contiene hojas."
-            );
+          try {
 
-          }
-
-
-          const firstSheet =
-            workbook.Sheets[
-              workbook.SheetNames[0]
-            ];
+            const data =
+              new Uint8Array(
+                event.target.result
+              );
 
 
-          const rows =
-            XLSX.utils.sheet_to_json(
-              firstSheet,
-              {
-                header: 1,
-                defval: ""
-              }
-            );
-
-
-          markersData = [];
-
-
-          /*
-           * Los datos empiezan en la fila 2.
-           *
-           * A = Nombre
-           * B = Latitud
-           * C = Longitud
-           * D = Descripción 1
-           * E = Descripción 2
-           * F = Descripción 3
-           * G = Color
-           */
-
-          for (
-            let i = 1;
-            i < rows.length;
-            i++
-          ) {
-
-            const row = rows[i] || [];
-
-
-            const name =
-              row[0] !== undefined &&
-              row[0] !== ""
-                ? String(row[0])
-                : "Punto " + i;
-
-
-            const lat =
-              parseCoordinate(row[1]);
-
-            const lng =
-              parseCoordinate(row[2]);
+            const workbook =
+              XLSX.read(
+                data,
+                {
+                  type: "array"
+                }
+              );
 
 
             if (
-              lat === null ||
-              lng === null
+              !workbook.SheetNames.length
             ) {
 
-              continue;
+              throw new Error(
+                "El archivo no contiene hojas."
+              );
 
             }
 
 
-            const point = {
-
-              id:
-                "point_" +
-                Date.now() +
-                "_" +
-                i,
-
-              order:
-                markersData.length + 1,
-
-              name: name,
-
-              lat: lat,
-
-              lng: lng,
-
-              desc1:
-                row[3] !== undefined
-                  ? String(row[3])
-                  : "",
-
-              desc2:
-                row[4] !== undefined
-                  ? String(row[4])
-                  : "",
-
-              desc3:
-                row[5] !== undefined
-                  ? String(row[5])
-                  : "",
-
-              color:
-                normalizeColor(row[6]) ||
-                generateColor(
-                  markersData.length
-                ),
-
-              marker: null,
-
-              sourceRow: i + 1
-
-            };
+            const sheet =
+              workbook.Sheets[
+                workbook.SheetNames[0]
+              ];
 
 
-            markersData.push(point);
+            const rows =
+              XLSX.utils.sheet_to_json(
+                sheet,
+                {
+                  header: 1,
+                  defval: ""
+                }
+              );
+
+
+            if (
+              rows.length < 2
+            ) {
+
+              throw new Error(
+                "El archivo no contiene registros desde la fila 2."
+              );
+
+            }
+
+
+            points = [];
+
+            pointIdCounter = 1;
+
+
+            for (
+              let i = 1;
+              i < rows.length;
+              i++
+            ) {
+
+              const row =
+                rows[i] || [];
+
+
+              const name =
+                String(
+                  row[0] ?? ""
+                ).trim();
+
+
+              const lat =
+                parseFloat(
+                  String(
+                    row[1] ?? ""
+                  ).replace(
+                    ",",
+                    "."
+                  )
+                );
+
+
+              const lng =
+                parseFloat(
+                  String(
+                    row[2] ?? ""
+                  ).replace(
+                    ",",
+                    "."
+                  )
+                );
+
+
+              if (
+                !Number.isFinite(lat) ||
+                !Number.isFinite(lng)
+              ) {
+
+                continue;
+
+              }
+
+
+              if (
+                lat < -90 ||
+                lat > 90 ||
+                lng < -180 ||
+                lng > 180
+              ) {
+
+                continue;
+
+              }
+
+
+              const color =
+                normalizeColor(
+                  row[6]
+                );
+
+
+              points.push({
+
+                id:
+                  pointIdCounter++,
+
+                name:
+                  name ||
+                  "Punto " + i,
+
+                lat,
+                lng,
+
+                desc1:
+                  String(
+                    row[3] ?? ""
+                  ),
+
+                desc2:
+                  String(
+                    row[4] ?? ""
+                  ),
+
+                desc3:
+                  String(
+                    row[5] ?? ""
+                  ),
+
+                color
+
+              });
+
+            }
+
+
+            if (!points.length) {
+
+              throw new Error(
+                "No se encontraron coordenadas válidas. Revisa que B sea Latitud y C Longitud."
+              );
+
+            }
+
+
+            routes = [];
+
+            currentRouteId = null;
+
+            routeMode = false;
+
+
+            refreshAll();
+
+
+            fitAllPoints();
+
+
+            showStatus(
+              "Excel cargado correctamente: " +
+              points.length +
+              " puntos.",
+              "success"
+            );
+
+
+            showToast(
+              points.length +
+              " puntos cargados."
+            );
+
+          } catch (error) {
+
+            console.error(error);
+
+            showStatus(
+              "Error al leer Excel: " +
+              error.message,
+              "error"
+            );
 
           }
 
+        };
 
-          renderAll();
 
+      reader.onerror =
+        function() {
 
-          showFileStatus(
-            file.name,
-            markersData.length +
-              " puntos cargados correctamente."
+          showStatus(
+            "No fue posible leer el archivo.",
+            "error"
           );
 
-
-          showToast(
-            "Excel cargado: " +
-            markersData.length +
-            " puntos."
-          );
-
-
-        } catch (error) {
-
-          console.error(error);
-
-          showToast(
-            "Error al leer el Excel: " +
-            error.message
-          );
-
-          showFileStatus(
-            file.name,
-            "Error al procesar el archivo."
-          );
-
-        }
-
-      };
-
-
-      reader.onerror = function() {
-
-        showToast(
-          "No fue posible leer el archivo."
-        );
-
-      };
+        };
 
 
       reader.readAsArrayBuffer(file);
@@ -2433,452 +2597,349 @@
 
 
     /* =========================================================
-       MÓDULO 16 - LECTURA KML
+       MÓDULO 16 - KML
        ========================================================= */
 
-    function readKMLFile(file) {
+    function loadKML(file) {
 
-      const reader = new FileReader();
+      const reader =
+        new FileReader();
 
 
-      reader.onload = function(e) {
+      reader.onload =
+        function(event) {
 
-        try {
+          try {
 
-          originalKML =
-            e.target.result;
+            const xmlText =
+              event.target.result;
 
 
-          parseKML(
-            originalKML
-          );
+            const parser =
+              new DOMParser();
 
 
-          renderAll();
-
-
-          showFileStatus(
-            file.name,
-            markersData.length +
-              " puntos cargados correctamente."
-          );
-
-
-          showToast(
-            "KML cargado: " +
-            markersData.length +
-            " puntos."
-          );
-
-
-        } catch (error) {
-
-          console.error(error);
-
-          showToast(
-            "Error al leer el KML: " +
-            error.message
-          );
-
-          showFileStatus(
-            file.name,
-            "Error al procesar el KML."
-          );
-
-        }
-
-      };
-
-
-      reader.onerror = function() {
-
-        showToast(
-          "No fue posible leer el archivo."
-        );
-
-      };
-
-
-      reader.readAsText(
-        file,
-        "UTF-8"
-      );
-
-    }
-
-
-    /* =========================================================
-       MÓDULO 17 - PARSEO KML
-       ========================================================= */
-
-    function parseKML(text) {
-
-      const parser =
-        new DOMParser();
-
-      const xml =
-        parser.parseFromString(
-          text,
-          "application/xml"
-        );
-
-
-      const parserError =
-        xml.querySelector(
-          "parsererror"
-        );
-
-
-      if (parserError) {
-
-        throw new Error(
-          "El archivo KML/XML no es válido."
-        );
-
-      }
-
-
-      markersData = [];
-
-
-      const placemarks =
-        Array.from(
-          xml.getElementsByTagName(
-            "Placemark"
-          )
-        );
-
-
-      placemarks.forEach(
-        (placemark, index) => {
-
-          const pointElement =
-            placemark.getElementsByTagName(
-              "Point"
-            )[0];
-
-
-          if (!pointElement) {
-            return;
-          }
-
-
-          const coordinateElement =
-            pointElement.getElementsByTagName(
-              "coordinates"
-            )[0];
-
-
-          if (!coordinateElement) {
-            return;
-          }
-
-
-          const coordinateText =
-            coordinateElement.textContent.trim();
-
-
-          const parts =
-            coordinateText.split(",");
-
-
-          if (parts.length < 2) {
-            return;
-          }
-
-
-          const lng =
-            parseFloat(parts[0]);
-
-          const lat =
-            parseFloat(parts[1]);
-
-
-          if (
-            !Number.isFinite(lat) ||
-            !Number.isFinite(lng)
-          ) {
-            return;
-          }
-
-
-          const nameElement =
-            placemark.getElementsByTagName(
-              "name"
-            )[0];
-
-
-          const name =
-            nameElement
-              ? nameElement.textContent.trim()
-              : "Punto " + (index + 1);
-
-
-          const descriptionElement =
-            placemark.getElementsByTagName(
-              "description"
-            )[0];
-
-
-          let desc1 = "";
-          let desc2 = "";
-          let desc3 = "";
-
-
-          if (descriptionElement) {
-
-            const rawDescription =
-              descriptionElement.textContent || "";
-
-
-            const temp =
-              document.createElement(
-                "div"
+            const xml =
+              parser.parseFromString(
+                xmlText,
+                "text/xml"
               );
 
 
-            temp.innerHTML =
-              rawDescription;
+            const parserError =
+              xml.querySelector(
+                "parsererror"
+              );
 
 
-            const cleanText =
-              temp.innerText
-                .replace(/\r/g, "")
-                .trim();
+            if (parserError) {
+
+              throw new Error(
+                "El archivo KML/XML no tiene una estructura válida."
+              );
+
+            }
 
 
-            const lines =
-              cleanText
-                .split("\n")
-                .map(
-                  line => line.trim()
+            const placemarks =
+              Array.from(
+                xml.getElementsByTagName(
+                  "Placemark"
                 )
-                .filter(
-                  line => line !== ""
-                );
+              );
 
 
-            desc1 =
-              lines[0] || "";
+            if (!placemarks.length) {
 
-            desc2 =
-              lines[1] || "";
+              throw new Error(
+                "No se encontraron elementos Placemark."
+              );
 
-            desc3 =
-              lines[2] || "";
-
-          }
+            }
 
 
-          let color =
-            extractKMLColor(
-              placemark
+            points = [];
+
+            pointIdCounter = 1;
+
+
+            placemarks.forEach(
+              function(pm, index) {
+
+                const pointNode =
+                  pm.querySelector(
+                    "Point"
+                  );
+
+
+                if (!pointNode) {
+                  return;
+                }
+
+
+                const coordinatesNode =
+                  pointNode.querySelector(
+                    "coordinates"
+                  );
+
+
+                if (!coordinatesNode) {
+                  return;
+                }
+
+
+                const coordinateText =
+                  coordinatesNode
+                    .textContent
+                    .trim();
+
+
+                const firstCoordinate =
+                  coordinateText
+                    .split(/\s+/)[0];
+
+
+                const parts =
+                  firstCoordinate.split(",");
+
+
+                if (
+                  parts.length < 2
+                ) {
+
+                  return;
+
+                }
+
+
+                const lng =
+                  parseFloat(
+                    parts[0]
+                  );
+
+
+                const lat =
+                  parseFloat(
+                    parts[1]
+                  );
+
+
+                if (
+                  !Number.isFinite(lat) ||
+                  !Number.isFinite(lng)
+                ) {
+
+                  return;
+
+                }
+
+
+                let name =
+                  getNodeText(
+                    pm,
+                    "name"
+                  );
+
+
+                if (!name) {
+
+                  name =
+                    "Punto " +
+                    (index + 1);
+
+                }
+
+
+                const description =
+                  getNodeText(
+                    pm,
+                    "description"
+                  );
+
+
+                const descriptionParts =
+                  extractDescriptionParts(
+                    description
+                  );
+
+
+                let color =
+                  extractKMLColor(pm);
+
+
+                if (!color) {
+                  color = automaticColor(
+                    index
+                  );
+                }
+
+
+                points.push({
+
+                  id:
+                    pointIdCounter++,
+
+                  name,
+
+                  lat,
+                  lng,
+
+                  desc1:
+                    descriptionParts[0] || "",
+
+                  desc2:
+                    descriptionParts[1] || "",
+
+                  desc3:
+                    descriptionParts[2] || "",
+
+                  color
+
+                });
+
+              }
             );
 
 
-          if (!color) {
+            if (!points.length) {
 
-            color =
-              generateColor(
-                markersData.length
+              throw new Error(
+                "No se encontraron puntos Point con coordenadas válidas."
               );
 
-          }
-
-
-          markersData.push({
-
-            id:
-              "point_" +
-              Date.now() +
-              "_" +
-              index,
-
-            order:
-              markersData.length + 1,
-
-            name: name,
-
-            lat: lat,
-
-            lng: lng,
-
-            desc1: desc1,
-
-            desc2: desc2,
-
-            desc3: desc3,
-
-            color: color,
-
-            marker: null,
-
-            sourceRow: null
-
-          });
-
-        }
-      );
-
-    }
-
-
-    /* =========================================================
-       MÓDULO 18 - COLOR KML
-       ========================================================= */
-
-    function extractKMLColor(placemark) {
-
-      const styleUrl =
-        placemark.getElementsByTagName(
-          "styleUrl"
-        )[0];
-
-
-      const directColor =
-        placemark.getElementsByTagName(
-          "color"
-        )[0];
-
-
-      if (directColor) {
-
-        const converted =
-          kmlColorToHex(
-            directColor.textContent.trim()
-          );
-
-        if (converted) {
-          return converted;
-        }
-
-      }
-
-
-      if (styleUrl) {
-
-        /*
-         * En esta versión se busca también
-         * color directo dentro del Placemark.
-         */
-
-        const styles =
-          placemark.getElementsByTagName(
-            "Style"
-          );
-
-
-        for (
-          let i = 0;
-          i < styles.length;
-          i++
-        ) {
-
-          const colorElement =
-            styles[i].getElementsByTagName(
-              "color"
-            )[0];
-
-
-          if (colorElement) {
-
-            const converted =
-              kmlColorToHex(
-                colorElement.textContent.trim()
-              );
-
-            if (converted) {
-              return converted;
             }
 
+
+            routes = [];
+
+            currentRouteId = null;
+
+            routeMode = false;
+
+
+            refreshAll();
+
+
+            fitAllPoints();
+
+
+            showStatus(
+              "KML cargado correctamente: " +
+              points.length +
+              " puntos.",
+              "success"
+            );
+
+
+            showToast(
+              points.length +
+              " puntos cargados."
+            );
+
+
+          } catch (error) {
+
+            console.error(error);
+
+            showStatus(
+              "Error al leer KML: " +
+              error.message,
+              "error"
+            );
+
           }
 
-        }
-
-      }
+        };
 
 
-      return null;
+      reader.onerror =
+        function() {
 
-    }
+          showStatus(
+            "No fue posible leer el KML.",
+            "error"
+          );
 
-
-    function kmlColorToHex(value) {
-
-      if (!value) {
-        return null;
-      }
-
-
-      value =
-        value.trim()
-          .replace("#", "");
+        };
 
 
-      /*
-       * KML:
-       * AABBGGRR
-       */
-
-      if (value.length === 8) {
-
-        const rr =
-          value.substring(6, 8);
-
-        const gg =
-          value.substring(4, 6);
-
-        const bb =
-          value.substring(2, 4);
-
-
-        return "#" +
-          rr +
-          gg +
-          bb;
-
-      }
-
-
-      if (value.length === 6) {
-        return "#" + value;
-      }
-
-
-      return null;
+      reader.readAsText(file);
 
     }
 
 
     /* =========================================================
-       MÓDULO 19 - CREACIÓN DE MARCADORES
+       MÓDULO 17 - REFRESCAR TODA LA INTERFAZ
+       ========================================================= */
+
+    function refreshAll() {
+
+      renderMarkers();
+
+      renderPointsList();
+
+      renderTable();
+
+      buildFilters();
+
+      renderRoutes();
+
+      updateCounter();
+
+      updateInitialMarker();
+
+      if (map) {
+
+        setTimeout(
+          function() {
+
+            map.invalidateSize();
+
+          },
+          100
+        );
+
+      }
+
+    }
+
+
+    /* =========================================================
+       MÓDULO 18 - MARCADORES
        ========================================================= */
 
     function renderMarkers() {
 
-      markerLayer.clearLayers();
+      if (!markersLayer) {
+        return;
+      }
 
 
-      markersData.forEach(
-        point => {
+      markersLayer.clearLayers();
+
+      markerObjects = {};
+
+
+      points.forEach(
+        function(point, index) {
 
           const icon =
             createPointIcon(
-              point
+              point,
+              index + 1
             );
 
 
           const marker =
             L.marker(
-              [point.lat, point.lng],
+              [
+                point.lat,
+                point.lng
+              ],
               {
-                icon: icon
+                icon
               }
             );
-
-
-          point.marker =
-            marker;
 
 
           marker.on(
@@ -2886,10 +2947,11 @@
             function() {
 
               if (
-                routeSelectionMode
+                routeMode &&
+                currentRouteId
               ) {
 
-                selectPointForRoute(
+                addPointToCurrentRoute(
                   point.id
                 );
 
@@ -2898,8 +2960,8 @@
               }
 
 
-              openPointEditor(
-                point
+              focusPoint(
+                point.id
               );
 
             }
@@ -2907,112 +2969,88 @@
 
 
           marker.addTo(
-            markerLayer
+            markersLayer
           );
+
+
+          markerObjects[
+            point.id
+          ] = marker;
 
         }
       );
 
-      updateMarkerCount();
-
     }
 
 
-    /* =========================================================
-       MÓDULO 20 - ICONOS DE PUNTOS
-       ========================================================= */
+    function createPointIcon(
+      point,
+      number
+    ) {
 
-    function createPointIcon(point) {
-
-      let routeNumber = null;
-
-
-      if (
-        activeRouteId !== null
-      ) {
-
-        const route =
-          routes.find(
-            r =>
-              r.id ===
-              activeRouteId
-          );
-
-
-        if (route) {
-
-          const index =
-            route.pointIds.indexOf(
-              point.id
-            );
-
-
-          if (index >= 0) {
-
-            routeNumber =
-              index + 1;
-
-          }
-
-        }
-
-      }
-
-
-      if (routeNumber !== null) {
-
-        return L.divIcon({
-
-          className: "",
-
-          html:
-            '<div class="route-badge">' +
-            routeNumber +
-            '</div>',
-
-          iconSize: [28, 28],
-
-          iconAnchor: [14, 14]
-
-        });
-
-      }
+      const color =
+        normalizeColor(
+          point.color
+        );
 
 
       return L.divIcon({
 
-        className: "",
+        className:
+          "",
 
         html:
-          '<div style="' +
-          'width:30px;' +
-          'height:30px;' +
-          'border-radius:50% 50% 50% 0;' +
-          'transform:rotate(-45deg);' +
-          'background:' +
-          escapeHtml(point.color) +
-          ';' +
-          'border:3px solid white;' +
-          'box-shadow:0 2px 8px rgba(0,0,0,.28);' +
-          '">' +
+          `
+          <div
+            style="
+              width:34px;
+              height:42px;
+              position:relative;
+              display:flex;
+              justify-content:center;
+            "
+          >
 
-          '<div style="' +
-          'width:8px;' +
-          'height:8px;' +
-          'border-radius:50%;' +
-          'background:white;' +
-          'position:absolute;' +
-          'top:8px;' +
-          'left:8px;' +
-          '"></div>' +
+            <div
+              style="
+                width:30px;
+                height:30px;
+                margin-top:2px;
+                border-radius:50% 50% 50% 0;
+                transform:rotate(-45deg);
+                background:${color};
+                border:3px solid white;
+                box-shadow:0 3px 8px rgba(0,0,0,.35);
+                display:flex;
+                align-items:center;
+                justify-content:center;
+              "
+            >
 
-          '</div>',
+              <div
+                style="
+                  transform:rotate(45deg);
+                  color:white;
+                  font-size:9px;
+                  font-weight:900;
+                "
+              >
+                ${number}
+              </div>
 
-        iconSize: [30, 30],
+            </div>
 
-        iconAnchor: [15, 30],
+          </div>
+          `,
 
-        popupAnchor: [0, -30]
+        iconSize:
+          [34,42],
+
+        iconAnchor:
+          [17,42],
+
+        popupAnchor:
+          [0,-42]
 
       });
 
@@ -3020,7 +3058,206 @@
 
 
     /* =========================================================
-       MÓDULO 21 - LISTA MODERNA DE PUNTOS
+       MÓDULO 19 - SELECCIÓN DE PUNTO
+       ========================================================= */
+
+    function focusPoint(id) {
+
+      const point =
+        points.find(
+          p =>
+            p.id === id
+        );
+
+
+      if (!point) {
+        return;
+      }
+
+
+      const marker =
+        markerObjects[id];
+
+
+      if (marker) {
+
+        marker.setOpacity(1);
+
+      }
+
+
+      if (map) {
+
+        map.setView(
+          [
+            point.lat,
+            point.lng
+          ],
+          Math.max(
+            map.getZoom(),
+            17
+          ),
+          {
+            animate: true
+          }
+        );
+
+      }
+
+
+      openPointModal(
+        point
+      );
+
+    }
+
+
+    function openPointModal(point) {
+
+      currentPointId =
+        point.id;
+
+
+      document.getElementById(
+        "pointName"
+      ).value =
+        point.name;
+
+
+      document.getElementById(
+        "pointLat"
+      ).value =
+        point.lat;
+
+
+      document.getElementById(
+        "pointLng"
+      ).value =
+        point.lng;
+
+
+      document.getElementById(
+        "pointDesc1"
+      ).value =
+        point.desc1 || "";
+
+
+      document.getElementById(
+        "pointDesc2"
+      ).value =
+        point.desc2 || "";
+
+
+      document.getElementById(
+        "pointDesc3"
+      ).value =
+        point.desc3 || "";
+
+
+      document.getElementById(
+        "pointColor"
+      ).value =
+        normalizeColor(
+          point.color
+        );
+
+
+      document
+        .getElementById(
+          "pointModal"
+        )
+        .classList.add(
+          "show"
+        );
+
+    }
+
+
+    function closePointModal() {
+
+      document
+        .getElementById(
+          "pointModal"
+        )
+        .classList.remove(
+          "show"
+        );
+
+      currentPointId =
+        null;
+
+    }
+
+
+    function savePointChanges() {
+
+      if (
+        currentPointId === null
+      ) {
+        return;
+      }
+
+
+      const point =
+        points.find(
+          p =>
+            p.id ===
+            currentPointId
+        );
+
+
+      if (!point) {
+        return;
+      }
+
+
+      point.desc1 =
+        document.getElementById(
+          "pointDesc1"
+        ).value;
+
+
+      point.desc2 =
+        document.getElementById(
+          "pointDesc2"
+        ).value;
+
+
+      point.desc3 =
+        document.getElementById(
+          "pointDesc3"
+        ).value;
+
+
+      point.color =
+        normalizeColor(
+          document.getElementById(
+            "pointColor"
+          ).value
+        );
+
+
+      renderMarkers();
+
+      renderPointsList();
+
+      renderTable();
+
+      buildFilters();
+
+
+      closePointModal();
+
+
+      showToast(
+        "Cambios guardados."
+      );
+
+    }
+
+
+    /* =========================================================
+       MÓDULO 20 - LISTA DE PUNTOS
        ========================================================= */
 
     function renderPointsList() {
@@ -3036,351 +3273,80 @@
       }
 
 
-      container.innerHTML = "";
-
-
-      if (
-        markersData.length === 0
-      ) {
+      if (!points.length) {
 
         container.innerHTML =
-          '<div style="' +
-          'padding:25px 10px;' +
-          'text-align:center;' +
-          'color:#94a3b8;' +
-          'font-size:10px;' +
-          '">' +
-
-          '<i class="fa-solid fa-location-dot" ' +
-          'style="font-size:22px; margin-bottom:8px;"></i>' +
-
-          '<div>No hay puntos cargados.</div>' +
-
-          '</div>';
+          `
+          <div class="statusBox">
+            No hay puntos cargados.
+          </div>
+          `;
 
         return;
 
       }
 
 
-      markersData.forEach(
-        point => {
+      container.innerHTML =
+        points
+          .map(
+            function(point, index) {
 
-          const item =
-            document.createElement(
-              "div"
-            );
+              return `
+                <div
+                  class="pointCard"
+                  onclick="focusPoint(${point.id})"
+                >
 
+                  <div
+                    class="pointNumber"
+                    style="
+                      background:${normalizeColor(point.color)};
+                    "
+                  >
+                    ${index + 1}
+                  </div>
 
-          item.className =
-            "point-card";
+                  <div class="pointInfo">
 
+                    <div class="pointName">
+                      ${escapeHtml(point.name)}
+                    </div>
 
-          const desc =
-            point.desc1 ||
-            point.desc2 ||
-            point.desc3 ||
-            "";
+                    <div class="pointCoords">
+                      ${formatCoordinate(point.lat)},
+                      ${formatCoordinate(point.lng)}
+                    </div>
 
+                  </div>
 
-          item.innerHTML =
+                  <div class="pointArrow">
+                    ›
+                  </div>
 
-            '<div class="point-order">' +
-              point.order +
-            '</div>' +
-
-            '<div class="point-card-main">' +
-
-              '<div class="point-card-title">' +
-
-                '<span ' +
-                'class="point-color-dot" ' +
-                'style="background:' +
-                escapeHtml(point.color) +
-                '"></span>' +
-
-                '<span class="point-card-name">' +
-                  escapeHtml(point.name) +
-                '</span>' +
-
-              '</div>' +
-
-              '<div class="point-card-meta">' +
-
-                '<span>' +
-                  'Lat: ' +
-                  Number(point.lat).toFixed(6) +
-                '</span>' +
-
-                '<span>' +
-                  'Lng: ' +
-                  Number(point.lng).toFixed(6) +
-                '</span>' +
-
-              '</div>' +
-
-              (
-                desc
-                  ? '<div class="point-card-desc">' +
-                    escapeHtml(desc) +
-                    '</div>'
-                  : ""
-              ) +
-
-            '</div>' +
-
-            '<div class="point-card-arrow">›</div>';
-
-
-          item.addEventListener(
-            "click",
-            function() {
-
-              focusPoint(
-                point.id
-              );
+                </div>
+              `;
 
             }
-          );
-
-
-          container.appendChild(
-            item
-          );
-
-        }
-      );
+          )
+          .join("");
 
     }
 
 
     /* =========================================================
-       MÓDULO 22 - IR AL PUNTO Y MOSTRAR INFORMACIÓN
-       ========================================================= */
-
-    function focusPoint(id) {
-
-      const point =
-        markersData.find(
-          p => p.id === id
-        );
-
-
-      if (!point) {
-        return;
-      }
-
-
-      /*
-       * Si el punto fue ocultado por un filtro,
-       * se vuelve a agregar temporalmente al mapa
-       * para que el usuario pueda verlo.
-       */
-
-      if (
-        point.marker &&
-        !map.hasLayer(
-          point.marker
-        )
-      ) {
-
-        point.marker.addTo(
-          markerLayer
-        );
-
-      }
-
-
-      /*
-       * Llevar el mapa al punto.
-       */
-
-      map.setView(
-        [point.lat, point.lng],
-        17,
-        {
-          animate: true
-        }
-      );
-
-
-      /*
-       * Mostrar inmediatamente
-       * la información del punto.
-       */
-
-      setTimeout(
-        function() {
-
-          openPointEditor(
-            point
-          );
-
-        },
-        220
-      );
-
-    }
-
-
-    /* =========================================================
-       MÓDULO 23 - EDITOR DE PUNTO
-       ========================================================= */
-
-    function openPointEditor(point) {
-
-      if (!point) {
-        return;
-      }
-
-
-      editingPointId =
-        point.id;
-
-
-      document.getElementById(
-        "editName"
-      ).value =
-        point.name || "";
-
-
-      document.getElementById(
-        "editLat"
-      ).value =
-        point.lat;
-
-
-      document.getElementById(
-        "editLng"
-      ).value =
-        point.lng;
-
-
-      document.getElementById(
-        "editDesc1"
-      ).value =
-        point.desc1 || "";
-
-
-      document.getElementById(
-        "editDesc2"
-      ).value =
-        point.desc2 || "";
-
-
-      document.getElementById(
-        "editDesc3"
-      ).value =
-        point.desc3 || "";
-
-
-      document.getElementById(
-        "editColor"
-      ).value =
-        normalizeColor(
-          point.color
-        ) || "#2563eb";
-
-
-      document.getElementById(
-        "pointModal"
-      ).classList.add(
-        "show"
-      );
-
-    }
-
-
-    function closePointEditor() {
-
-      editingPointId = null;
-
-      document.getElementById(
-        "pointModal"
-      ).classList.remove(
-        "show"
-      );
-
-    }
-
-
-    function savePointEditor() {
-
-      if (!editingPointId) {
-        return;
-      }
-
-
-      const point =
-        markersData.find(
-          p =>
-            p.id ===
-            editingPointId
-        );
-
-
-      if (!point) {
-        return;
-      }
-
-
-      point.desc1 =
-        document.getElementById(
-          "editDesc1"
-        ).value;
-
-
-      point.desc2 =
-        document.getElementById(
-          "editDesc2"
-        ).value;
-
-
-      point.desc3 =
-        document.getElementById(
-          "editDesc3"
-        ).value;
-
-
-      point.color =
-        document.getElementById(
-          "editColor"
-        ).value ||
-        "#2563eb";
-
-
-      renderMarkers();
-
-      renderPointsList();
-
-      renderTable();
-
-      buildFilters();
-
-
-      closePointEditor();
-
-
-      showToast(
-        "Cambios guardados localmente."
-      );
-
-    }
-
-
-    /* =========================================================
-       MÓDULO 24 - TABLA
+       MÓDULO 21 - TABLA
        ========================================================= */
 
     function renderTable() {
 
-      const tbody =
+      const body =
         document.getElementById(
           "tableBody"
         );
 
 
-      if (!tbody) {
+      if (!body) {
         return;
       }
 
@@ -3389,149 +3355,135 @@
         (
           document.getElementById(
             "tableSearch"
-          )?.value || ""
+          )?.value ||
+          ""
         )
         .toLowerCase()
         .trim();
 
 
-      tbody.innerHTML = "";
+      const filtered =
+        points.filter(
+          function(point) {
+
+            if (!search) {
+              return true;
+            }
 
 
-      const fragment =
-        document.createDocumentFragment();
-
-
-      markersData.forEach(
-        point => {
-
-          const searchable =
-            [
+            return [
               point.name,
               point.lat,
               point.lng,
               point.desc1,
               point.desc2,
-              point.desc3,
-              point.color
+              point.desc3
             ]
             .join(" ")
-            .toLowerCase();
-
-
-          if (
-            search &&
-            !searchable.includes(
-              search
-            )
-          ) {
-
-            return;
+            .toLowerCase()
+            .includes(search);
 
           }
+        );
 
 
-          const tr =
-            document.createElement(
-              "tr"
-            );
+      body.innerHTML =
+        filtered
+          .map(
+            function(point, index) {
+
+              return `
+
+                <tr>
+
+                  <td>
+                    ${index + 1}
+                  </td>
+
+                  <td>
+
+                    <span
+                      class="tablePointLink"
+                      onclick="focusPoint(${point.id})"
+                    >
+                      ${escapeHtml(point.name)}
+                    </span>
+
+                  </td>
+
+                  <td>
+                    ${formatCoordinate(point.lat)}
+                  </td>
+
+                  <td>
+                    ${formatCoordinate(point.lng)}
+                  </td>
+
+                  <td>
+
+                    <input
+                      class="tableInput"
+                      value="${escapeHtml(point.desc1 || "")}"
+                      onchange="updateTablePoint(${point.id}, 'desc1', this.value)"
+                    >
+
+                  </td>
+
+                  <td>
+
+                    <input
+                      class="tableInput"
+                      value="${escapeHtml(point.desc2 || "")}"
+                      onchange="updateTablePoint(${point.id}, 'desc2', this.value)"
+                    >
+
+                  </td>
+
+                  <td>
+
+                    <input
+                      class="tableInput"
+                      value="${escapeHtml(point.desc3 || "")}"
+                      onchange="updateTablePoint(${point.id}, 'desc3', this.value)"
+                    >
+
+                  </td>
+
+                  <td>
+
+                    <input
+                      class="colorCell"
+                      type="color"
+                      value="${normalizeColor(point.color)}"
+                      onchange="updateTablePoint(${point.id}, 'color', this.value)"
+                    >
+
+                  </td>
+
+                </tr>
+
+              `;
+
+            }
+          )
+          .join("");
 
 
-          tr.innerHTML =
-
-            '<td>' +
-              point.order +
-            '</td>' +
-
-            '<td>' +
-
-              '<span ' +
-              'class="table-name" ' +
-              'onclick="focusPoint(\'' +
-              escapeJs(point.id) +
-              '\')">' +
-
-                escapeHtml(
-                  point.name
-                ) +
-
-              '</span>' +
-
-            '</td>' +
-
-            '<td>' +
-              Number(point.lat).toFixed(6) +
-            '</td>' +
-
-            '<td>' +
-              Number(point.lng).toFixed(6) +
-            '</td>' +
-
-            '<td>' +
-
-              '<input ' +
-              'class="table-input" ' +
-              value="' +
-              escapeHtml(point.desc1 || "") +
-              '" ' +
-              'onchange="updateTablePoint(\'' +
-              escapeJs(point.id) +
-              '\', \'desc1\', this.value)">' +
-
-            '</td>' +
-
-            '<td>' +
-
-              '<input ' +
-              'class="table-input" ' +
-              'value="' +
-              escapeHtml(point.desc2 || "") +
-              '" ' +
-              'onchange="updateTablePoint(\'' +
-              escapeJs(point.id) +
-              '\', \'desc2\', this.value)">' +
-
-            '</td>' +
-
-            '<td>' +
-
-              '<input ' +
-              'class="table-input" ' +
-              'value="' +
-              escapeHtml(point.desc3 || "") +
-              '" ' +
-              'onchange="updateTablePoint(\'' +
-              escapeJs(point.id) +
-              '\', \'desc3\', this.value)">' +
-
-            '</td>' +
-
-            '<td>' +
-
-              '<input ' +
-              'type="color" ' +
-              'class="color-input" ' +
-              'value="' +
-              normalizeColor(point.color) +
-              '" ' +
-              'onchange="updateTablePoint(\'' +
-              escapeJs(point.id) +
-              '\', \'color\', this.value)">' +
-
-            '</td>';
+      const counter =
+        document.getElementById(
+          "tableCounter"
+        );
 
 
-          fragment.appendChild(
-            tr
-          );
+      if (counter) {
 
-        }
-      );
+        counter.textContent =
+          filtered.length +
+          " de " +
+          points.length +
+          " registros";
 
-
-      tbody.appendChild(
-        fragment
-      );
+      }
 
     }
 
@@ -3543,7 +3495,7 @@
     ) {
 
       const point =
-        markersData.find(
+        points.find(
           p =>
             p.id === id
         );
@@ -3554,21 +3506,10 @@
       }
 
 
-      if (
+      point[field] =
         field === "color"
-      ) {
-
-        point[field] =
-          normalizeColor(
-            value
-          ) || "#2563eb";
-
-      } else {
-
-        point[field] =
-          value;
-
-      }
+          ? normalizeColor(value)
+          : value;
 
 
       renderMarkers();
@@ -3577,234 +3518,54 @@
 
       buildFilters();
 
-
-      showToast(
-        "Cambio actualizado."
-      );
-
     }
 
 
     /* =========================================================
-       MÓDULO 25 - FILTROS
+       MÓDULO 22 - FILTROS
        ========================================================= */
 
     function buildFilters() {
 
-      buildColorFilters();
-
-      buildDescriptionFilters();
-
-    }
-
-
-    /* =========================================================
-       FILTRO COLORES
-       ========================================================= */
-
-    function buildColorFilters() {
-
-      const container =
-        document.getElementById(
-          "color-filters"
-        );
-
-
-      if (!container) {
-        return;
-      }
-
-
-      const colors =
-        [
-          ...new Set(
-            markersData
-              .map(
-                p =>
-                  normalizeColor(
-                    p.color
-                  )
-              )
-              .filter(Boolean)
-          )
-        ]
-        .sort();
-
-
-      container.innerHTML = "";
-
-
-      if (
-        colors.length === 0
-      ) {
-
-        container.innerHTML =
-          '<div class="dropdown-empty">' +
-          'No hay colores disponibles.' +
-          '</div>';
-
-        updateFilterSummary(
-          "color-filter-summary",
-          selectedColors
-        );
-
-        return;
-
-      }
-
-
-      const allChecked =
-        selectedColors.size === 0;
-
-
-      container.innerHTML +=
-
-        '<label class="dropdown-option">' +
-
-          '<input ' +
-          'type="checkbox" ' +
-          (allChecked
-            ? "checked"
-            : "") +
-          ' onchange="selectAllColors(this.checked)">' +
-
-          '<span class="dropdown-option-text">' +
-            'Todos' +
-          '</span>' +
-
-        '</label>' +
-
-        '<div class="dropdown-divider"></div>';
-
-
-      colors.forEach(
-        color => {
-
-          const checked =
-            selectedColors.has(
-              color
-            );
-
-
-          container.innerHTML +=
-
-            '<label class="dropdown-option">' +
-
-              '<input ' +
-              'type="checkbox" ' +
-              (checked
-                ? "checked"
-                : "") +
-              ' onchange="toggleColorFilter(\'' +
-              escapeJs(color) +
-              '\', this.checked)">' +
-
-              '<span ' +
-              'class="dropdown-option-color" ' +
-              'style="background:' +
-              escapeHtml(color) +
-              '"></span>' +
-
-              '<span class="dropdown-option-text">' +
-                escapeHtml(color) +
-              '</span>' +
-
-            '</label>';
-
-        }
+      buildFilterOptions(
+        "colorOptions",
+        "color",
+        "colorCount"
       );
 
-
-      updateFilterSummary(
-        "color-filter-summary",
-        selectedColors
-      );
-
-    }
-
-
-    function toggleColorFilter(
-      color,
-      checked
-    ) {
-
-      if (checked) {
-
-        selectedColors.add(
-          color
-        );
-
-      } else {
-
-        selectedColors.delete(
-          color
-        );
-
-      }
-
-
-      buildColorFilters();
-
-      applyFilters();
-
-    }
-
-
-    function selectAllColors(
-      checked
-    ) {
-
-      selectedColors.clear();
-
-      buildColorFilters();
-
-      applyFilters();
-
-    }
-
-
-    /* =========================================================
-       FILTROS DE DESCRIPCIONES
-       ========================================================= */
-
-    function buildDescriptionFilters() {
-
-      buildDescriptionFilter(
+      buildFilterOptions(
+        "desc1Options",
         "desc1",
-        "desc1-filters",
-        selectedDesc1,
-        "desc1-filter-summary"
+        "desc1Count"
       );
 
-
-      buildDescriptionFilter(
+      buildFilterOptions(
+        "desc2Options",
         "desc2",
-        "desc2-filters",
-        selectedDesc2,
-        "desc2-filter-summary"
+        "desc2Count"
       );
 
-
-      buildDescriptionFilter(
+      buildFilterOptions(
+        "desc3Options",
         "desc3",
-        "desc3-filters",
-        selectedDesc3,
-        "desc3-filter-summary"
+        "desc3Count"
       );
+
+
+      applyFilters();
 
     }
 
 
-    function buildDescriptionFilter(
+    function buildFilterOptions(
+      containerId,
       field,
-      menuId,
-      selectedSet,
-      summaryId
+      countId
     ) {
 
       const container =
         document.getElementById(
-          menuId
+          containerId
         );
 
 
@@ -3814,217 +3575,139 @@
 
 
       const values =
-        [
-          ...new Set(
-            markersData
-              .map(
-                p =>
-                  String(
-                    p[field] || ""
-                  ).trim()
-              )
-              .filter(Boolean)
+        [...new Set(
+          points.map(
+            p =>
+              String(
+                p[field] || ""
+              ).trim()
           )
-        ]
+        )]
+        .filter(
+          value =>
+            value !== ""
+        )
         .sort(
-          (a, b) =>
+          (a,b) =>
             a.localeCompare(
               b,
-              "es",
-              {
-                sensitivity:
-                  "base"
-              }
+              "es"
             )
         );
 
 
-      container.innerHTML = "";
-
-
-      if (
-        values.length === 0
-      ) {
+      if (!values.length) {
 
         container.innerHTML =
-          '<div class="dropdown-empty">' +
-          'No hay valores disponibles.' +
-          '</div>';
-
-        updateFilterSummary(
-          summaryId,
-          selectedSet
-        );
+          `
+          <div
+            style="
+              font-size:10px;
+              color:#94a3b8;
+              padding:4px;
+            "
+          >
+            Sin opciones
+          </div>
+          `;
 
         return;
 
       }
 
 
-      const allChecked =
-        selectedSet.size === 0;
-
-
-      container.innerHTML +=
-
-        '<label class="dropdown-option">' +
-
-          '<input ' +
-          'type="checkbox" ' +
-          (allChecked
-            ? "checked"
-            : "") +
-          ' onchange="selectAllDescriptionFilter(\'' +
-          field +
-          '\', this.checked)">' +
-
-          '<span class="dropdown-option-text">' +
-            'Todos' +
-          '</span>' +
-
-        '</label>' +
-
-        '<div class="dropdown-divider"></div>';
-
-
-      values.forEach(
-        value => {
-
-          const checked =
-            selectedSet.has(
-              value
-            );
-
-
-          container.innerHTML +=
-
-            '<label class="dropdown-option">' +
-
-              '<input ' +
-              'type="checkbox" ' +
-              (checked
-                ? "checked"
-                : "") +
-              ' onchange="toggleDescriptionFilter(\'' +
-              field +
-              '\', \'' +
-              escapeJs(value) +
-              '\', this.checked)">' +
-
-              '<span class="dropdown-option-text">' +
-                escapeHtml(value) +
-              '</span>' +
-
-            '</label>';
-
-        }
-      );
-
-
-      updateFilterSummary(
-        summaryId,
-        selectedSet
-      );
-
-    }
-
-
-    function toggleDescriptionFilter(
-      field,
-      value,
-      checked
-    ) {
-
-      let selectedSet;
-
-
-      if (
-        field === "desc1"
-      ) {
-
-        selectedSet =
-          selectedDesc1;
-
-      } else if (
-        field === "desc2"
-      ) {
-
-        selectedSet =
-          selectedDesc2;
-
-      } else {
-
-        selectedSet =
-          selectedDesc3;
-
-      }
-
-
-      if (checked) {
-
-        selectedSet.add(
-          value
+      const previous =
+        getSelectedFilterValues(
+          field
         );
 
-      } else {
 
-        selectedSet.delete(
-          value
-        );
+      container.innerHTML =
+        values
+          .map(
+            function(value) {
 
-      }
+              const checked =
+                previous.has(value)
+                  ? "checked"
+                  : "";
 
 
-      buildDescriptionFilters();
+              if (field === "color") {
 
-      applyFilters();
+                return `
+
+                  <label class="filterOption">
+
+                    <input
+                      type="checkbox"
+                      value="${escapeHtml(value)}"
+                      ${checked}
+                      onchange="applyFilters()"
+                      data-filter-field="color"
+                    >
+
+                    <span
+                      style="
+                        width:13px;
+                        height:13px;
+                        border-radius:4px;
+                        background:${normalizeColor(value)};
+                        border:1px solid #cbd5e1;
+                      "
+                    ></span>
+
+                    <span>
+                      ${escapeHtml(value)}
+                    </span>
+
+                  </label>
+
+                `;
+
+              }
+
+
+              return `
+
+                <label class="filterOption">
+
+                  <input
+                    type="checkbox"
+                    value="${escapeHtml(value)}"
+                    ${checked}
+                    onchange="applyFilters()"
+                    data-filter-field="${field}"
+                  >
+
+                  <span>
+                    ${escapeHtml(value)}
+                  </span>
+
+                </label>
+
+              `;
+
+            }
+          )
+          .join("");
+
+
+      updateFilterCount(
+        field,
+        countId
+      );
 
     }
 
 
-    function selectAllDescriptionFilter(
-      field,
-      checked
-    ) {
-
-      if (
-        field === "desc1"
-      ) {
-
-        selectedDesc1.clear();
-
-      } else if (
-        field === "desc2"
-      ) {
-
-        selectedDesc2.clear();
-
-      } else {
-
-        selectedDesc3.clear();
-
-      }
-
-
-      buildDescriptionFilters();
-
-      applyFilters();
-
-    }
-
-
-    /* =========================================================
-       RESUMEN DE FILTROS
-       ========================================================= */
-
-    function updateFilterSummary(
-      elementId,
-      selectedSet
+    function toggleDropdown(
+      id
     ) {
 
       const element =
         document.getElementById(
-          elementId
+          id
         );
 
 
@@ -4033,123 +3716,68 @@
       }
 
 
-      if (
-        !selectedSet ||
-        selectedSet.size === 0
-      ) {
+      element.classList.toggle(
+        "open"
+      );
 
-        element.textContent =
-          "Todos";
+    }
 
+
+    function getSelectedFilterValues(
+      field
+    ) {
+
+      const selected =
+        new Set();
+
+
+      document
+        .querySelectorAll(
+          `[data-filter-field="${field}"]:checked`
+        )
+        .forEach(
+          checkbox =>
+            selected.add(
+              checkbox.value
+            )
+        );
+
+
+      return selected;
+
+    }
+
+
+    function updateFilterCount(
+      field,
+      countId
+    ) {
+
+      const selected =
+        getSelectedFilterValues(
+          field
+        );
+
+
+      const element =
+        document.getElementById(
+          countId
+        );
+
+
+      if (!element) {
         return;
-
-      }
-
-
-      if (
-        selectedSet.size === 1
-      ) {
-
-        element.textContent =
-          Array.from(
-            selectedSet
-          )[0];
-
-        return;
-
       }
 
 
       element.textContent =
-        selectedSet.size +
-        " seleccionados";
+        selected.size
+          ? selected.size +
+            " seleccionado(s)"
+          : "";
 
     }
 
-
-    /* =========================================================
-       ABRIR / CERRAR DROPDOWNS
-       ========================================================= */
-
-    function toggleFilterDropdown(
-      id,
-      event
-    ) {
-
-      if (event) {
-        event.stopPropagation();
-      }
-
-
-      const target =
-        document.getElementById(
-          id
-        );
-
-
-      if (!target) {
-        return;
-      }
-
-
-      const wasOpen =
-        target.classList.contains(
-          "open"
-        );
-
-
-      closeFilterDropdowns();
-
-
-      if (!wasOpen) {
-
-        target.classList.add(
-          "open"
-        );
-
-      }
-
-    }
-
-
-    function closeFilterDropdowns() {
-
-      document
-        .querySelectorAll(
-          ".filter-dropdown.open"
-        )
-        .forEach(
-          dropdown => {
-            dropdown.classList.remove(
-              "open"
-            );
-          }
-        );
-
-    }
-
-
-    document.addEventListener(
-      "click",
-      function(event) {
-
-        if (
-          !event.target.closest(
-            ".filter-dropdown"
-          )
-        ) {
-
-          closeFilterDropdowns();
-
-        }
-
-      }
-    );
-
-
-    /* =========================================================
-       APLICAR FILTROS
-       ========================================================= */
 
     function applyFilters() {
 
@@ -4157,160 +3785,120 @@
         (
           document.getElementById(
             "generalFilter"
-          )?.value || ""
+          )?.value ||
+          ""
         )
         .toLowerCase()
         .trim();
 
 
-      markersData.forEach(
-        point => {
-
-          let visible = true;
-
-
-          /*
-           * Búsqueda general
-           */
-
-          if (search) {
-
-            const searchable =
-              [
-                point.name,
-                point.lat,
-                point.lng,
-                point.desc1,
-                point.desc2,
-                point.desc3
-              ]
-              .join(" ")
-              .toLowerCase();
+      const selectedColor =
+        getSelectedFilterValues(
+          "color"
+        );
 
 
-            if (
-              !searchable.includes(
-                search
-              )
-            ) {
-
-              visible = false;
-
-            }
-
-          }
+      const selectedDesc1 =
+        getSelectedFilterValues(
+          "desc1"
+        );
 
 
-          /*
-           * Color
-           */
-
-          if (
-            visible &&
-            selectedColors.size > 0
-          ) {
-
-            if (
-              !selectedColors.has(
-                normalizeColor(
-                  point.color
-                )
-              )
-            ) {
-
-              visible = false;
-
-            }
-
-          }
+      const selectedDesc2 =
+        getSelectedFilterValues(
+          "desc2"
+        );
 
 
-          /*
-           * Descripción 1
-           */
-
-          if (
-            visible &&
-            selectedDesc1.size > 0
-          ) {
-
-            if (
-              !selectedDesc1.has(
-                String(
-                  point.desc1 || ""
-                ).trim()
-              )
-            ) {
-
-              visible = false;
-
-            }
-
-          }
+      const selectedDesc3 =
+        getSelectedFilterValues(
+          "desc3"
+        );
 
 
-          /*
-           * Descripción 2
-           */
+      points.forEach(
+        function(point) {
 
-          if (
-            visible &&
-            selectedDesc2.size > 0
-          ) {
-
-            if (
-              !selectedDesc2.has(
-                String(
-                  point.desc2 || ""
-                ).trim()
-              )
-            ) {
-
-              visible = false;
-
-            }
-
-          }
+          const text =
+            [
+              point.name,
+              point.lat,
+              point.lng,
+              point.desc1,
+              point.desc2,
+              point.desc3
+            ]
+            .join(" ")
+            .toLowerCase();
 
 
-          /*
-           * Descripción 3
-           */
-
-          if (
-            visible &&
-            selectedDesc3.size > 0
-          ) {
-
-            if (
-              !selectedDesc3.has(
-                String(
-                  point.desc3 || ""
-                ).trim()
-              )
-            ) {
-
-              visible = false;
-
-            }
-
-          }
+          const matchSearch =
+            !search ||
+            text.includes(search);
 
 
-          if (
-            point.marker
-          ) {
+          const matchColor =
+            selectedColor.size === 0 ||
+            selectedColor.has(
+              String(
+                point.color
+              ).trim()
+            );
+
+
+          const matchDesc1 =
+            selectedDesc1.size === 0 ||
+            selectedDesc1.has(
+              String(
+                point.desc1 || ""
+              ).trim()
+            );
+
+
+          const matchDesc2 =
+            selectedDesc2.size === 0 ||
+            selectedDesc2.has(
+              String(
+                point.desc2 || ""
+              ).trim()
+            );
+
+
+          const matchDesc3 =
+            selectedDesc3.size === 0 ||
+            selectedDesc3.has(
+              String(
+                point.desc3 || ""
+              ).trim()
+            );
+
+
+          const visible =
+            matchSearch &&
+            matchColor &&
+            matchDesc1 &&
+            matchDesc2 &&
+            matchDesc3;
+
+
+          const marker =
+            markerObjects[
+              point.id
+            ];
+
+
+          if (marker) {
 
             if (visible) {
 
               if (
-                !map.hasLayer(
-                  point.marker
+                !markersLayer.hasLayer(
+                  marker
                 )
               ) {
 
-                point.marker.addTo(
-                  markerLayer
+                marker.addTo(
+                  markersLayer
                 );
 
               }
@@ -4318,13 +3906,13 @@
             } else {
 
               if (
-                map.hasLayer(
-                  point.marker
+                markersLayer.hasLayer(
+                  marker
                 )
               ) {
 
-                markerLayer.removeLayer(
-                  point.marker
+                markersLayer.removeLayer(
+                  marker
                 );
 
               }
@@ -4336,76 +3924,70 @@
         }
       );
 
-    }
 
+      updateFilterCount(
+        "color",
+        "colorCount"
+      );
 
-    /* =========================================================
-       RESTABLECER FILTROS
-       ========================================================= */
+      updateFilterCount(
+        "desc1",
+        "desc1Count"
+      );
 
-    function resetFilters() {
+      updateFilterCount(
+        "desc2",
+        "desc2Count"
+      );
 
-      selectedColors.clear();
-
-      selectedDesc1.clear();
-
-      selectedDesc2.clear();
-
-      selectedDesc3.clear();
-
-
-      const generalFilter =
-        document.getElementById(
-          "generalFilter"
-        );
-
-
-      if (generalFilter) {
-        generalFilter.value = "";
-      }
-
-
-      buildFilters();
-
-      renderMarkers();
-
-      closeFilterDropdowns();
-
-
-      showToast(
-        "Filtros restablecidos."
+      updateFilterCount(
+        "desc3",
+        "desc3Count"
       );
 
     }
 
 
+    function resetFilters() {
+
+      const search =
+        document.getElementById(
+          "generalFilter"
+        );
+
+
+      if (search) {
+        search.value = "";
+      }
+
+
+      document
+        .querySelectorAll(
+          "[data-filter-field]"
+        )
+        .forEach(
+          checkbox =>
+            checkbox.checked = false
+        );
+
+
+      applyFilters();
+
+    }
+
+
     /* =========================================================
-       MÓDULO 26 - RUTAS
+       MÓDULO 23 - RUTAS
        ========================================================= */
 
     function createRoute() {
 
-      const nameInput =
-        document.getElementById(
-          "routeName"
-        );
-
-
-      const initialInput =
-        document.getElementById(
-          "routeInitial"
-        );
-
-
-      const returnInput =
-        document.getElementById(
-          "returnInitial"
-        );
-
-
       const name =
         (
-          nameInput.value || ""
+          document.getElementById(
+            "routeName"
+          ).value ||
+          ""
         ).trim();
 
 
@@ -4420,70 +4002,40 @@
       }
 
 
-      const initial =
-        parseInitialCoordinate(
-          initialInput.value
-        );
+      const initialText =
+        (
+          document.getElementById(
+            "routeInitial"
+          ).value ||
+          ""
+        ).trim();
 
 
-      const route = {
-
-        id:
-          "route_" +
-          Date.now(),
-
-        name: name,
-
-        pointIds: [],
-
-        initial:
-          initial,
-
-        returnInitial:
-          returnInput.checked,
-
-        line: null
-
-      };
+      let initial =
+        null;
 
 
-      routes.push(
-        route
-      );
+      if (initialText) {
 
+        const parts =
+          initialText
+            .split(",")
+            .map(
+              x =>
+                parseFloat(
+                  x.trim()
+                )
+            );
 
-      activeRouteId =
-        route.id;
-
-
-      routeSelectionMode =
-        true;
-
-
-      renderRoutes();
-
-      renderMarkers();
-
-
-      showToast(
-        "Ruta creada. Ahora selecciona los puntos en el mapa."
-      );
-
-    }
-
-
-    function startRouteSelection() {
-
-      if (
-        !activeRouteId
-      ) {
 
         if (
-          routes.length === 0
+          parts.length !== 2 ||
+          !Number.isFinite(parts[0]) ||
+          !Number.isFinite(parts[1])
         ) {
 
           showToast(
-            "Primero crea una ruta."
+            "La coordenada inicial debe ser: latitud,longitud"
           );
 
           return;
@@ -4491,44 +4043,133 @@
         }
 
 
-        activeRouteId =
-          routes[
-            routes.length - 1
-          ].id;
+        initial = {
+
+          lat: parts[0],
+
+          lng: parts[1]
+
+        };
 
       }
 
 
-      routeSelectionMode =
-        !routeSelectionMode;
+      const route = {
+
+        id:
+          routeIdCounter++,
+
+        name,
+
+        pointIds: [],
+
+        initial,
+
+        returnInitial:
+          document.getElementById(
+            "returnInitial"
+          ).checked
+
+      };
 
 
-      if (
-        routeSelectionMode
-      ) {
+      routes.push(route);
+
+
+      currentRouteId =
+        route.id;
+
+
+      document.getElementById(
+        "routeName"
+      ).value = "";
+
+
+      document.getElementById(
+        "routeInitial"
+      ).value = "";
+
+
+      routeMode = true;
+
+
+      updateRouteModeButton();
+
+      updateInitialMarker();
+
+      renderRoutes();
+
+
+      showToast(
+        "Ruta creada. Selecciona puntos en el mapa."
+      );
+
+    }
+
+
+    function toggleRouteMode() {
+
+      if (!currentRouteId) {
 
         showToast(
-          "Modo selección activado. Haz clic en los puntos."
+          "Primero crea o selecciona una ruta."
         );
+
+        return;
+
+      }
+
+
+      routeMode =
+        !routeMode;
+
+
+      updateRouteModeButton();
+
+    }
+
+
+    function updateRouteModeButton() {
+
+      const button =
+        document.getElementById(
+          "routeModeButton"
+        );
+
+
+      if (!button) {
+        return;
+      }
+
+
+      if (routeMode) {
+
+        button.textContent =
+          "Desactivar selección";
+
+
+        button.className =
+          "btn btnPrimary";
 
       } else {
 
-        showToast(
-          "Modo selección desactivado."
-        );
+        button.textContent =
+          "Activar selección de ruta";
+
+
+        button.className =
+          "btn btnSecondary";
 
       }
 
     }
 
 
-    function selectPointForRoute(
+    function addPointToCurrentRoute(
       pointId
     ) {
 
-      if (
-        !activeRouteId
-      ) {
+      if (!currentRouteId) {
         return;
       }
 
@@ -4537,7 +4178,7 @@
         routes.find(
           r =>
             r.id ===
-            activeRouteId
+            currentRouteId
         );
 
 
@@ -4546,102 +4187,105 @@
       }
 
 
-      const index =
-        route.pointIds.indexOf(
+      if (
+        route.pointIds.includes(
           pointId
-        );
-
-
-      if (index >= 0) {
-
-        route.pointIds.splice(
-          index,
-          1
-        );
+        )
+      ) {
 
         showToast(
-          "Punto eliminado de la ruta."
+          "Ese punto ya está en la ruta."
         );
 
-      } else {
-
-        route.pointIds.push(
-          pointId
-        );
-
-        showToast(
-          "Punto agregado a la ruta."
-        );
+        return;
 
       }
 
 
-      drawRoute(
-        route
+      route.pointIds.push(
+        pointId
       );
 
 
       renderRoutes();
 
-      renderMarkers();
+      drawRoutes();
+
+      showToast(
+        "Punto agregado a la ruta."
+      );
 
     }
 
 
-    /* =========================================================
-       DIBUJAR RUTA
-       ========================================================= */
+    function addPointToCurrentRouteByCoordinate(
+      lat,
+      lng
+    ) {
 
-    function drawRoute(route) {
-
-      if (
-        route.line
-      ) {
-
-        map.removeLayer(
-          route.line
-        );
-
-        route.line = null;
-
+      if (!currentRouteId) {
+        return;
       }
 
 
-      const coordinates = [];
-
-
-      if (
-        route.initial
-      ) {
-
-        coordinates.push(
-          [
-            route.initial.lat,
-            route.initial.lng
-          ]
+      const nearest =
+        findNearestPoint(
+          lat,
+          lng
         );
 
+
+      if (!nearest) {
+        return;
       }
 
 
-      route.pointIds.forEach(
-        id => {
+      addPointToCurrentRoute(
+        nearest.id
+      );
 
-          const point =
-            markersData.find(
-              p =>
-                p.id === id
+    }
+
+
+    function findNearestPoint(
+      lat,
+      lng
+    ) {
+
+      if (!points.length) {
+        return null;
+      }
+
+
+      let nearest =
+        null;
+
+      let minDistance =
+        Infinity;
+
+
+      points.forEach(
+        function(point) {
+
+          const distance =
+            haversineDistance(
+              lat,
+              lng,
+              point.lat,
+              point.lng
             );
 
 
-          if (point) {
+          if (
+            distance <
+            minDistance
+          ) {
 
-            coordinates.push(
-              [
-                point.lat,
-                point.lng
-              ]
-            );
+            minDistance =
+              distance;
+
+            nearest =
+              point;
 
           }
 
@@ -4649,24 +4293,513 @@
       );
 
 
+      return nearest;
+
+    }
+
+
+    function selectRoute(
+      id
+    ) {
+
+      currentRouteId =
+        id;
+
+
+      routeMode = false;
+
+
+      updateRouteModeButton();
+
+      renderRoutes();
+
+      drawRoutes();
+
+      updateInitialMarker();
+
+    }
+
+
+    function removeLastRoutePoint() {
+
+      if (!currentRouteId) {
+        return;
+      }
+
+
+      const route =
+        routes.find(
+          r =>
+            r.id ===
+            currentRouteId
+        );
+
+
+      if (!route) {
+        return;
+      }
+
+
+      route.pointIds.pop();
+
+
+      renderRoutes();
+
+      drawRoutes();
+
+    }
+
+
+    function clearRoute(
+      id
+    ) {
+
+      const index =
+        routes.findIndex(
+          r =>
+            r.id === id
+        );
+
+
+      if (index === -1) {
+        return;
+      }
+
+
+      routes.splice(
+        index,
+        1
+      );
+
+
       if (
-        route.returnInitial &&
-        route.initial &&
-        coordinates.length > 1
+        currentRouteId === id
       ) {
 
-        coordinates.push(
-          [
-            route.initial.lat,
-            route.initial.lng
-          ]
-        );
+        currentRouteId =
+          routes.length
+            ? routes[0].id
+            : null;
+
+        routeMode = false;
+
+        updateRouteModeButton();
 
       }
 
 
+      renderRoutes();
+
+      drawRoutes();
+
+      updateInitialMarker();
+
+    }
+
+
+    function renderRoutes() {
+
+      const container =
+        document.getElementById(
+          "routesList"
+        );
+
+
+      if (!container) {
+        return;
+      }
+
+
+      if (!routes.length) {
+
+        container.innerHTML =
+          `
+          <div class="statusBox">
+            No hay rutas creadas.
+          </div>
+          `;
+
+        return;
+
+      }
+
+
+      container.innerHTML =
+        routes
+          .map(
+            function(route) {
+
+              const routePoints =
+                route.pointIds
+                  .map(
+                    id =>
+                      points.find(
+                        p =>
+                          p.id === id
+                      )
+                  )
+                  .filter(Boolean);
+
+
+              const distance =
+                calculateRouteDistance(
+                  route
+                );
+
+
+              const selected =
+                route.id ===
+                currentRouteId;
+
+
+              return `
+
+                <div
+                  style="
+                    border:1px solid ${
+                      selected
+                        ? "#93c5fd"
+                        : "#e2e8f0"
+                    };
+                    border-radius:12px;
+                    padding:11px;
+                    margin-bottom:9px;
+                    background:${
+                      selected
+                        ? "#eff6ff"
+                        : "white"
+                    };
+                  "
+                >
+
+                  <div
+                    style="
+                      display:flex;
+                      align-items:center;
+                      justify-content:space-between;
+                      gap:8px;
+                      margin-bottom:8px;
+                    "
+                  >
+
+                    <div>
+
+                      <div
+                        style="
+                          font-size:12px;
+                          font-weight:900;
+                          color:#0f172a;
+                        "
+                      >
+                        ${escapeHtml(route.name)}
+                      </div>
+
+                      <div
+                        style="
+                          font-size:9px;
+                          color:#64748b;
+                          margin-top:2px;
+                        "
+                      >
+                        ${routePoints.length}
+                        puntos ·
+                        ${formatDistance(distance)}
+                      </div>
+
+                    </div>
+
+                    <button
+                      class="btn btnSecondary"
+                      onclick="selectRoute(${route.id})"
+                    >
+                      Seleccionar
+                    </button>
+
+                  </div>
+
+
+                  ${
+                    routePoints.length
+                      ? routePoints
+                          .map(
+                            function(point, index) {
+
+                              return `
+
+                                <div
+                                  class="routePoint"
+                                >
+
+                                  <div
+                                    class="routeBadge"
+                                  >
+                                    ${index + 1}
+                                  </div>
+
+                                  <div
+                                    style="
+                                      flex:1;
+                                      min-width:0;
+                                    "
+                                  >
+                                    ${escapeHtml(
+                                      point.name
+                                    )}
+                                  </div>
+
+                                </div>
+
+                              `;
+
+                            }
+                          )
+                          .join("")
+                      : `
+                        <div
+                          style="
+                            padding:7px;
+                            font-size:10px;
+                            color:#94a3b8;
+                          "
+                        >
+                          Sin puntos.
+                        </div>
+                      `
+                  }
+
+
+                  <div
+                    class="buttonRow"
+                    style="margin-top:9px;"
+                  >
+
+                    <button
+                      class="btn btnPrimary"
+                      onclick="toggleRouteModeFor(${route.id})"
+                    >
+                      Agregar puntos
+                    </button>
+
+                    <button
+                      class="btn btnSecondary"
+                      onclick="removeLastRoutePoint()"
+                    >
+                      Quitar último
+                    </button>
+
+                    <button
+                      class="btn btnSecondary"
+                      onclick="openRouteInGoogleMaps(${route.id})"
+                    >
+                      Google Maps
+                    </button>
+
+                    <button
+                      class="btn btnDanger"
+                      onclick="clearRoute(${route.id})"
+                    >
+                      Eliminar
+                    </button>
+
+                  </div>
+
+                </div>
+
+              `;
+
+            }
+          )
+          .join("");
+
+    }
+
+
+    function toggleRouteModeFor(
+      id
+    ) {
+
+      currentRouteId =
+        id;
+
+
+      routeMode =
+        true;
+
+
+      updateRouteModeButton();
+
+      renderRoutes();
+
+      showToast(
+        "Selecciona los puntos en el mapa."
+      );
+
+    }
+
+
+    function drawRoutes() {
+
+      if (!routeLayer) {
+        return;
+      }
+
+
+      routeLayer.clearLayers();
+
+      routeMarkersLayer.clearLayers();
+
+
+      routes.forEach(
+        function(route) {
+
+          const routePoints =
+            route.pointIds
+              .map(
+                id =>
+                  points.find(
+                    p =>
+                      p.id === id
+                  )
+              )
+              .filter(Boolean);
+
+
+          if (
+            routePoints.length < 2
+          ) {
+            return;
+          }
+
+
+          const coordinates =
+            routePoints.map(
+              p =>
+                [
+                  p.lat,
+                  p.lng
+                ]
+            );
+
+
+          if (
+            route.returnInitial
+          ) {
+
+            if (
+              route.initial
+            ) {
+
+              coordinates.unshift(
+                [
+                  route.initial.lat,
+                  route.initial.lng
+                ]
+              );
+
+              coordinates.push(
+                [
+                  route.initial.lat,
+                  route.initial.lng
+                ]
+              );
+
+            } else {
+
+              coordinates.push(
+                coordinates[0]
+              );
+
+            }
+
+          }
+
+
+          const line =
+            L.polyline(
+              coordinates,
+              {
+                weight: 5,
+                opacity: .85
+              }
+            );
+
+
+          line.addTo(
+            routeLayer
+          );
+
+
+          routePoints.forEach(
+            function(point, index) {
+
+              const marker =
+                L.circleMarker(
+                  [
+                    point.lat,
+                    point.lng
+                  ],
+                  {
+                    radius: 7,
+                    weight: 3,
+                    fillOpacity: 1
+                  }
+                );
+
+
+              marker.bindTooltip(
+                String(
+                  index + 1
+                ),
+                {
+                  permanent: true,
+                  direction: "center",
+                  className:
+                    "routeNumberTooltip"
+                }
+              );
+
+
+              marker.addTo(
+                routeMarkersLayer
+              );
+
+            }
+          );
+
+        }
+      );
+
+    }
+
+
+    function updateInitialMarker() {
+
       if (
-        coordinates.length < 2
+        !initialMarkerLayer
+      ) {
+        return;
+      }
+
+
+      initialMarkerLayer.clearLayers();
+
+
+      if (!currentRouteId) {
+        return;
+      }
+
+
+      const route =
+        routes.find(
+          r =>
+            r.id ===
+            currentRouteId
+        );
+
+
+      if (
+        !route ||
+        !route.initial
       ) {
 
         return;
@@ -4674,122 +4807,679 @@
       }
 
 
-      route.line =
-        L.polyline(
-          coordinates,
-          {
-            color: "#2563eb",
-            weight: 4,
-            opacity: 0.8,
-            dashArray: "8, 7"
-          }
-        ).addTo(map);
-
-
-      /*
-       * Distancia
-       */
-
-      route.distance =
-        calculateRouteDistance(
-          route
-        );
+      L.marker(
+        [
+          route.initial.lat,
+          route.initial.lng
+        ]
+      )
+      .bindTooltip(
+        "Inicio",
+        {
+          permanent: true
+        }
+      )
+      .addTo(
+        initialMarkerLayer
+      );
 
     }
 
-
-    /* =========================================================
-       DISTANCIA HAVERSINE
-       ========================================================= */
 
     function calculateRouteDistance(
       route
     ) {
 
-      const coordinates = [];
+      const routePoints =
+        route.pointIds
+          .map(
+            id =>
+              points.find(
+                p =>
+                  p.id === id
+              )
+          )
+          .filter(Boolean);
 
 
       if (
-        route.initial
+        routePoints.length < 2
       ) {
 
-        coordinates.push(
-          [
-            route.initial.lat,
-            route.initial.lng
-          ]
-        );
+        return 0;
 
       }
 
 
-      route.pointIds.forEach(
-        id => {
-
-          const point =
-            markersData.find(
-              p =>
-                p.id === id
-            );
-
-
-          if (point) {
-
-            coordinates.push(
-              [
-                point.lat,
-                point.lng
-              ]
-            );
-
-          }
-
-        }
-      );
-
-
-      if (
-        route.returnInitial &&
-        route.initial &&
-        coordinates.length > 1
-      ) {
-
-        coordinates.push(
-          [
-            route.initial.lat,
-            route.initial.lng
-          ]
-        );
-
-      }
-
-
-      let total = 0;
+      let distance = 0;
 
 
       for (
         let i = 1;
-        i < coordinates.length;
+        i < routePoints.length;
         i++
       ) {
 
-        total +=
-          haversine(
-            coordinates[i - 1][0],
-            coordinates[i - 1][1],
-            coordinates[i][0],
-            coordinates[i][1]
+        distance +=
+          haversineDistance(
+            routePoints[i - 1].lat,
+            routePoints[i - 1].lng,
+            routePoints[i].lat,
+            routePoints[i].lng
           );
 
       }
 
 
-      return total;
+      if (
+        route.returnInitial
+      ) {
+
+        if (route.initial) {
+
+          distance +=
+            haversineDistance(
+              routePoints[
+                routePoints.length - 1
+              ].lat,
+              routePoints[
+                routePoints.length - 1
+              ].lng,
+              route.initial.lat,
+              route.initial.lng
+            );
+
+          distance +=
+            haversineDistance(
+              route.initial.lat,
+              route.initial.lng,
+              routePoints[0].lat,
+              routePoints[0].lng
+            );
+
+        } else {
+
+          distance +=
+            haversineDistance(
+              routePoints[
+                routePoints.length - 1
+              ].lat,
+              routePoints[
+                routePoints.length - 1
+              ].lng,
+              routePoints[0].lat,
+              routePoints[0].lng
+            );
+
+        }
+
+      }
+
+
+      return distance;
 
     }
 
 
-    function haversine(
+    function openRouteInGoogleMaps(
+      id
+    ) {
+
+      const route =
+        routes.find(
+          r =>
+            r.id === id
+        );
+
+
+      if (!route) {
+        return;
+      }
+
+
+      const routePoints =
+        route.pointIds
+          .map(
+            pointId =>
+              points.find(
+                p =>
+                  p.id === pointId
+              )
+          )
+          .filter(Boolean);
+
+
+      if (
+        routePoints.length < 2
+      ) {
+
+        showToast(
+          "La ruta necesita al menos 2 puntos."
+        );
+
+        return;
+
+      }
+
+
+      const origin =
+        routePoints[0];
+
+
+      const destination =
+        routePoints[
+          routePoints.length - 1
+        ];
+
+
+      const waypoints =
+        routePoints
+          .slice(
+            1,
+            -1
+          )
+          .map(
+            p =>
+              `${p.lat},${p.lng}`
+          )
+          .join("|");
+
+
+      let url =
+        "https://www.google.com/maps/dir/?api=1" +
+        "&origin=" +
+        encodeURIComponent(
+          `${origin.lat},${origin.lng}`
+        ) +
+        "&destination=" +
+        encodeURIComponent(
+          `${destination.lat},${destination.lng}`
+        ) +
+        "&travelmode=driving";
+
+
+      if (waypoints) {
+
+        url +=
+          "&waypoints=" +
+          encodeURIComponent(
+            waypoints
+          );
+
+      }
+
+
+      window.open(
+        url,
+        "_blank"
+      );
+
+    }
+
+
+    /* =========================================================
+       MÓDULO 24 - MAPA / VER TODOS
+       ========================================================= */
+
+    function fitAllPoints() {
+
+      if (
+        !map ||
+        !points.length
+      ) {
+        return;
+      }
+
+
+      const bounds =
+        L.latLngBounds(
+          points.map(
+            p =>
+              [
+                p.lat,
+                p.lng
+              ]
+          )
+        );
+
+
+      map.fitBounds(
+        bounds,
+        {
+          padding: [
+            50,
+            50
+          ],
+          maxZoom: 17
+        }
+      );
+
+    }
+
+
+    /* =========================================================
+       MÓDULO 25 - KML
+       ========================================================= */
+
+    function downloadKML() {
+
+      if (!points.length) {
+
+        showToast(
+          "No hay puntos para exportar."
+        );
+
+        return;
+
+      }
+
+
+      let kml =
+        `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+<name>Visualizador KML &amp; Excel</name>
+`;
+
+
+      points.forEach(
+        function(point) {
+
+          const color =
+            hexToKMLColor(
+              point.color
+            );
+
+
+          kml += `
+
+<Style id="style_${point.id}">
+  <IconStyle>
+    <color>${color}</color>
+    <scale>1.1</scale>
+  </IconStyle>
+</Style>
+
+<Placemark>
+
+  <name>
+    ${escapeXml(point.name)}
+  </name>
+
+  <styleUrl>
+    #style_${point.id}
+  </styleUrl>
+
+  <description>
+    ${escapeXml(
+      [
+        point.desc1,
+        point.desc2,
+        point.desc3
+      ]
+      .filter(
+        x =>
+          String(
+            x || ""
+          ).trim()
+      )
+      .join("\n")
+    )}
+  </description>
+
+  <Point>
+    <coordinates>
+      ${point.lng},${point.lat},0
+    </coordinates>
+  </Point>
+
+</Placemark>
+
+`;
+
+        }
+      );
+
+
+      routes.forEach(
+        function(route) {
+
+          const routePoints =
+            route.pointIds
+              .map(
+                id =>
+                  points.find(
+                    p =>
+                      p.id === id
+                  )
+              )
+              .filter(Boolean);
+
+
+          if (
+            routePoints.length < 2
+          ) {
+            return;
+          }
+
+
+          let coordinates =
+            routePoints
+              .map(
+                p =>
+                  `${p.lng},${p.lat},0`
+              );
+
+
+          if (
+            route.returnInitial
+          ) {
+
+            if (route.initial) {
+
+              coordinates.unshift(
+                `${route.initial.lng},${route.initial.lat},0`
+              );
+
+              coordinates.push(
+                `${route.initial.lng},${route.initial.lat},0`
+              );
+
+            } else {
+
+              coordinates.push(
+                coordinates[0]
+              );
+
+            }
+
+          }
+
+
+          kml += `
+
+<Placemark>
+
+  <name>
+    ${escapeXml(route.name)}
+  </name>
+
+  <LineString>
+
+    <tessellate>1</tessellate>
+
+    <coordinates>
+      ${coordinates.join(" ")}
+    </coordinates>
+
+  </LineString>
+
+</Placemark>
+
+`;
+
+        }
+      );
+
+
+      kml += `
+</Document>
+</kml>`;
+
+
+      const blob =
+        new Blob(
+          [kml],
+          {
+            type:
+              "application/vnd.google-earth.kml+xml"
+          }
+        );
+
+
+      const url =
+        URL.createObjectURL(
+          blob
+        );
+
+
+      const link =
+        document.createElement(
+          "a"
+        );
+
+
+      link.href = url;
+
+      link.download =
+        "visualizador.kml";
+
+
+      document.body.appendChild(
+        link
+      );
+
+
+      link.click();
+
+
+      link.remove();
+
+
+      URL.revokeObjectURL(
+        url
+      );
+
+
+      showToast(
+        "KML descargado."
+      );
+
+    }
+
+
+    /* =========================================================
+       MÓDULO 26 - FUNCIONES AUXILIARES
+       ========================================================= */
+
+    function normalizeColor(
+      value
+    ) {
+
+      if (
+        value === null ||
+        value === undefined
+      ) {
+
+        return "#2563eb";
+
+      }
+
+
+      let text =
+        String(value)
+          .trim();
+
+
+      if (!text) {
+
+        return "#2563eb";
+
+      }
+
+
+      if (
+        /^#[0-9a-fA-F]{6}$/.test(
+          text
+        )
+      ) {
+
+        return text;
+
+      }
+
+
+      if (
+        /^[0-9a-fA-F]{6}$/.test(
+          text
+        )
+      ) {
+
+        return "#" + text;
+
+      }
+
+
+      return "#2563eb";
+
+    }
+
+
+    function automaticColor(
+      index
+    ) {
+
+      const colors = [
+
+        "#2563eb",
+        "#16a34a",
+        "#dc2626",
+        "#9333ea",
+        "#ea580c",
+        "#0891b2",
+        "#ca8a04",
+        "#db2777"
+
+      ];
+
+
+      return colors[
+        index %
+        colors.length
+      ];
+
+    }
+
+
+    function extractKMLColor(
+      placemark
+    ) {
+
+      let node =
+        placemark.querySelector(
+          "Style IconStyle color"
+        );
+
+
+      if (!node) {
+
+        node =
+          placemark.querySelector(
+            "Style > color"
+          );
+
+      }
+
+
+      if (!node) {
+        return null;
+      }
+
+
+      const value =
+        node.textContent
+          .trim();
+
+
+      if (
+        !/^[0-9a-fA-F]{8}$/.test(
+          value
+        )
+      ) {
+
+        return null;
+
+      }
+
+
+      return (
+        "#" +
+        value.substring(6,8) +
+        value.substring(4,6) +
+        value.substring(2,4)
+      );
+
+    }
+
+
+    function getNodeText(
+      parent,
+      selector
+    ) {
+
+      const node =
+        parent.querySelector(
+          selector
+        );
+
+
+      return node
+        ? node.textContent.trim()
+        : "";
+
+    }
+
+
+    function extractDescriptionParts(
+      text
+    ) {
+
+      if (!text) {
+
+        return [
+          "",
+          "",
+          ""
+        ];
+
+      }
+
+
+      const clean =
+        text
+          .replace(
+            /<br\s*\/?>/gi,
+            "\n"
+          )
+          .replace(
+            /<\/p>/gi,
+            "\n"
+          )
+          .replace(
+            /<[^>]*>/g,
+            ""
+          );
+
+
+      return clean
+        .split(/\r?\n/)
+        .map(
+          line =>
+            line.trim()
+        )
+        .filter(
+          line =>
+            line !== ""
+        )
+        .slice(
+          0,
+          3
+        );
+
+    }
+
+
+    function haversineDistance(
       lat1,
       lon1,
       lat2,
@@ -4816,29 +5506,27 @@
         Math.sin(
           dLat / 2
         ) ** 2 +
-
         Math.cos(
           toRadians(lat1)
         ) *
-
         Math.cos(
           toRadians(lat2)
         ) *
-
         Math.sin(
           dLon / 2
         ) ** 2;
 
 
-      const c =
+      return (
         2 *
+        R *
         Math.atan2(
           Math.sqrt(a),
-          Math.sqrt(1 - a)
-        );
-
-
-      return R * c;
+          Math.sqrt(
+            1 - a
+          )
+        )
+      );
 
     }
 
@@ -4856,857 +5544,61 @@
     }
 
 
-    /* =========================================================
-       RENDER RUTAS
-       ========================================================= */
-
-    function renderRoutes() {
-
-      const container =
-        document.getElementById(
-          "routeList"
-        );
-
-
-      if (!container) {
-        return;
-      }
-
-
-      container.innerHTML = "";
-
-
-      routes.forEach(
-        route => {
-
-          const card =
-            document.createElement(
-              "div"
-            );
-
-
-          card.className =
-            "route-card" +
-            (
-              route.id ===
-              activeRouteId
-                ? " active"
-                : ""
-            );
-
-
-          const distance =
-            route.distance || 0;
-
-
-          card.innerHTML =
-
-            '<div class="route-card-header">' +
-
-              '<div class="route-name">' +
-                escapeHtml(route.name) +
-              '</div>' +
-
-              '<button ' +
-              'class="btn btn-secondary" ' +
-              'onclick="selectRoute(\'' +
-              escapeJs(route.id) +
-              '\')">' +
-
-                '<i class="fa-solid fa-eye"></i>' +
-
-              '</button>' +
-
-            '</div>' +
-
-            '<div class="route-info">' +
-
-              route.pointIds.length +
-              ' puntos · ' +
-              distance.toFixed(2) +
-              ' km' +
-
-            '</div>' +
-
-            '<div class="route-point-list">' +
-
-              route.pointIds
-                .map(
-                  (id, index) => {
-
-                    const point =
-                      markersData.find(
-                        p =>
-                          p.id ===
-                          id
-                      );
-
-
-                    if (!point) {
-                      return "";
-                    }
-
-
-                    return
-
-                      '<div class="route-point">' +
-
-                        '<div class="route-point-number">' +
-                          (index + 1) +
-                        '</div>' +
-
-                        '<div style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' +
-
-                          escapeHtml(
-                            point.name
-                          ) +
-
-                        '</div>' +
-
-                      '</div>';
-
-                  }
-                )
-                .join("") +
-
-            '</div>';
-
-
-          container.appendChild(
-            card
-          );
-
-        }
-      );
-
-
-      if (
-        routes.length === 0
-      ) {
-
-        container.innerHTML =
-          '<div style="' +
-          'text-align:center;' +
-          'padding:20px;' +
-          'color:#94a3b8;' +
-          'font-size:10px;' +
-          '">' +
-
-          'No hay rutas creadas.' +
-
-          '</div>';
-
-      }
-
-    }
-
-
-    function selectRoute(
-      routeId
+    function formatDistance(
+      km
     ) {
 
-      activeRouteId =
-        routeId;
-
-
-      const route =
-        routes.find(
-          r =>
-            r.id ===
-            routeId
-        );
-
-
-      if (!route) {
-        return;
-      }
-
-
-      routes.forEach(
-        r => {
-
-          if (
-            r.id !==
-            routeId &&
-            r.line
-          ) {
-
-            map.removeLayer(
-              r.line
-            );
-
-            r.line = null;
-
-          }
-
-        }
-      );
-
-
-      drawRoute(
-        route
-      );
-
-
-      renderRoutes();
-
-      renderMarkers();
-
-
       if (
-        route.line
+        km < 1
       ) {
 
-        map.fitBounds(
-          route.line.getBounds(),
-          {
-            padding: [30, 30]
-          }
-        );
-
-      }
-
-    }
-
-
-    function clearRoute(
-      routeId
-    ) {
-
-      const index =
-        routes.findIndex(
-          r =>
-            r.id ===
-            routeId
-        );
-
-
-      if (index < 0) {
-        return;
-      }
-
-
-      const route =
-        routes[index];
-
-
-      if (
-        route.line
-      ) {
-
-        map.removeLayer(
-          route.line
+        return (
+          Math.round(
+            km * 1000
+          ) +
+          " m"
         );
 
       }
 
 
-      routes.splice(
-        index,
-        1
-      );
-
-
-      if (
-        activeRouteId ===
-        routeId
-      ) {
-
-        activeRouteId =
-          routes.length
-            ? routes[
-                routes.length - 1
-              ].id
-            : null;
-
-      }
-
-
-      renderRoutes();
-
-      renderMarkers();
-
-
-      showToast(
-        "Ruta eliminada."
+      return (
+        km.toFixed(2) +
+        " km"
       );
 
     }
 
 
-    /* =========================================================
-       MÓDULO 27 - VER TODOS LOS PUNTOS
-       ========================================================= */
-
-    function fitAllPoints() {
-
-      if (
-        markersData.length === 0
-      ) {
-
-        showToast(
-          "No hay puntos para mostrar."
-        );
-
-        return;
-
-      }
-
-
-      const visiblePoints =
-        markersData.filter(
-          point =>
-            point.marker &&
-            map.hasLayer(
-              point.marker
-            )
-        );
-
-
-      const points =
-        visiblePoints.length
-          ? visiblePoints
-          : markersData;
-
-
-      const bounds =
-        L.latLngBounds(
-          points.map(
-            point => [
-              point.lat,
-              point.lng
-            ]
-          )
-        );
-
-
-      if (
-        bounds.isValid()
-      ) {
-
-        map.fitBounds(
-          bounds,
-          {
-            padding: [50, 50]
-          }
-        );
-
-      }
-
-    }
-
-
-    /* =========================================================
-       MÓDULO 28 - EXPORTAR KML
-       ========================================================= */
-
-    function downloadKML() {
-
-      if (
-        markersData.length === 0
-      ) {
-
-        showToast(
-          "No hay puntos para exportar."
-        );
-
-        return;
-
-      }
-
-
-      let kml =
-
-        '<?xml version="1.0" encoding="UTF-8"?>' +
-        '<kml xmlns="http://www.opengis.net/kml/2.2">' +
-        '<Document>';
-
-
-      markersData.forEach(
-        point => {
-
-          const color =
-            hexToKmlColor(
-              point.color
-            );
-
-
-          kml +=
-
-            '<Style id="style_' +
-            escapeXml(point.id) +
-            '">' +
-
-              '<IconStyle>' +
-
-                '<color>' +
-                  color +
-                '</color>' +
-
-                '<scale>1.1</scale>' +
-
-              '</IconStyle>' +
-
-            '</Style>';
-
-
-        }
-      );
-
-
-      markersData.forEach(
-        point => {
-
-          const description =
-            [
-              point.desc1,
-              point.desc2,
-              point.desc3
-            ]
-            .filter(Boolean)
-            .map(
-              escapeXml
-            )
-            .join("\n");
-
-
-          kml +=
-
-            '<Placemark>' +
-
-              '<name>' +
-                escapeXml(
-                  point.name
-                ) +
-              '</name>' +
-
-              '<styleUrl>#style_' +
-                escapeXml(point.id) +
-              '</styleUrl>' +
-
-              (
-                description
-                  ? '<description>' +
-                    description +
-                    '</description>'
-                  : ''
-              ) +
-
-              '<Point>' +
-
-                '<coordinates>' +
-                  point.lng +
-                  ',' +
-                  point.lat +
-                  ',0' +
-                '</coordinates>' +
-
-              '</Point>' +
-
-            '</Placemark>';
-
-        }
-      );
-
-
-      /*
-       * Exportar rutas
-       */
-
-      routes.forEach(
-        route => {
-
-          const coordinates = [];
-
-
-          if (
-            route.initial
-          ) {
-
-            coordinates.push(
-              route.initial.lng +
-              "," +
-              route.initial.lat +
-              ",0"
-            );
-
-          }
-
-
-          route.pointIds.forEach(
-            id => {
-
-              const point =
-                markersData.find(
-                  p =>
-                    p.id ===
-                    id
-                );
-
-
-              if (point) {
-
-                coordinates.push(
-                  point.lng +
-                  "," +
-                  point.lat +
-                  ",0"
-                );
-
-              }
-
-            }
-          );
-
-
-          if (
-            route.returnInitial &&
-            route.initial
-          ) {
-
-            coordinates.push(
-              route.initial.lng +
-              "," +
-              route.initial.lat +
-              ",0"
-            );
-
-          }
-
-
-          if (
-            coordinates.length >= 2
-          ) {
-
-            kml +=
-
-              '<Placemark>' +
-
-                '<name>' +
-                  escapeXml(
-                    route.name
-                  ) +
-                '</name>' +
-
-                '<Style>' +
-
-                  '<LineStyle>' +
-
-                    '<color>ff2563eb</color>' +
-
-                    '<width>4</width>' +
-
-                  '</LineStyle>' +
-
-                '</Style>' +
-
-                '<LineString>' +
-
-                  '<tessellate>1</tessellate>' +
-
-                  '<coordinates>' +
-                    coordinates.join(" ") +
-                  '</coordinates>' +
-
-                '</LineString>' +
-
-              '</Placemark>';
-
-          }
-
-        }
-      );
-
-
-      kml +=
-        '</Document>' +
-        '</kml>';
-
-
-      const blob =
-        new Blob(
-          [kml],
-          {
-            type:
-              "application/vnd.google-earth.kml+xml"
-          }
-        );
-
-
-      const url =
-        URL.createObjectURL(
-          blob
-        );
-
-
-      const a =
-        document.createElement(
-          "a"
-        );
-
-
-      a.href =
-        url;
-
-      a.download =
-        "visualizador_kml_exportado.kml";
-
-
-      document.body.appendChild(
-        a
-      );
-
-
-      a.click();
-
-
-      a.remove();
-
-
-      URL.revokeObjectURL(
-        url
-      );
-
-
-      showToast(
-        "KML descargado correctamente."
-      );
-
-    }
-
-
-    /* =========================================================
-       MÓDULO 29 - UTILIDADES
-       ========================================================= */
-
-    function parseCoordinate(
+    function formatCoordinate(
       value
     ) {
 
-      if (
-        value === null ||
-        value === undefined ||
-        value === ""
-      ) {
+      return Number(
+        value
+      ).toFixed(6);
 
-        return null;
-
-      }
+    }
 
 
-      let text =
-        String(value)
-          .trim()
-          .replace(",", ".");
+    function hexToKMLColor(
+      hex
+    ) {
 
-
-      /*
-       * Permitir coordenadas con espacios.
-       */
-
-      text =
-        text.replace(
-          /\s+/g,
+      const clean =
+        normalizeColor(
+          hex
+        ).replace(
+          "#",
           ""
         );
 
 
-      const number =
-        parseFloat(
-          text
-        );
-
-
-      if (
-        !Number.isFinite(
-          number
-        )
-      ) {
-
-        return null;
-
-      }
-
-
-      return number;
-
-    }
-
-
-    function parseInitialCoordinate(
-      value
-    ) {
-
-      if (!value) {
-        return null;
-      }
-
-
-      const parts =
-        value
-          .split(",");
-
-
-      if (
-        parts.length < 2
-      ) {
-
-        return null;
-
-      }
-
-
-      const lat =
-        parseCoordinate(
-          parts[0]
-        );
-
-
-      const lng =
-        parseCoordinate(
-          parts[1]
-        );
-
-
-      if (
-        lat === null ||
-        lng === null
-      ) {
-
-        return null;
-
-      }
-
-
-      return {
-        lat: lat,
-        lng: lng
-      };
-
-    }
-
-
-    function normalizeColor(
-      color
-    ) {
-
-      if (
-        !color
-      ) {
-
-        return null;
-
-      }
-
-
-      let value =
-        String(color)
-          .trim();
-
-
-      if (
-        !value.startsWith("#")
-      ) {
-
-        value =
-          "#" +
-          value;
-
-      }
-
-
-      if (
-        /^#[0-9a-fA-F]{6}$/.test(
-          value
-        )
-      ) {
-
-        return value.toLowerCase();
-
-      }
-
-
-      return null;
-
-    }
-
-
-    function generateColor(
-      index
-    ) {
-
-      const colors = [
-
-        "#2563eb",
-        "#dc2626",
-        "#16a34a",
-        "#9333ea",
-        "#ea580c",
-        "#0891b2",
-        "#ca8a04",
-        "#db2777",
-        "#4f46e5",
-        "#059669"
-
-      ];
-
-
-      return colors[
-        index %
-        colors.length
-      ];
-
-    }
-
-
-    function hexToKmlColor(
-      color
-    ) {
-
-      color =
-        normalizeColor(
-          color
-        ) ||
-        "#2563eb";
-
-
-      const hex =
-        color.substring(
-          1
-        );
-
-
-      const rr =
-        hex.substring(
-          0,
-          2
-        );
-
-
-      const gg =
-        hex.substring(
-          2,
-          4
-        );
-
-
-      const bb =
-        hex.substring(
-          4,
-          6
-        );
-
-
-      /*
-       * KML:
-       * AABBGGRR
-       */
-
       return (
         "ff" +
-        bb +
-        gg +
-        rr
+        clean.substring(4,6) +
+        clean.substring(2,4) +
+        clean.substring(0,2)
       );
 
     }
@@ -5774,7 +5666,7 @@
     }
 
 
-    function escapeJs(
+    function formatJsString(
       value
     ) {
 
@@ -5790,28 +5682,40 @@
         "\\'"
       )
       .replace(
-        /"/g,
-        '\\"'
-      )
-      .replace(
-        /\r/g,
-        "\\r"
-      )
-      .replace(
-        /\n/g,
+        /\r?\n/g,
         "\\n"
       );
 
     }
 
 
-    /* =========================================================
-       MÓDULO 30 - ESTADO Y NOTIFICACIONES
-       ========================================================= */
+    function updateCounter() {
 
-    function showFileStatus(
-      fileName,
-      detail
+      const counter =
+        document.getElementById(
+          "pointCounter"
+        );
+
+
+      if (!counter) {
+        return;
+      }
+
+
+      counter.textContent =
+        points.length +
+        (
+          points.length === 1
+            ? " punto"
+            : " puntos"
+        );
+
+    }
+
+
+    function showStatus(
+      message,
+      type
     ) {
 
       const box =
@@ -5820,56 +5724,45 @@
         );
 
 
-      const name =
-        document.getElementById(
-          "fileStatusName"
-        );
-
-
-      const detailElement =
-        document.getElementById(
-          "fileStatusDetail"
-        );
-
-
       if (!box) {
         return;
       }
 
 
-      box.style.display =
-        "flex";
+      box.className =
+        "statusBox";
 
 
-      name.textContent =
-        fileName;
+      if (
+        type === "success"
+      ) {
 
-
-      detailElement.textContent =
-        detail;
-
-    }
-
-
-    function updateMarkerCount() {
-
-      const element =
-        document.getElementById(
-          "markerCount"
+        box.classList.add(
+          "success"
         );
-
-
-      if (element) {
-
-        element.textContent =
-          markersData.length;
 
       }
 
+
+      if (
+        type === "error"
+      ) {
+
+        box.classList.add(
+          "error"
+        );
+
+      }
+
+
+      box.textContent =
+        message;
+
     }
 
 
-    let toastTimer = null;
+    let toastTimer =
+      null;
 
 
     function showToast(
@@ -5910,100 +5803,125 @@
             );
 
           },
-          2600
+          2800
         );
 
     }
 
 
     /* =========================================================
-       MÓDULO 31 - RENDER GENERAL
+       MÓDULO 27 - EVENTOS GENERALES
        ========================================================= */
 
-    function renderAll() {
+    function initializeEvents() {
 
-      renderMarkers();
-
-      renderPointsList();
-
-      renderTable();
-
-      buildFilters();
-
-      renderRoutes();
-
-      updateMarkerCount();
+      const tableSearch =
+        document.getElementById(
+          "tableSearch"
+        );
 
 
-      setTimeout(
-        function() {
+      if (tableSearch) {
 
-          fitAllPoints();
+        tableSearch.addEventListener(
+          "input",
+          renderTable
+        );
 
-        },
-        150
-      );
+      }
+
+
+      const generalFilter =
+        document.getElementById(
+          "generalFilter"
+        );
+
+
+      if (generalFilter) {
+
+        generalFilter.addEventListener(
+          "input",
+          applyFilters
+        );
+
+      }
+
+
+      const modal =
+        document.getElementById(
+          "pointModal"
+        );
+
+
+      if (modal) {
+
+        modal.addEventListener(
+          "click",
+          function(event) {
+
+            if (
+              event.target ===
+              modal
+            ) {
+
+              closePointModal();
+
+            }
+
+          }
+        );
+
+      }
 
     }
 
 
     /* =========================================================
-       MÓDULO 32 - CERRAR MODAL AL HACER CLIC AFUERA
+       MÓDULO 28 - ERRORES GLOBALES
        ========================================================= */
 
-    document
-      .getElementById(
-        "pointModal"
-      )
-      .addEventListener(
-        "click",
-        function(event) {
-
-          if (
-            event.target ===
-            this
-          ) {
-
-            closePointEditor();
-
-          }
-
-        }
-      );
-
-
-    /* =========================================================
-       MÓDULO 33 - TECLA ESC
-       ========================================================= */
-
-    document.addEventListener(
-      "keydown",
+    window.addEventListener(
+      "error",
       function(event) {
 
-        if (
-          event.key ===
-          "Escape"
-        ) {
+        console.error(
+          "Error global:",
+          event.error ||
+          event.message
+        );
 
-          closePointEditor();
+      }
+    );
 
-          closeFilterDropdowns();
 
-        }
+    window.addEventListener(
+      "unhandledrejection",
+      function(event) {
+
+        console.error(
+          "Promise error:",
+          event.reason
+        );
 
       }
     );
 
 
     /* =========================================================
-       MÓDULO 34 - INICIALIZACIÓN
+       MÓDULO 29 - INICIO
        ========================================================= */
 
-    document.addEventListener(
-      "DOMContentLoaded",
-      function() {
+    (function startApplication() {
+
+      try {
 
         initializeMap();
+
+        initializeTabs();
+
+        initializeFileInput();
+
+        initializeEvents();
 
         renderPointsList();
 
@@ -6013,12 +5931,43 @@
 
         renderRoutes();
 
+        updateCounter();
+
+
+        setTimeout(
+          function() {
+
+            if (map) {
+
+              map.invalidateSize();
+
+            }
+
+          },
+          300
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "Error iniciando aplicación:",
+          error
+        );
+
+
+        showStatus(
+          "Error al iniciar la aplicación: " +
+          error.message,
+          "error"
+        );
+
       }
-    );
+
+    })();
 
 
   </script>
-
 
 </body>
 
