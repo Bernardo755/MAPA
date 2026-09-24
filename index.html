@@ -1,1459 +1,5596 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizador KML & Excel con Edición y Google Drive</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Leaflet CSS & JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-    <!-- SheetJS (XLSX Parser & Writer) -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    
-    <style>
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-        #map { height: 100%; width: 100%; z-index: 1; }
-        
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+<meta charset="UTF-8">
 
-        .custom-kml-marker {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            transition: transform 0.2s ease, opacity 0.2s ease;
-        }
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
 
-        .marker-pin {
-            width: 28px;
-            height: 28px;
-            border-radius: 50% 50% 50% 0;
-            position: absolute;
-            transform: rotate(-45deg);
-            left: 50%;
-            top: 50%;
-            margin: -20px 0 0 -14px;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.35);
-            border: 2px solid #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+<title>Visualizador KML & Excel</title>
 
-        .marker-pin::after {
-            content: '';
-            width: 10px;
-            height: 10px;
-            margin: 8px 0 0 8px;
-            background: #ffffff;
-            position: absolute;
-            border-radius: 50%;
-        }
 
-        .route-badge {
-            position: absolute;
-            top: -12px;
-            right: -12px;
-            background-color: #2563eb;
-            color: #ffffff;
-            font-weight: 800;
-            font-size: 11px;
-            min-width: 22px;
-            height: 22px;
-            border-radius: 9999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #ffffff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-            z-index: 10;
-            padding: 0 4px;
-            animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+<!-- =========================================================
+     MÓDULO 01 - LIBRERÍAS
+     ========================================================= -->
 
-        @keyframes popIn {
-            0% { transform: scale(0); }
-            100% { transform: scale(1); }
-        }
+<script src="https://cdn.tailwindcss.com"></script>
 
-        .leaflet-popup-content-wrapper { border-radius: 12px; padding: 4px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); }
-        .leaflet-popup-content { margin: 12px; font-size: 13px; }
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
 
-        .editable-cell-input {
-            width: 100%;
-            background: transparent;
-            border: 1px solid transparent;
-            border-radius: 4px;
-            padding: 2px 6px;
-            transition: all 0.2s;
-        }
-        .editable-cell-input:hover { border-color: #cbd5e1; background-color: #f8fafc; }
-        .editable-cell-input:focus { border-color: #3b82f6; background-color: #ffffff; outline: none; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
-    </style>
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js">
+</script>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
+</script>
+
+
+<!-- =========================================================
+     MÓDULO 02 - ESTILOS
+     ========================================================= -->
+
+<style>
+
+html,
+body {
+
+  margin: 0;
+  padding: 0;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+
+#map {
+
+  width: 100%;
+  height: 100%;
+
+  z-index: 1;
+}
+
+
+::-webkit-scrollbar {
+
+  width: 6px;
+  height: 6px;
+}
+
+
+::-webkit-scrollbar-thumb {
+
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+
+.custom-marker {
+
+  position: relative;
+
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+}
+
+
+.marker-pin {
+
+  width: 28px;
+  height: 28px;
+
+  position: absolute;
+
+  left: 3px;
+  top: 2px;
+
+  border-radius:
+    50% 50% 50% 0;
+
+  transform:
+    rotate(-45deg);
+
+  border:
+    2px solid white;
+
+  box-shadow:
+    0 3px 8px rgba(0,0,0,.35);
+}
+
+
+.marker-pin::after {
+
+  content: "";
+
+  position: absolute;
+
+  width: 9px;
+  height: 9px;
+
+  background: white;
+
+  border-radius: 50%;
+
+  top: 7px;
+  left: 7px;
+}
+
+
+.route-badge {
+
+  position: absolute;
+
+  top: -9px;
+  right: -9px;
+
+  min-width: 22px;
+  height: 22px;
+
+  padding: 0 5px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #2563eb;
+
+  color: white;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  border-radius: 999px;
+
+  border: 2px solid white;
+
+  box-shadow:
+    0 2px 5px rgba(0,0,0,.4);
+
+  z-index: 20;
+}
+
+
+.selected-route-marker .marker-pin {
+
+  box-shadow:
+    0 0 0 4px rgba(37,99,235,.35),
+    0 3px 8px rgba(0,0,0,.35);
+}
+
+
+.leaflet-popup-content-wrapper {
+
+  border-radius: 12px;
+}
+
+
+.edit-input {
+
+  width: 100%;
+
+  border:
+    1px solid #cbd5e1;
+
+  border-radius: 6px;
+
+  padding: 5px 7px;
+
+  font-size: 12px;
+}
+
+
+.edit-input:focus {
+
+  outline: none;
+
+  border-color: #2563eb;
+
+  box-shadow:
+    0 0 0 2px rgba(37,99,235,.15);
+}
+
+
+.toast {
+
+  position: absolute;
+
+  top: 16px;
+  left: 50%;
+
+  transform:
+    translateX(-50%)
+    translateY(-20px);
+
+  z-index: 5000;
+
+  opacity: 0;
+
+  pointer-events: none;
+
+  transition:
+    .25s ease;
+
+  background: #0f172a;
+
+  color: white;
+
+  padding: 10px 18px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.25);
+}
+
+
+.toast.show {
+
+  opacity: 1;
+
+  transform:
+    translateX(-50%)
+    translateY(0);
+}
+
+
+.route-line {
+
+  stroke-dasharray: 10 8;
+
+}
+
+
+</style>
+
 </head>
-<body class="flex flex-col md:flex-row h-screen bg-slate-100 text-slate-800">
 
-    <!-- Sidebar Layout -->
-    <aside class="w-full md:w-[460px] bg-white shadow-2xl flex flex-col z-20 h-2/5 md:h-full relative border-r border-slate-200">
-        <!-- App Header -->
-        <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
-                    <i class="fa-solid fa-map-location-dot"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-base leading-tight">Visualizador KML & Excel</h1>
-                    <p class="text-xs text-slate-400">Edición en Tabla, Desc 3 ↔ Color y Drive</p>
-                </div>
-            </div>
-            <span id="marker-count-badge" class="bg-slate-800 text-slate-300 text-xs px-2.5 py-1 rounded-full border border-slate-700 hidden">
-                0 Puntos
-            </span>
-        </div>
 
-        <!-- Drive Folder Sync Header Bar -->
-        <div class="bg-slate-800 border-b border-slate-700 px-3 py-2 text-xs text-slate-300 flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2 truncate flex-1">
-                <i class="fa-brands fa-google-drive text-emerald-400 text-sm"></i>
-                <span id="drive-sync-status" class="text-[11px] font-medium text-slate-200 truncate">Google Drive: Listo para carga directa</span>
-            </div>
-            <div class="flex items-center gap-1.5 flex-shrink-0">
-                <button onclick="refreshDriveFileList()" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md text-white font-medium transition-colors flex items-center gap-1.5 shadow-sm" title="Actualizar y Sincronizar Archivos">
-                    <i class="fa-solid fa-rotate-right" id="refresh-spinner-icon"></i> Actualizar
-                </button>
-                <button onclick="openDriveFolder()" class="text-xs bg-emerald-600 hover:bg-emerald-500 px-2 py-1 rounded-md text-white font-medium transition-colors flex items-center gap-1 shadow-sm" title="Abrir Carpeta en Navegador">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                </button>
-            </div>
-        </div>
+<body
+  class="flex flex-col md:flex-row w-full h-screen bg-slate-100"
+>
 
-        <!-- Navigation Tabs -->
-        <div class="flex border-b border-slate-200 bg-slate-50 text-xs font-semibold text-slate-600 overflow-x-auto">
-            <button id="tab-btn-data" onclick="switchTab('data')" class="flex-1 py-3 px-2 text-center border-b-2 border-blue-600 text-blue-600 font-bold transition-all flex items-center justify-center gap-1.5 whitespace-nowrap">
-                <i class="fa-solid fa-folder-open"></i> Archivos
-            </button>
-            <button id="tab-btn-table" onclick="switchTab('table')" class="flex-1 py-3 px-2 text-center border-b-2 border-transparent hover:text-slate-900 transition-all flex items-center justify-center gap-1.5 whitespace-nowrap">
-                <i class="fa-solid fa-table"></i> Tabla (Editable)
-            </button>
-            <button id="tab-btn-filter" onclick="switchTab('filter')" class="flex-1 py-3 px-2 text-center border-b-2 border-transparent hover:text-slate-900 transition-all flex items-center justify-center gap-1.5 whitespace-nowrap">
-                <i class="fa-solid fa-filter"></i> Filtros
-            </button>
-            <button id="tab-btn-route" onclick="switchTab('route')" class="flex-1 py-3 px-2 text-center border-b-2 border-transparent hover:text-slate-900 transition-all flex items-center justify-center gap-1.5 relative whitespace-nowrap">
-                <i class="fa-solid fa-route"></i> Rutas
-                <span id="routes-count-tag" class="hidden ml-1 bg-blue-600 text-white rounded-full px-1.5 py-0.2 text-[10px]">0</span>
-            </button>
-        </div>
 
-        <!-- Tab Content Container -->
-        <div class="flex-1 overflow-y-auto p-4 space-y-4">
+<!-- =========================================================
+     MÓDULO 03 - PANEL LATERAL
+     ========================================================= -->
 
-            <!-- TAB 1: FILE MANAGER & DRIVE SYNC -->
-            <div id="tab-content-data" class="space-y-4">
-                <div class="bg-blue-50/70 border border-blue-200 rounded-xl p-3 space-y-2">
-                    <div class="flex items-center justify-between">
-                        <label class="block text-xs font-bold text-slate-700">Archivos Cargados en Sesión / Drive</label>
-                        <button onclick="refreshDriveFileList()" class="text-[11px] text-blue-600 font-semibold hover:underline flex items-center gap-1">
-                            <i class="fa-solid fa-arrows-rotate"></i> Actualizar Lista
-                        </button>
-                    </div>
-                    <select id="file-workspace-select" onchange="switchWorkspaceFile(this.value)" class="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white font-medium">
-                        <option value="none">-- Ningún archivo cargado --</option>
-                    </select>
-                </div>
+<aside
+  class="
+    w-full
+    md:w-[470px]
+    h-[43%]
+    md:h-full
+    bg-white
+    border-r
+    border-slate-200
+    shadow-xl
+    z-20
+    flex
+    flex-col
+  "
+>
 
-                <div class="bg-slate-50 border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl p-5 text-center transition-all cursor-pointer group">
-                    <input type="file" id="kml-file-input" accept=".kml,.xml,.csv,.xlsx,.xls,application/vnd.google-earth.kml+xml,text/xml,*" class="hidden" onchange="handleFileUpload(event)">
-                    <label for="kml-file-input" class="cursor-pointer block">
-                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-cloud-arrow-up text-xl text-blue-600"></i>
-                        </div>
-                        <span class="block font-semibold text-sm text-slate-700 mb-1">Subir Archivo (Guarda directo en Drive)</span>
-                        <span class="block text-xs text-slate-400">Archivos Excel (.xlsx, .xls) o KML (.kml)</span>
-                    </label>
-                </div>
 
-                <div id="export-options-box" class="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-200 hidden">
-                    <h4 class="font-bold text-xs uppercase tracking-wider text-slate-600 mb-2">Guardar y Exportar Archivo Actual</h4>
-                    <button onclick="downloadUpdatedExcel()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-2 px-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 shadow-sm">
-                        <i class="fa-solid fa-file-excel"></i> Descargar Excel Actualizado (.xlsx)
-                    </button>
-                    <button onclick="exportKMLWithRoutes()" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs py-2 px-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 shadow-sm">
-                        <i class="fa-solid fa-earth-americas"></i> Descargar KML con Estilos y Rutas (.kml)
-                    </button>
-                </div>
+<!-- CABECERA -->
 
-                <div id="placemarks-summary-box" class="hidden space-y-3">
-                    <div class="flex items-center justify-between">
-                        <h3 class="font-bold text-xs uppercase tracking-wider text-slate-500">Puntos Encontrados</h3>
-                        <button onclick="zoomToAllMarkers()" class="text-xs text-blue-600 hover:underline flex items-center gap-1 font-medium">
-                            <i class="fa-solid fa-expand"></i> Ver Todos
-                        </button>
-                    </div>
-                    <div id="placemarks-list" class="space-y-1.5 max-h-52 overflow-y-auto pr-1"></div>
-                </div>
-            </div>
+<div
+  class="
+    bg-slate-900
+    text-white
+    p-4
+    flex
+    justify-between
+    items-center
+  "
+>
 
-            <!-- TAB 2: EDITABLE TABLE VIEW -->
-            <div id="tab-content-table" class="hidden space-y-3">
-                <div class="flex items-center justify-between">
-                    <h3 class="font-bold text-xs uppercase tracking-wider text-slate-500">Tabla de Datos Editables</h3>
-                    <span id="table-rows-count" class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">0 Registros</span>
-                </div>
-                
-                <p class="text-xs text-slate-500 leading-relaxed bg-amber-50 p-2.5 rounded-lg border border-amber-200">
-                    <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i>
-                    Puedes editar <strong>Desc 1, Desc 2, Desc 3 y Desc 4</strong> directamente. Al cambiar la <strong>Descripción 3</strong> por otra existente, el <strong>color cambiará automáticamente</strong>.
-                </p>
+<div class="flex items-center gap-3">
 
-                <div class="relative">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                    <input type="text" id="table-search-input" oninput="filterTableRows()" placeholder="Buscar en las filas de la tabla..." class="w-full pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50 focus:bg-white transition-colors">
-                </div>
+<div
+  class="
+    w-10
+    h-10
+    rounded-xl
+    bg-blue-600
+    flex
+    items-center
+    justify-center
+  "
+>
 
-                <div class="overflow-x-auto border border-slate-200 rounded-lg max-h-[380px] shadow-inner">
-                    <table class="w-full text-left text-xs border-collapse bg-white">
-                        <thead class="bg-slate-100 text-slate-700 sticky top-0 border-b border-slate-200 z-10 shadow-sm">
-                            <tr>
-                                <th class="p-2 border-r border-slate-200 font-bold">Color</th>
-                                <th class="p-2 border-r border-slate-200 font-bold">Nombre</th>
-                                <th class="p-2 border-r border-slate-200 font-bold">Coordenadas</th>
-                                <th class="p-2 border-r border-slate-200 font-bold min-w-[110px]">Descripción 1</th>
-                                <th class="p-2 border-r border-slate-200 font-bold min-w-[110px]">Descripción 2</th>
-                                <th class="p-2 border-r border-slate-200 font-bold min-w-[120px] bg-blue-50 text-blue-800">Descripción 3 (Color)</th>
-                                <th class="p-2 font-bold min-w-[110px]">Descripción 4</th>
-                            </tr>
-                        </thead>
-                        <tbody id="data-table-body" class="divide-y divide-slate-100 text-slate-600">
-                            <tr>
-                                <td colspan="7" class="p-4 text-center italic text-slate-400">Carga un archivo Excel para habilitar la edición de tabla.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+<i class="fa-solid fa-map-location-dot"></i>
 
-            <!-- TAB 3: FILTERS -->
-            <div id="tab-content-filter" class="hidden space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-xs uppercase tracking-wider text-slate-500">Filtrar Puntos (Multi-Selección)</h3>
-                    <button onclick="resetFilters()" class="text-xs text-slate-500 hover:text-red-600 transition-colors flex items-center gap-1 font-medium">
-                        <i class="fa-solid fa-rotate-left"></i> Restablecer
-                    </button>
-                </div>
+</div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Búsqueda General por Texto</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                        <input type="text" id="filter-search-input" oninput="applyFilters()" placeholder="Buscar en nombre o descripciones..." class="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                </div>
+<div>
 
-                <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50 space-y-2">
-                    <div class="flex items-center justify-between">
-                        <label class="block text-xs font-bold text-slate-700">Filtrar por Nombres o Descripciones</label>
-                        <div class="flex gap-2 text-[11px]">
-                            <button onclick="selectAllNames(true)" class="text-blue-600 font-semibold hover:underline">Todos</button>
-                            <span class="text-slate-300">|</span>
-                            <button onclick="selectAllNames(false)" class="text-slate-500 hover:underline">Ninguno</button>
-                        </div>
-                    </div>
-                    <div id="filter-names-list" class="max-h-36 overflow-y-auto space-y-1 pr-1 bg-white p-2 rounded border border-slate-200 text-xs">
-                        <p class="text-slate-400 italic text-center py-2">Carga un archivo para ver nombres.</p>
-                    </div>
-                </div>
+<h1
+  class="
+    font-bold
+    text-base
+  "
+>
+Visualizador KML & Excel
+</h1>
 
-                <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50 space-y-2">
-                    <div class="flex items-center justify-between">
-                        <label class="block text-xs font-bold text-slate-700">Filtrar por Descripción 3 (Categoría/Color)</label>
-                        <div class="flex gap-2 text-[11px]">
-                            <button onclick="selectAllDesc3(true)" class="text-blue-600 font-semibold hover:underline">Todos</button>
-                            <span class="text-slate-300">|</span>
-                            <button onclick="selectAllDesc3(false)" class="text-slate-500 hover:underline">Ninguno</button>
-                        </div>
-                    </div>
-                    <div id="filter-desc3-list" class="max-h-36 overflow-y-auto space-y-1 pr-1 bg-white p-2 rounded border border-slate-200 text-xs">
-                        <p class="text-slate-400 italic text-center py-2">Carga un archivo para ver Descripción 3.</p>
-                    </div>
-                </div>
+<p
+  class="
+    text-[11px]
+    text-slate-400
+  "
+>
+Mapa, edición, filtros y rutas
+</p>
 
-                <div id="filter-results-info" class="text-xs text-slate-600 bg-slate-100 p-2.5 rounded-lg border border-slate-200 flex justify-between items-center font-medium">
-                    <span>Carga un archivo Excel para comenzar a aplicar filtros.</span>
-                </div>
-            </div>
+</div>
 
-            <!-- TAB 4: ROUTE BUILDER -->
-            <div id="tab-content-route" class="hidden space-y-4">
-                <div class="flex items-center justify-between">
-                    <h3 class="font-bold text-xs uppercase tracking-wider text-slate-500">Gestor de Rutas (1 a N)</h3>
-                    <button onclick="createNewRoute()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition-colors flex items-center gap-1.5 shadow-sm">
-                        <i class="fa-solid fa-plus"></i> Nueva Ruta
-                    </button>
-                </div>
+</div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Ruta Seleccionada</label>
-                    <select id="active-route-select" onchange="selectActiveRoute(this.value)" class="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white font-medium">
-                        <option value="none">-- Sin Ruta Activa --</option>
-                    </select>
-                </div>
 
-                <div id="route-controls-box" class="hidden space-y-3 bg-blue-50/60 p-3.5 rounded-xl border border-blue-200">
-                    <div class="flex items-center justify-between bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm">
-                        <div class="flex items-center gap-2">
-                            <span id="route-edit-indicator" class="w-3 h-3 rounded-full bg-slate-300"></span>
-                            <span class="text-xs font-bold text-slate-700">Modo Selección (1 a N)</span>
-                        </div>
-                        <button id="toggle-edit-btn" onclick="toggleRouteEditMode()" class="px-2.5 py-1 text-xs rounded-md font-semibold bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors">
-                            Desactivado
-                        </button>
-                    </div>
+<span
+  id="marker-count"
+  class="
+    bg-slate-800
+    text-slate-300
+    px-3
+    py-1
+    rounded-full
+    text-xs
+  "
+>
+0 puntos
+</span>
 
-                    <div class="grid grid-cols-2 gap-2 text-center">
-                        <div class="bg-white p-2 rounded-lg border border-slate-200">
-                            <span class="block text-[10px] text-slate-400 font-bold uppercase">Puntos</span>
-                            <span id="route-stops-count" class="text-base font-extrabold text-blue-600">0</span>
-                        </div>
-                        <div class="bg-white p-2 rounded-lg border border-slate-200">
-                            <span class="block text-[10px] text-slate-400 font-bold uppercase">Distancia Total</span>
-                            <span id="route-distance-text" class="text-base font-extrabold text-slate-800">0 km</span>
-                        </div>
-                    </div>
+</div>
 
-                    <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-xs font-bold text-slate-700">Secuencia de la Ruta</span>
-                            <button onclick="clearCurrentRouteStops()" class="text-[11px] text-red-600 hover:underline">Limpiar Secuencia</button>
-                        </div>
-                        <div id="route-stops-list" class="space-y-1 max-h-40 overflow-y-auto pr-1 bg-white p-2 rounded-lg border border-slate-200">
-                            <p class="text-xs text-slate-400 text-center py-3 italic">No hay puntos seleccionados.</p>
-                        </div>
-                    </div>
 
-                    <div class="pt-2 border-t border-blue-200/80 space-y-2">
-                        <button onclick="deleteActiveRoute()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs py-1.5 rounded-lg font-semibold transition-colors flex items-center justify-center gap-1">
-                            <i class="fa-solid fa-trash-can"></i> Eliminar Ruta
-                        </button>
-                    </div>
-                </div>
-            </div>
+<!-- ESTADO DRIVE -->
 
-        </div>
-    </aside>
+<div
+  class="
+    bg-slate-800
+    text-slate-300
+    px-3
+    py-2
+    text-xs
+    flex
+    justify-between
+    items-center
+  "
+>
 
-    <!-- Map Container -->
-    <main class="flex-1 relative h-3/5 md:h-full bg-slate-200">
-        <div id="map"></div>
-        
-        <!-- Toast Notification Box -->
-        <div id="toast-msg" class="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-2xl transition-all duration-300 opacity-0 pointer-events-none translate-y-[-20px] flex items-center gap-2">
-            <i id="toast-icon" class="fa-solid fa-circle-info text-blue-400"></i>
-            <span id="toast-text">Notificación</span>
-        </div>
-    </main>
+<span
+  id="drive-status"
+>
+Drive listo
+</span>
 
-    <!-- Application Script Logic -->
-    <script>
-        // =========================================================================
-        // CONFIGURACIÓN DE GOOGLE DRIVE:
-        // Coloca aquí el ID de tu carpeta de Google Drive y la URL de Webhook/API opcional
-        // =========================================================================
-        const DEFAULT_DRIVE_FOLDER_URL = "https://drive.google.com/drive/folders/1d2wnOQ5fyEpVuMpVV80z6sClGRERU-BY?usp=sharing";
-        const GOOGLE_DRIVE_FOLDER_ID = "1d2wnOQ5fyEpVuMpVV80z6sClGRERU-BY"; // ID extraído de la URL de tu carpeta de Drive
-        const GOOGLE_APPS_SCRIPT_URL = ""; // (Opcional) URL del Webhook de Google Apps Script
+<button
+  onclick="refreshFiles()"
+  class="
+    bg-slate-700
+    hover:bg-slate-600
+    px-2
+    py-1
+    rounded
+  "
+>
 
-        let map;
-        let loadedFiles = []; // Database of loaded files
-        let currentFileId = null;
-        
-        let markersData = []; // Current active file markers
-        let desc3ColorMap = {}; // Dictionary mapping "Descripción 3" -> Hex Color
-        
-        const PRESET_COLORS = [
-            '#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', 
-            '#ec4899', '#06b6d4', '#f97316', '#a855f7', '#14b8a6'
+<i class="fa-solid fa-rotate"></i>
+
+</button>
+
+</div>
+
+
+<!-- =========================================================
+     MÓDULO 04 - PESTAÑAS
+     ========================================================= -->
+
+<div
+  class="
+    flex
+    border-b
+    bg-slate-50
+    text-xs
+    font-semibold
+  "
+>
+
+<button
+  id="tab-data"
+  onclick="switchTab('data')"
+  class="
+    flex-1
+    py-3
+    border-b-2
+    border-blue-600
+    text-blue-600
+  "
+>
+<i class="fa-solid fa-folder"></i>
+Archivos
+</button>
+
+
+<button
+  id="tab-table"
+  onclick="switchTab('table')"
+  class="
+    flex-1
+    py-3
+    border-b-2
+    border-transparent
+  "
+>
+<i class="fa-solid fa-table"></i>
+Tabla
+</button>
+
+
+<button
+  id="tab-filter"
+  onclick="switchTab('filter')"
+  class="
+    flex-1
+    py-3
+    border-b-2
+    border-transparent
+  "
+>
+<i class="fa-solid fa-filter"></i>
+Filtros
+</button>
+
+
+<button
+  id="tab-route"
+  onclick="switchTab('route')"
+  class="
+    flex-1
+    py-3
+    border-b-2
+    border-transparent
+  "
+>
+<i class="fa-solid fa-route"></i>
+Rutas
+</button>
+
+</div>
+
+
+<!-- CONTENEDOR -->
+
+<div
+  class="
+    flex-1
+    overflow-y-auto
+    p-4
+  "
+>
+
+
+<!-- =========================================================
+     MÓDULO 05 - ARCHIVOS
+     ========================================================= -->
+
+<section
+  id="content-data"
+  class="space-y-4"
+>
+
+
+<div
+  class="
+    bg-blue-50
+    border
+    border-blue-200
+    rounded-xl
+    p-3
+  "
+>
+
+<label
+  class="
+    text-xs
+    font-bold
+    block
+    mb-2
+  "
+>
+Archivo existente
+</label>
+
+
+<select
+  id="file-select"
+  onchange="openSelectedFile()"
+  class="
+    w-full
+    p-2
+    rounded-lg
+    border
+    border-slate-300
+    text-xs
+  "
+>
+
+<option value="">
+-- Seleccionar archivo --
+</option>
+
+</select>
+
+</div>
+
+
+<!-- SUBIR -->
+
+<div
+  class="
+    border-2
+    border-dashed
+    border-slate-300
+    hover:border-blue-500
+    rounded-xl
+    p-5
+    text-center
+  "
+>
+
+<input
+  id="file-input"
+  type="file"
+  accept=".kml,.xml,.xlsx,.xls"
+  class="hidden"
+  onchange="handleUpload(event)"
+>
+
+
+<label
+  for="file-input"
+  class="cursor-pointer"
+>
+
+<div
+  class="
+    w-12
+    h-12
+    mx-auto
+    mb-2
+    rounded-full
+    bg-blue-50
+    text-blue-600
+    flex
+    items-center
+    justify-center
+  "
+>
+
+<i
+  class="
+    fa-solid
+    fa-cloud-arrow-up
+    text-xl
+  "
+></i>
+
+</div>
+
+
+<div
+  class="
+    text-sm
+    font-bold
+  "
+>
+Subir KML o Excel
+</div>
+
+
+<div
+  class="
+    text-xs
+    text-slate-400
+    mt-1
+  "
+>
+El archivo se guardará directamente en Drive
+</div>
+
+</label>
+
+</div>
+
+
+<!-- EXPORTACIÓN -->
+
+<div
+  id="export-box"
+  class="
+    hidden
+    bg-slate-50
+    border
+    rounded-xl
+    p-3
+    space-y-2
+  "
+>
+
+<button
+  onclick="saveCurrentExcel()"
+  class="
+    w-full
+    bg-emerald-600
+    hover:bg-emerald-700
+    text-white
+    py-2
+    rounded-lg
+    text-xs
+    font-bold
+  "
+>
+
+<i class="fa-solid fa-file-excel"></i>
+
+Guardar Excel actualizado
+
+</button>
+
+
+<button
+  onclick="downloadKML()"
+  class="
+    w-full
+    bg-blue-600
+    hover:bg-blue-700
+    text-white
+    py-2
+    rounded-lg
+    text-xs
+    font-bold
+  "
+>
+
+<i class="fa-solid fa-earth-americas"></i>
+
+Descargar KML actualizado
+
+</button>
+
+</div>
+
+
+<!-- PUNTOS -->
+
+<div>
+
+<div
+  class="
+    flex
+    justify-between
+    items-center
+    mb-2
+  "
+>
+
+<h3
+  class="
+    text-xs
+    font-bold
+    uppercase
+    text-slate-500
+  "
+>
+Puntos
+</h3>
+
+
+<button
+  onclick="zoomAll()"
+  class="
+    text-xs
+    text-blue-600
+  "
+>
+Ver todos
+</button>
+
+</div>
+
+
+<div
+  id="points-list"
+  class="
+    space-y-1
+    max-h-60
+    overflow-y-auto
+  "
+></div>
+
+</div>
+
+
+</section>
+
+
+<!-- =========================================================
+     MÓDULO 06 - TABLA
+     ========================================================= -->
+
+<section
+  id="content-table"
+  class="hidden space-y-3"
+>
+
+<div
+  class="
+    flex
+    justify-between
+  "
+>
+
+<h3
+  class="
+    text-xs
+    uppercase
+    font-bold
+    text-slate-500
+  "
+>
+Datos editables
+</h3>
+
+
+<span
+  id="table-count"
+  class="
+    text-xs
+    bg-blue-50
+    text-blue-600
+    px-2
+    rounded
+  "
+>
+0
+</span>
+
+</div>
+
+
+<input
+  id="table-search"
+  oninput="renderTable()"
+  placeholder="Buscar..."
+  class="
+    w-full
+    p-2
+    rounded-lg
+    border
+    text-xs
+  "
+>
+
+
+<div
+  class="
+    overflow-auto
+    max-h-[480px]
+    border
+    rounded-lg
+  "
+>
+
+<table
+  class="
+    w-full
+    text-xs
+    border-collapse
+  "
+>
+
+<thead
+  class="
+    bg-slate-100
+    sticky
+    top-0
+    z-10
+  "
+>
+
+<tr>
+
+<th class="p-2">Color</th>
+<th class="p-2">Orden</th>
+<th class="p-2">Nombre</th>
+<th class="p-2">Latitud</th>
+<th class="p-2">Longitud</th>
+<th class="p-2">Descripción 1</th>
+<th class="p-2">Descripción 2</th>
+<th class="p-2">Descripción 3</th>
+<th class="p-2">Descripción 4</th>
+
+</tr>
+
+</thead>
+
+
+<tbody
+  id="table-body"
+></tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     MÓDULO 07 - FILTROS
+     ========================================================= -->
+
+<section
+  id="content-filter"
+  class="hidden space-y-4"
+>
+
+
+<div>
+
+<label
+  class="
+    text-xs
+    font-bold
+    block
+    mb-1
+  "
+>
+Buscar
+</label>
+
+<input
+  id="general-search"
+  oninput="applyFilters()"
+  placeholder="Nombre o descripción..."
+  class="
+    w-full
+    p-2
+    border
+    rounded-lg
+    text-xs
+  "
+>
+
+</div>
+
+
+<div>
+
+<div
+  class="
+    flex
+    justify-between
+    items-center
+    mb-2
+  "
+>
+
+<label
+  class="
+    text-xs
+    font-bold
+  "
+>
+Colores
+</label>
+
+<div class="flex gap-2">
+
+<button
+  onclick="selectAllColors(true)"
+  class="text-xs text-blue-600"
+>
+Todos
+</button>
+
+<button
+  onclick="selectAllColors(false)"
+  class="text-xs text-red-600"
+>
+Ninguno
+</button>
+
+</div>
+
+</div>
+
+
+<div
+  id="color-filters"
+  class="
+    bg-slate-50
+    border
+    rounded-lg
+    p-2
+    max-h-40
+    overflow-y-auto
+    space-y-1
+  "
+></div>
+
+</div>
+
+
+<div>
+
+<label
+  class="
+    text-xs
+    font-bold
+    block
+    mb-2
+  "
+>
+Descripción 3
+</label>
+
+
+<div
+  id="desc3-filters"
+  class="
+    bg-slate-50
+    border
+    rounded-lg
+    p-2
+    max-h-48
+    overflow-y-auto
+    space-y-1
+  "
+></div>
+
+</div>
+
+
+<button
+  onclick="resetFilters()"
+  class="
+    w-full
+    bg-slate-200
+    hover:bg-slate-300
+    py-2
+    rounded-lg
+    text-xs
+    font-bold
+  "
+>
+Restablecer filtros
+</button>
+
+
+<div
+  id="filter-info"
+  class="
+    bg-slate-100
+    rounded-lg
+    p-2
+    text-xs
+  "
+>
+0 puntos visibles
+</div>
+
+
+</section>
+
+
+<!-- =========================================================
+     MÓDULO 08 - RUTAS
+     ========================================================= -->
+
+<section
+  id="content-route"
+  class="hidden space-y-4"
+>
+
+
+<div
+  class="
+    flex
+    justify-between
+    items-center
+  "
+>
+
+<h3
+  class="
+    text-xs
+    uppercase
+    font-bold
+    text-slate-500
+  "
+>
+Rutas
+</h3>
+
+
+<button
+  onclick="createRoute()"
+  class="
+    bg-blue-600
+    text-white
+    px-3
+    py-1.5
+    rounded-lg
+    text-xs
+    font-bold
+  "
+>
++
+Nueva ruta
+</button>
+
+</div>
+
+
+<select
+  id="route-select"
+  onchange="selectRoute(this.value)"
+  class="
+    w-full
+    p-2
+    border
+    rounded-lg
+    text-xs
+  "
+>
+
+<option value="">
+-- Sin ruta --
+</option>
+
+</select>
+
+
+<div
+  id="route-panel"
+  class="hidden space-y-3"
+>
+
+
+<div
+  class="
+    bg-blue-50
+    border
+    border-blue-200
+    rounded-xl
+    p-3
+  "
+>
+
+<div
+  class="
+    flex
+    justify-between
+    items-center
+  "
+>
+
+<span
+  class="
+    text-xs
+    font-bold
+  "
+>
+Modo selección
+</span>
+
+
+<button
+  id="route-mode-btn"
+  onclick="toggleRouteMode()"
+  class="
+    bg-slate-200
+    px-3
+    py-1
+    rounded
+    text-xs
+    font-bold
+  "
+>
+Desactivado
+</button>
+
+</div>
+
+
+<div
+  class="
+    grid
+    grid-cols-2
+    gap-2
+    mt-3
+  "
+>
+
+<div
+  class="
+    bg-white
+    p-2
+    rounded
+    text-center
+  "
+>
+
+<span
+  class="
+    block
+    text-[10px]
+    text-slate-400
+  "
+>
+PUNTOS
+</span>
+
+<strong
+  id="route-points"
+>
+0
+</strong>
+
+</div>
+
+
+<div
+  class="
+    bg-white
+    p-2
+    rounded
+    text-center
+  "
+>
+
+<span
+  class="
+    block
+    text-[10px]
+    text-slate-400
+  "
+>
+DISTANCIA
+</span>
+
+<strong
+  id="route-distance"
+>
+0 km
+</strong>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div>
+
+<div
+  class="
+    flex
+    justify-between
+    mb-2
+  "
+>
+
+<span
+  class="
+    text-xs
+    font-bold
+  "
+>
+Secuencia
+</span>
+
+
+<button
+  onclick="clearRoute()"
+  class="
+    text-xs
+    text-red-600
+  "
+>
+Limpiar
+</button>
+
+</div>
+
+
+<div
+  id="route-list"
+  class="
+    bg-white
+    border
+    rounded-lg
+    p-2
+    max-h-52
+    overflow-y-auto
+    space-y-1
+  "
+></div>
+
+</div>
+
+
+<button
+  onclick="openGoogleRoute()"
+  class="
+    w-full
+    bg-green-600
+    hover:bg-green-700
+    text-white
+    py-2
+    rounded-lg
+    text-xs
+    font-bold
+  "
+>
+
+<i class="fa-solid fa-map-location-dot"></i>
+
+Abrir ruta en Google Maps
+
+</button>
+
+
+<button
+  onclick="deleteRoute()"
+  class="
+    w-full
+    bg-red-50
+    text-red-600
+    border
+    border-red-200
+    py-2
+    rounded-lg
+    text-xs
+    font-bold
+  "
+>
+
+Eliminar ruta
+
+</button>
+
+</div>
+
+</section>
+
+
+</div>
+
+</aside>
+
+
+<!-- =========================================================
+     MÓDULO 09 - MAPA
+     ========================================================= -->
+
+<main
+  class="
+    flex-1
+    relative
+    h-[57%]
+    md:h-full
+  "
+>
+
+<div id="map"></div>
+
+
+<div
+  id="toast"
+  class="toast"
+>
+<span id="toast-text"></span>
+</div>
+
+
+</main>
+
+
+
+<!-- =========================================================
+     MÓDULO 10 - JAVASCRIPT
+     ========================================================= -->
+
+<script>
+
+
+/***************************************************************
+ * =============================================================
+ * 01 - CONFIGURACIÓN
+ * =============================================================
+ ***************************************************************/
+
+const PRESET_COLORS = [
+
+  '#ef4444',
+  '#3b82f6',
+  '#10b981',
+  '#f59e0b',
+  '#8b5cf6',
+  '#ec4899',
+  '#06b6d4',
+  '#f97316',
+  '#a855f7',
+  '#14b8a6'
+
+];
+
+
+let map = null;
+
+let googleHybrid = null;
+let googleSatellite = null;
+let googleStreets = null;
+let googleTerrain = null;
+
+
+let markersData = [];
+
+let markerLayer = [];
+
+let currentFile = null;
+
+let currentFileType = null;
+
+let currentSheetId = null;
+
+let originalKML = null;
+
+let routes = [];
+
+let activeRouteId = null;
+
+let routeMode = false;
+
+let selectedColors = new Set();
+
+let selectedDesc3 = new Set();
+
+let colorCounter = 0;
+
+
+/***************************************************************
+ * =============================================================
+ * 02 - INICIO
+ * =============================================================
+ ***************************************************************/
+
+window.addEventListener(
+  'load',
+  initializeApp
+);
+
+
+function initializeApp() {
+
+  initializeMap();
+
+  refreshFiles();
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 03 - MAPA
+ * =============================================================
+ ***************************************************************/
+
+function initializeMap() {
+
+  map = L.map('map')
+    .setView(
+      [19.4326, -99.1332],
+      6
+    );
+
+
+  /*
+   * GOOGLE HÍBRIDO
+   *
+   * NO API KEY
+   */
+
+  googleHybrid =
+    L.tileLayer(
+      'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+      {
+        maxZoom: 20,
+        attribution: '&copy; Google Maps'
+      }
+    );
+
+
+  /*
+   * GOOGLE SATÉLITE
+   */
+
+  googleSatellite =
+    L.tileLayer(
+      'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+      {
+        maxZoom: 20,
+        attribution: '&copy; Google Maps'
+      }
+    );
+
+
+  /*
+   * GOOGLE CALLES
+   */
+
+  googleStreets =
+    L.tileLayer(
+      'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+      {
+        maxZoom: 20,
+        attribution: '&copy; Google Maps'
+      }
+    );
+
+
+  /*
+   * GOOGLE TERRENO
+   */
+
+  googleTerrain =
+    L.tileLayer(
+      'https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',
+      {
+        maxZoom: 20,
+        attribution: '&copy; Google Maps'
+      }
+    );
+
+
+  googleHybrid.addTo(map);
+
+
+  L.control.layers({
+
+    'Google Híbrido':
+      googleHybrid,
+
+    'Google Satélite':
+      googleSatellite,
+
+    'Google Calles':
+      googleStreets,
+
+    'Google Terreno':
+      googleTerrain
+
+  }).addTo(map);
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 04 - PESTAÑAS
+ * =============================================================
+ ***************************************************************/
+
+function switchTab(tab) {
+
+  const tabs = [
+    'data',
+    'table',
+    'filter',
+    'route'
+  ];
+
+
+  tabs.forEach(function(t) {
+
+    document
+      .getElementById(
+        'content-' + t
+      )
+      .classList.add('hidden');
+
+
+    const button =
+      document.getElementById(
+        'tab-' + t
+      );
+
+
+    button.classList.remove(
+      'border-blue-600',
+      'text-blue-600'
+    );
+
+    button.classList.add(
+      'border-transparent'
+    );
+
+  });
+
+
+  document
+    .getElementById(
+      'content-' + tab
+    )
+    .classList.remove('hidden');
+
+
+  const button =
+    document.getElementById(
+      'tab-' + tab
+    );
+
+
+  button.classList.remove(
+    'border-transparent'
+  );
+
+  button.classList.add(
+    'border-blue-600',
+    'text-blue-600'
+  );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 05 - SUBIR ARCHIVO
+ * =============================================================
+ ***************************************************************/
+
+function handleUpload(event) {
+
+  const file =
+    event.target.files[0];
+
+  if (!file) {
+    return;
+  }
+
+
+  const extension =
+    file.name
+      .split('.')
+      .pop()
+      .toLowerCase();
+
+
+  showToast(
+    'Procesando ' + file.name + '...'
+  );
+
+
+  if (
+    extension === 'kml' ||
+    extension === 'xml'
+  ) {
+
+    const reader =
+      new FileReader();
+
+
+    reader.onload =
+      function(e) {
+
+        const text =
+          e.target.result;
+
+        originalKML = text;
+
+        processKML(
+          file.name,
+          text
+        );
+
+        saveKMLToDrive(
+          file.name,
+          text
+        );
+
+      };
+
+
+    reader.readAsText(file);
+
+    return;
+  }
+
+
+  if (
+    extension === 'xlsx' ||
+    extension === 'xls'
+  ) {
+
+    const reader =
+      new FileReader();
+
+
+    reader.onload =
+      function(e) {
+
+        try {
+
+          const workbook =
+            XLSX.read(
+              new Uint8Array(
+                e.target.result
+              ),
+              {
+                type: 'array'
+              }
+            );
+
+
+          const sheetName =
+            workbook.SheetNames[0];
+
+
+          const sheet =
+            workbook.Sheets[
+              sheetName
+            ];
+
+
+          const rows =
+            XLSX.utils.sheet_to_json(
+              sheet,
+              {
+                header: 1,
+                defval: ''
+              }
+            );
+
+
+          processExcel(
+            file.name,
+            rows
+          );
+
+
+          saveExcelToDrive(
+            file,
+            rows
+          );
+
+
+        } catch (error) {
+
+          console.error(error);
+
+          showToast(
+            'Error al leer el Excel.'
+          );
+
+        }
+
+      };
+
+
+    reader.readAsArrayBuffer(file);
+
+  }
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 06 - KML
+ * =============================================================
+ */
+
+function processKML(
+  fileName,
+  xmlText
+) {
+
+  const parser =
+    new DOMParser();
+
+
+  const xml =
+    parser.parseFromString(
+      xmlText,
+      'text/xml'
+    );
+
+
+  const placemarks =
+    xml.getElementsByTagName(
+      'Placemark'
+    );
+
+
+  if (!placemarks.length) {
+
+    showToast(
+      'No se encontraron puntos.'
+    );
+
+    return;
+  }
+
+
+  const styleMap = {};
+
+
+  const styles =
+    xml.getElementsByTagName(
+      'Style'
+    );
+
+
+  for (
+    let i = 0;
+    i < styles.length;
+    i++
+  ) {
+
+    const style =
+      styles[i];
+
+
+    const id =
+      style.getAttribute('id');
+
+
+    const iconStyle =
+      style.getElementsByTagName(
+        'IconStyle'
+      )[0];
+
+
+    if (!iconStyle) {
+      continue;
+    }
+
+
+    const color =
+      iconStyle.getElementsByTagName(
+        'color'
+      )[0];
+
+
+    if (color) {
+
+      styleMap[id] =
+        kmlColorToHex(
+          color.textContent.trim()
+        );
+
+    }
+
+  }
+
+
+  clearMap();
+
+
+  markersData = [];
+
+  colorCounter = 0;
+
+
+  for (
+    let i = 0;
+    i < placemarks.length;
+    i++
+  ) {
+
+    const placemark =
+      placemarks[i];
+
+
+    const point =
+      placemark.getElementsByTagName(
+        'Point'
+      )[0];
+
+
+    if (!point) {
+      continue;
+    }
+
+
+    const coordinates =
+      point.getElementsByTagName(
+        'coordinates'
+      )[0];
+
+
+    if (!coordinates) {
+      continue;
+    }
+
+
+    const values =
+      coordinates
+        .textContent
+        .trim()
+        .split(',');
+
+
+    const lng =
+      parseFloat(values[0]);
+
+
+    const lat =
+      parseFloat(values[1]);
+
+
+    if (
+      isNaN(lat) ||
+      isNaN(lng)
+    ) {
+      continue;
+    }
+
+
+    const nameNode =
+      placemark.getElementsByTagName(
+        'name'
+      )[0];
+
+
+    const name =
+      nameNode
+        ? nameNode.textContent.trim()
+        : 'Punto ' + (i + 1);
+
+
+    const descNode =
+      placemark.getElementsByTagName(
+        'description'
+      )[0];
+
+
+    const description =
+      descNode
+        ? descNode.textContent.trim()
+        : '';
+
+
+    const descriptions =
+      splitDescription(
+        description
+      );
+
+
+    let color =
+      null;
+
+
+    const styleUrl =
+      placemark.getElementsByTagName(
+        'styleUrl'
+      )[0];
+
+
+    if (styleUrl) {
+
+      const id =
+        styleUrl
+          .textContent
+          .trim()
+          .replace('#', '');
+
+
+      color =
+        styleMap[id] ||
+        null;
+
+    }
+
+
+    if (!color) {
+
+      color =
+        PRESET_COLORS[
+          colorCounter %
+          PRESET_COLORS.length
         ];
-        let colorCounter = 0;
 
-        // Filter states
-        let selectedFilterNames = new Set();
-        let selectedFilterDesc3 = new Set();
+      colorCounter++;
 
-        // Routes State
-        let routes = [];
-        let activeRouteId = null;
-        let isRouteEditMode = false;
+    }
 
-        const DEFAULT_COLOR = '#ef4444';
 
-        window.onload = function() {
-            initMap();
-        };
+    const pointData = {
 
-        function initMap() {
-            map = L.map('map').setView([19.4326, -99.1332], 6);
+      id:
+        'kml_' +
+        Date.now() +
+        '_' +
+        i,
 
-            const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
-                maxZoom: 20,
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-                attribution: '&copy; Google Maps'
-            });
+      row:
+        i + 1,
 
-            const googleSatellite = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-                maxZoom: 20,
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-                attribution: '&copy; Google Maps'
-            });
+      orden:
+        i + 1,
 
-            const googleStreets = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-                maxZoom: 20,
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-                attribution: '&copy; Google Maps'
-            });
+      nombre:
+        name,
 
-            const googleTerrain = L.tileLayer('https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
-                maxZoom: 20,
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-                attribution: '&copy; Google Maps'
-            });
+      latitud:
+        lat,
 
-            googleHybrid.addTo(map);
+      longitud:
+        lng,
 
-            const baseMaps = {
-                "Google Híbrido": googleHybrid,
-                "Google Satélite": googleSatellite,
-                "Google Calles": googleStreets,
-                "Google Terreno": googleTerrain
-            };
+      desc1:
+        descriptions[0] || '',
 
-            L.control.layers(baseMaps).addTo(map);
+      desc2:
+        descriptions[1] || '',
+
+      desc3:
+        descriptions[2] || '',
+
+      desc4:
+        descriptions[3] || '',
+
+      color:
+        color,
+
+      originalDescription:
+        description,
+
+      marker:
+        null
+
+    };
+
+
+    markersData.push(
+      pointData
+    );
+
+  }
+
+
+  currentFile =
+    fileName;
+
+  currentFileType =
+    'kml';
+
+  currentSheetId =
+    null;
+
+
+  drawMarkers();
+
+  refreshInterface();
+
+  zoomAll();
+
+
+  showToast(
+    markersData.length +
+    ' puntos cargados.'
+  );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 07 - EXCEL
+ * =============================================================
+ */
+
+function processExcel(
+  fileName,
+  rows
+) {
+
+  if (
+    !rows ||
+    rows.length === 0
+  ) {
+
+    showToast(
+      'El Excel está vacío.'
+    );
+
+    return;
+  }
+
+
+  clearMap();
+
+
+  markersData = [];
+
+
+  /*
+   * La primera fila se considera encabezado.
+   */
+
+  const headers =
+    rows[0].map(function(h) {
+
+      return String(
+        h || ''
+      )
+        .trim()
+        .toLowerCase();
+
+    });
+
+
+  for (
+    let i = 1;
+    i < rows.length;
+    i++
+  ) {
+
+    const row =
+      rows[i];
+
+
+    if (
+      !row ||
+      row.every(
+        v =>
+          String(v || '').trim() === ''
+      )
+    ) {
+      continue;
+    }
+
+
+    const orden =
+      row[0] ?? '';
+
+
+    const nombre =
+      row[1] ?? '';
+
+
+    const lat =
+      parseFloat(
+        row[2]
+      );
+
+
+    const lng =
+      parseFloat(
+        row[3]
+      );
+
+
+    if (
+      isNaN(lat) ||
+      isNaN(lng)
+    ) {
+      continue;
+    }
+
+
+    const point = {
+
+      id:
+        'excel_' +
+        Date.now() +
+        '_' +
+        i,
+
+      row:
+        i + 1,
+
+      orden:
+        orden,
+
+      nombre:
+        nombre,
+
+      latitud:
+        lat,
+
+      longitud:
+        lng,
+
+      desc1:
+        row[4] ?? '',
+
+      desc2:
+        row[5] ?? '',
+
+      desc3:
+        row[6] ?? '',
+
+      desc4:
+        row[7] ?? '',
+
+      color:
+        getColorForDesc3(
+          String(
+            row[6] ?? ''
+          )
+        ),
+
+      marker:
+        null
+
+    };
+
+
+    markersData.push(
+      point
+    );
+
+  }
+
+
+  currentFile =
+    fileName;
+
+  currentFileType =
+    'excel';
+
+
+  drawMarkers();
+
+  refreshInterface();
+
+  zoomAll();
+
+
+  document
+    .getElementById(
+      'export-box'
+    )
+    .classList.remove('hidden');
+
+
+  showToast(
+    markersData.length +
+    ' registros cargados.'
+  );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 08 - GUARDAR EXCEL
+ * =============================================================
+ */
+
+function saveExcelToDrive(
+  file,
+  rows
+) {
+
+  const reader =
+    new FileReader();
+
+
+  reader.onload =
+    function(e) {
+
+      const base64 =
+        e.target.result
+          .split(',')[1];
+
+
+      document
+        .getElementById(
+          'drive-status'
+        )
+        .textContent =
+          'Guardando Excel en Drive...';
+
+
+      google.script.run
+
+        .withSuccessHandler(
+          function(result) {
+
+            currentSheetId =
+              result.sheetId;
+
+
+            currentFile =
+              result.fileName;
+
+
+            currentFileType =
+              'excel';
+
+
+            refreshFiles();
+
+
+            showToast(
+              'Excel guardado en Drive.'
+            );
+
+
+            document
+              .getElementById(
+                'drive-status'
+              )
+              .textContent =
+                'Excel sincronizado ✓';
+
+          }
+        )
+
+        .withFailureHandler(
+          function(error) {
+
+            console.error(error);
+
+            showToast(
+              'Error al guardar Excel.'
+            );
+
+            document
+              .getElementById(
+                'drive-status'
+              )
+              .textContent =
+                'Error de Drive';
+
+          }
+        )
+
+        .saveExcelFile({
+
+          fileName:
+            file.name,
+
+          mimeType:
+            file.type,
+
+          base64:
+            base64,
+
+          rows:
+            rows
+
+        });
+
+    };
+
+
+  reader.readAsDataURL(file);
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 09 - GUARDAR KML
+ * =============================================================
+ */
+
+function saveKMLToDrive(
+  fileName,
+  content
+) {
+
+  google.script.run
+
+    .withSuccessHandler(
+      function() {
+
+        refreshFiles();
+
+        showToast(
+          'KML guardado en Drive.'
+        );
+
+      }
+    )
+
+    .withFailureHandler(
+      function(error) {
+
+        console.error(error);
+
+        showToast(
+          'No fue posible guardar el KML.'
+        );
+
+      }
+    )
+
+    .saveKMLFile({
+
+      fileName:
+        fileName,
+
+      content:
+        content
+
+    });
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 10 - MARCADORES
+ * =============================================================
+ */
+
+function drawMarkers() {
+
+  clearMap();
+
+
+  const bounds = [];
+
+
+  markersData.forEach(
+    function(point) {
+
+      const marker =
+        createMarker(
+          point
+        );
+
+
+      point.marker =
+        marker;
+
+
+      markerLayer.push(
+        marker
+      );
+
+
+      bounds.push([
+        point.latitud,
+        point.longitud
+      ]);
+
+    }
+  );
+
+
+  if (bounds.length) {
+
+    map.fitBounds(
+      bounds,
+      {
+        padding: [40, 40]
+      }
+    );
+
+  }
+
+}
+
+
+/**
+ * Crea marcador Leaflet.
+ */
+function createMarker(
+  point
+) {
+
+  const icon =
+    createMarkerIcon(
+      point
+    );
+
+
+  const marker =
+    L.marker(
+      [
+        point.latitud,
+        point.longitud
+      ],
+      {
+        icon:
+          icon
+      }
+    );
+
+
+  marker.addTo(map);
+
+
+  marker.on(
+    'click',
+    function() {
+
+      if (
+        routeMode &&
+        activeRouteId
+      ) {
+
+        togglePointInRoute(
+          point.id
+        );
+
+        return;
+      }
+
+
+      openPointEditor(
+        point
+      );
+
+    }
+  );
+
+
+  return marker;
+
+}
+
+
+/**
+ * Icono.
+ */
+function createMarkerIcon(
+  point
+) {
+
+  let badge =
+    '';
+
+
+  const route =
+    getActiveRoute();
+
+
+  if (route) {
+
+    const index =
+      route.points.indexOf(
+        point.id
+      );
+
+
+    if (index >= 0) {
+
+      badge =
+        '<span class="route-badge">' +
+        (index + 1) +
+        '</span>';
+
+    }
+
+  }
+
+
+  const html =
+
+    '<div class="custom-marker">' +
+
+      '<div ' +
+        'class="marker-pin" ' +
+        'style="background:' +
+        escapeHtml(
+          point.color ||
+          '#ef4444'
+        ) +
+        ';">' +
+      '</div>' +
+
+      badge +
+
+    '</div>';
+
+
+  return L.divIcon({
+
+    className:
+      '',
+
+    html:
+      html,
+
+    iconSize:
+      [34, 34],
+
+    iconAnchor:
+      [17, 30],
+
+    popupAnchor:
+      [0, -30]
+
+  });
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 11 - EDITOR DEL PUNTO
+ * =============================================================
+ */
+
+function openPointEditor(
+  point
+) {
+
+  const html = `
+
+    <div style="width:280px">
+
+      <div
+        style="
+          font-weight:800;
+          margin-bottom:8px;
+          font-size:14px;
+        "
+      >
+        Editar punto
+      </div>
+
+
+      <label>Nombre</label>
+
+      <input
+        id="edit-name-${point.id}"
+        class="edit-input"
+        value="${escapeHtml(point.nombre)}"
+      >
+
+
+      <label>Latitud</label>
+
+      <input
+        id="edit-lat-${point.id}"
+        class="edit-input"
+        type="number"
+        step="any"
+        value="${point.latitud}"
+      >
+
+
+      <label>Longitud</label>
+
+      <input
+        id="edit-lng-${point.id}"
+        class="edit-input"
+        type="number"
+        step="any"
+        value="${point.longitud}"
+      >
+
+
+      <label>Descripción 1</label>
+
+      <input
+        id="edit-desc1-${point.id}"
+        class="edit-input"
+        value="${escapeHtml(point.desc1)}"
+      >
+
+
+      <label>Descripción 2</label>
+
+      <input
+        id="edit-desc2-${point.id}"
+        class="edit-input"
+        value="${escapeHtml(point.desc2)}"
+      >
+
+
+      <label>Descripción 3</label>
+
+      <input
+        id="edit-desc3-${point.id}"
+        class="edit-input"
+        value="${escapeHtml(point.desc3)}"
+      >
+
+
+      <label>Descripción 4</label>
+
+      <input
+        id="edit-desc4-${point.id}"
+        class="edit-input"
+        value="${escapeHtml(point.desc4)}"
+      >
+
+
+      <label>Color</label>
+
+      <input
+        id="edit-color-${point.id}"
+        class="w-full h-8"
+        type="color"
+        value="${point.color || '#ef4444'}"
+      >
+
+
+      <button
+        onclick="savePointEdit('${point.id}')"
+        style="
+          margin-top:10px;
+          width:100%;
+          background:#2563eb;
+          color:white;
+          border:0;
+          border-radius:7px;
+          padding:8px;
+          font-weight:700;
+          cursor:pointer;
+        "
+      >
+        Guardar cambios
+      </button>
+
+    </div>
+  `;
+
+
+  L.popup()
+
+    .setLatLng([
+      point.latitud,
+      point.longitud
+    ])
+
+    .setContent(
+      html
+    )
+
+    .openOn(map);
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 12 - GUARDAR EDICIÓN
+ * =============================================================
+ */
+
+function savePointEdit(
+  pointId
+) {
+
+  const point =
+    markersData.find(
+      p => p.id === pointId
+    );
+
+
+  if (!point) {
+    return;
+  }
+
+
+  point.nombre =
+    document.getElementById(
+      'edit-name-' + pointId
+    ).value;
+
+
+  point.latitud =
+    parseFloat(
+      document.getElementById(
+        'edit-lat-' + pointId
+      ).value
+    );
+
+
+  point.longitud =
+    parseFloat(
+      document.getElementById(
+        'edit-lng-' + pointId
+      ).value
+    );
+
+
+  point.desc1 =
+    document.getElementById(
+      'edit-desc1-' + pointId
+    ).value;
+
+
+  point.desc2 =
+    document.getElementById(
+      'edit-desc2-' + pointId
+    ).value;
+
+
+  point.desc3 =
+    document.getElementById(
+      'edit-desc3-' + pointId
+    ).value;
+
+
+  point.desc4 =
+    document.getElementById(
+      'edit-desc4-' + pointId
+    ).value;
+
+
+  point.color =
+    document.getElementById(
+      'edit-color-' + pointId
+    ).value;
+
+
+  if (
+    isNaN(point.latitud) ||
+    isNaN(point.longitud)
+  ) {
+
+    showToast(
+      'Coordenadas inválidas.'
+    );
+
+    return;
+  }
+
+
+  redrawPoint(
+    point
+  );
+
+
+  refreshInterface();
+
+
+  map.closePopup();
+
+
+  /*
+   * Si es Excel,
+   * guardar automáticamente.
+   */
+
+  if (
+    currentFileType === 'excel' &&
+    currentSheetId
+  ) {
+
+    autoSaveExcelPoint(
+      point
+    );
+
+  }
+
+
+  showToast(
+    'Punto actualizado.'
+  );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 13 - REDIBUJAR PUNTO
+ * =============================================================
+ */
+
+function redrawPoint(
+  point
+) {
+
+  if (point.marker) {
+
+    map.removeLayer(
+      point.marker
+    );
+
+  }
+
+
+  const marker =
+    createMarker(
+      point
+    );
+
+
+  point.marker =
+    marker;
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 14 - GUARDADO AUTOMÁTICO EXCEL
+ * =============================================================
+ */
+
+function autoSaveExcelPoint(
+  point
+) {
+
+  if (!currentSheetId) {
+    return;
+  }
+
+
+  const values = [
+
+    point.orden,
+    point.nombre,
+    point.latitud,
+    point.longitud,
+    point.desc1,
+    point.desc2,
+    point.desc3,
+    point.desc4
+
+  ];
+
+
+  google.script.run
+
+    .withSuccessHandler(
+      function() {
+
+        document
+          .getElementById(
+            'drive-status'
+          )
+          .textContent =
+            'Cambio guardado ✓';
+
+      }
+    )
+
+    .withFailureHandler(
+      function(error) {
+
+        console.error(error);
+
+        showToast(
+          'Error al guardar el cambio.'
+        );
+
+      }
+    )
+
+    .updateExcelRow({
+
+      sheetId:
+        currentSheetId,
+
+      rowNumber:
+        point.row,
+
+      values:
+        values
+
+    });
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 15 - ACTUALIZAR LISTA DE DRIVE
+ * =============================================================
+ */
+
+function refreshFiles() {
+
+  google.script.run
+
+    .withSuccessHandler(
+      renderFileList
+    )
+
+    .withFailureHandler(
+      function(error) {
+
+        console.error(error);
+
+        showToast(
+          'No se pudo consultar Drive.'
+        );
+
+      }
+    )
+
+    .getDriveFiles();
+
+}
+
+
+/**
+ * Muestra archivos.
+ */
+function renderFileList(
+  files
+) {
+
+  const select =
+    document.getElementById(
+      'file-select'
+    );
+
+
+  select.innerHTML =
+    '<option value="">-- Seleccionar archivo --</option>';
+
+
+  files.forEach(
+    function(file) {
+
+      const option =
+        document.createElement(
+          'option'
+        );
+
+
+      option.value =
+        file.id;
+
+
+      option.textContent =
+        file.name +
+        ' — ' +
+        file.type.toUpperCase();
+
+
+      select.appendChild(
+        option
+      );
+
+    }
+  );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 16 - ABRIR ARCHIVO EXISTENTE
+ * =============================================================
+ */
+
+function openSelectedFile() {
+
+  const fileId =
+    document.getElementById(
+      'file-select'
+    ).value;
+
+
+  if (!fileId) {
+    return;
+  }
+
+
+  google.script.run
+
+    .withSuccessHandler(
+      function(info) {
+
+        if (
+          info.success &&
+          info.rows
+        ) {
+
+          processExcel(
+            info.fileName,
+            info.rows
+          );
+
+
+          currentFile =
+            info.fileName;
+
+          currentFileType =
+            'excel';
+
+          currentSheetId =
+            info.sheetId;
+
+
+          showToast(
+            'Excel cargado desde Drive.'
+          );
+
+          return;
+
         }
 
-        function openDriveFolder() {
-            if (DEFAULT_DRIVE_FOLDER_URL && !DEFAULT_DRIVE_FOLDER_URL.includes("TU_ID_DE_CARPETA_AQUI")) {
-                window.open(DEFAULT_DRIVE_FOLDER_URL, '_blank');
-            } else {
-                showToast('Ingresa la dirección de tu carpeta en la constante DEFAULT_DRIVE_FOLDER_URL del código', 'info');
+
+        /*
+         * Si no tiene hoja de trabajo,
+         * intentar leerlo como KML.
+         */
+
+        google.script.run
+
+          .withSuccessHandler(
+            function(kml) {
+
+              if (
+                kml &&
+                kml.content
+              ) {
+
+                originalKML =
+                  kml.content;
+
+                processKML(
+                  kml.fileName,
+                  kml.content
+                );
+
+              }
+
             }
+          )
+
+          .getKMLContent(
+            fileId
+          );
+
+      }
+    )
+
+    .withFailureHandler(
+      function(error) {
+
+        console.error(error);
+
+        showToast(
+          'Error al abrir archivo.'
+        );
+
+      }
+    )
+
+    .getExcelData(
+      fileId
+    );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 17 - TABLA
+ * =============================================================
+ */
+
+function renderTable() {
+
+  const tbody =
+    document.getElementById(
+      'table-body'
+    );
+
+
+  tbody.innerHTML = '';
+
+
+  const search =
+    document
+      .getElementById(
+        'table-search'
+      )
+      .value
+      .toLowerCase();
+
+
+  let count = 0;
+
+
+  markersData.forEach(
+    function(point) {
+
+      const text =
+        [
+          point.nombre,
+          point.desc1,
+          point.desc2,
+          point.desc3,
+          point.desc4
+        ]
+          .join(' ')
+          .toLowerCase();
+
+
+      if (
+        search &&
+        !text.includes(search)
+      ) {
+        return;
+      }
+
+
+      count++;
+
+
+      const tr =
+        document.createElement(
+          'tr'
+        );
+
+
+      tr.className =
+        'border-b hover:bg-slate-50';
+
+
+      tr.innerHTML = `
+
+        <td class="p-1">
+          <input
+            type="color"
+            value="${point.color}"
+            onchange="changeTableColor('${point.id}',this.value)"
+          >
+        </td>
+
+
+        <td class="p-1">
+          ${escapeHtml(point.orden)}
+        </td>
+
+
+        <td class="p-1">
+          <input
+            class="edit-input"
+            value="${escapeHtml(point.nombre)}"
+            onchange="changeTableValue('${point.id}','nombre',this.value)"
+          >
+        </td>
+
+
+        <td class="p-1">
+          <input
+            class="edit-input"
+            type="number"
+            step="any"
+            value="${point.latitud}"
+            onchange="changeTableValue('${point.id}','latitud',this.value)"
+          >
+        </td>
+
+
+        <td class="p-1">
+          <input
+            class="edit-input"
+            type="number"
+            step="any"
+            value="${point.longitud}"
+            onchange="changeTableValue('${point.id}','longitud',this.value)"
+          >
+        </td>
+
+
+        <td class="p-1">
+          <input
+            class="edit-input"
+            value="${escapeHtml(point.desc1)}"
+            onchange="changeTableValue('${point.id}','desc1',this.value)"
+          >
+        </td>
+
+
+        <td class="p-1">
+          <input
+            class="edit-input"
+            value="${escapeHtml(point.desc2)}"
+            onchange="changeTableValue('${point.id}','desc2',this.value)"
+          >
+        </td>
+
+
+        <td class="p-1">
+          <input
+            class="edit-input"
+            value="${escapeHtml(point.desc3)}"
+            onchange="changeTableValue('${point.id}','desc3',this.value)"
+          >
+        </td>
+
+
+        <td class="p-1">
+          <input
+            class="edit-input"
+            value="${escapeHtml(point.desc4)}"
+            onchange="changeTableValue('${point.id}','desc4',this.value)"
+          >
+        </td>
+
+      `;
+
+
+      tbody.appendChild(
+        tr
+      );
+
+    }
+  );
+
+
+  document
+    .getElementById(
+      'table-count'
+    )
+    .textContent =
+      count + ' registros';
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 18 - CAMBIOS DESDE TABLA
+ * =============================================================
+ */
+
+function changeTableValue(
+  id,
+  field,
+  value
+) {
+
+  const point =
+    markersData.find(
+      p => p.id === id
+    );
+
+
+  if (!point) {
+    return;
+  }
+
+
+  if (
+    field === 'latitud' ||
+    field === 'longitud'
+  ) {
+
+    point[field] =
+      parseFloat(value);
+
+  } else {
+
+    point[field] =
+      value;
+
+  }
+
+
+  /*
+   * DESCRIPCIÓN 3
+   *
+   * Cambiar descripción 3
+   * cambia automáticamente
+   * el color asociado.
+   */
+
+  if (field === 'desc3') {
+
+    point.color =
+      getColorForDesc3(
+        String(value)
+      );
+
+  }
+
+
+  redrawPoint(
+    point
+  );
+
+
+  if (
+    currentFileType === 'excel' &&
+    currentSheetId
+  ) {
+
+    autoSaveExcelPoint(
+      point
+    );
+
+  }
+
+
+  refreshInterface();
+
+}
+
+
+/**
+ * Cambiar color desde tabla.
+ */
+function changeTableColor(
+  id,
+  color
+) {
+
+  const point =
+    markersData.find(
+      p => p.id === id
+    );
+
+
+  if (!point) {
+    return;
+  }
+
+
+  point.color =
+    color;
+
+
+  redrawPoint(
+    point
+  );
+
+
+  if (
+    currentFileType === 'excel' &&
+    currentSheetId
+  ) {
+
+    autoSaveExcelPoint(
+      point
+    );
+
+  }
+
+
+  refreshInterface();
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 19 - COLOR SEGÚN DESCRIPCIÓN 3
+ * =============================================================
+ */
+
+function getColorForDesc3(
+  value
+) {
+
+  const key =
+    String(value || '')
+      .trim()
+      .toLowerCase();
+
+
+  if (!key) {
+
+    return PRESET_COLORS[
+      0
+    ];
+
+  }
+
+
+  /*
+   * Se guarda en localStorage
+   * para mantener el color
+   * durante la sesión del navegador.
+   */
+
+  const storageKey =
+    'desc3_colors';
+
+
+  let mapColors = {};
+
+
+  try {
+
+    mapColors =
+      JSON.parse(
+        localStorage.getItem(
+          storageKey
+        ) || '{}'
+      );
+
+  } catch (e) {
+
+    mapColors = {};
+
+  }
+
+
+  if (
+    mapColors[key]
+  ) {
+
+    return mapColors[key];
+
+  }
+
+
+  const color =
+    PRESET_COLORS[
+      Object.keys(mapColors).length %
+      PRESET_COLORS.length
+    ];
+
+
+  mapColors[key] =
+    color;
+
+
+  localStorage.setItem(
+    storageKey,
+    JSON.stringify(
+      mapColors
+    )
+  );
+
+
+  return color;
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 20 - FILTROS
+ * =============================================================
+ */
+
+function buildFilters() {
+
+  const colors =
+    [...new Set(
+      markersData.map(
+        p => p.color
+      )
+    )];
+
+
+  const desc3 =
+    [...new Set(
+      markersData
+        .map(
+          p => String(
+            p.desc3 || ''
+          ).trim()
+        )
+        .filter(Boolean)
+    )];
+
+
+  selectedColors =
+    new Set(colors);
+
+
+  selectedDesc3 =
+    new Set(desc3);
+
+
+  const colorBox =
+    document.getElementById(
+      'color-filters'
+    );
+
+
+  colorBox.innerHTML =
+    '';
+
+
+  colors.forEach(
+    function(color) {
+
+      colorBox.innerHTML += `
+
+        <label
+          class="
+            flex
+            items-center
+            gap-2
+            cursor-pointer
+          "
+        >
+
+          <input
+            type="checkbox"
+            checked
+            value="${color}"
+            onchange="applyFilters()"
+            data-color-filter
+          >
+
+          <span
+            style="
+              width:14px;
+              height:14px;
+              border-radius:50%;
+              background:${color};
+              display:inline-block;
+              border:1px solid #ccc;
+            "
+          ></span>
+
+          <span>
+            ${color}
+          </span>
+
+        </label>
+
+      `;
+
+    }
+  );
+
+
+  const descBox =
+    document.getElementById(
+      'desc3-filters'
+    );
+
+
+  descBox.innerHTML =
+    '';
+
+
+  desc3.forEach(
+    function(value) {
+
+      descBox.innerHTML += `
+
+        <label
+          class="
+            flex
+            gap-2
+            items-center
+          "
+        >
+
+          <input
+            type="checkbox"
+            checked
+            value="${escapeHtml(value)}"
+            onchange="applyFilters()"
+            data-desc3-filter
+          >
+
+          <span>
+            ${escapeHtml(value)}
+          </span>
+
+        </label>
+
+      `;
+
+    }
+  );
+
+}
+
+
+/**
+ * Aplica filtros.
+ */
+function applyFilters() {
+
+  const search =
+    document
+      .getElementById(
+        'general-search'
+      )
+      .value
+      .toLowerCase()
+      .trim();
+
+
+  selectedColors =
+    new Set(
+      [
+        ...document.querySelectorAll(
+          '[data-color-filter]:checked'
+        )
+      ]
+        .map(
+          e => e.value
+        )
+    );
+
+
+  selectedDesc3 =
+    new Set(
+      [
+        ...document.querySelectorAll(
+          '[data-desc3-filter]:checked'
+        )
+      ]
+        .map(
+          e => e.value
+        )
+    );
+
+
+  let visible =
+    0;
+
+
+  markersData.forEach(
+    function(point) {
+
+      const text =
+        [
+          point.nombre,
+          point.desc1,
+          point.desc2,
+          point.desc3,
+          point.desc4
+        ]
+          .join(' ')
+          .toLowerCase();
+
+
+      const searchOk =
+        !search ||
+        text.includes(search);
+
+
+      const colorOk =
+        selectedColors.size === 0
+          ? false
+          : selectedColors.has(
+              point.color
+            );
+
+
+      const descOk =
+        selectedDesc3.size === 0
+          ? false
+          : selectedDesc3.has(
+              String(
+                point.desc3 || ''
+              ).trim()
+            );
+
+
+      const visiblePoint =
+        searchOk &&
+        colorOk &&
+        descOk;
+
+
+      if (visiblePoint) {
+
+        if (
+          point.marker &&
+          !map.hasLayer(
+            point.marker
+          )
+        ) {
+
+          point.marker.addTo(
+            map
+          );
+
         }
 
-        async function uploadFileToGoogleDriveDirectly(file) {
-            const statusTag = document.getElementById('drive-sync-status');
-            if (statusTag) statusTag.textContent = 'Guardando en Drive...';
-            showToast(`Guardando ${file.name} en Google Drive...`, 'info');
+        visible++;
 
-            if (GOOGLE_APPS_SCRIPT_URL && GOOGLE_APPS_SCRIPT_URL.trim() !== "") {
-                try {
-                    const reader = new FileReader();
-                    reader.onload = async function(e) {
-                        const base64Data = e.target.result.split(',')[1];
-                        const payload = {
-                            filename: file.name,
-                            mimeType: file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                            folderId: GOOGLE_DRIVE_FOLDER_ID,
-                            fileData: base64Data
-                        };
+      } else {
 
-                        const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'text/plain' },
-                            body: JSON.stringify(payload)
-                        });
+        if (
+          point.marker &&
+          map.hasLayer(
+            point.marker
+          )
+        ) {
 
-                        const result = await response.json();
-                        if (result.status === 'success') {
-                            showToast(`¡${file.name} guardado en Google Drive!`, 'success');
-                            if (statusTag) statusTag.textContent = 'Sincronizado con Drive ✓';
-                        } else {
-                            if (statusTag) statusTag.textContent = 'Cargado en sesión local';
-                        }
-                    };
-                    reader.readAsDataURL(file);
-                    return;
-                } catch (err) {
-                    console.error("Error al subir mediante webhook:", err);
-                }
-            }
+          map.removeLayer(
+            point.marker
+          );
 
-            setTimeout(() => {
-                if (statusTag) statusTag.textContent = 'Archivo cargado en sesión ✓';
-                showToast(`¡${file.name} cargado correctamente!`, 'success');
-            }, 800);
         }
 
-        function refreshDriveFileList() {
-            const spinner = document.getElementById('refresh-spinner-icon');
-            if (spinner) spinner.classList.add('fa-spin');
-
-            showToast('Actualizando datos y sincronizando archivos...', 'info');
-
-            setTimeout(() => {
-                updateWorkspaceDropdown();
-                if (currentFileId) {
-                    const activeFile = loadedFiles.find(f => f.id === currentFileId);
-                    if (activeFile) {
-                        markersData = activeFile.pointsData;
-                        desc3ColorMap = activeFile.desc3ColorMap;
-                        refreshUIAllTabs();
-                        applyFilters();
-                    }
-                }
-                if (spinner) spinner.classList.remove('fa-spin');
-                showToast('¡Visualización y lista de archivos actualizada con éxito!', 'success');
-            }, 600);
-        }
-
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const fileName = file.name;
-            const ext = fileName.split('.').pop().toLowerCase();
-            showToast(`Procesando ${fileName}...`, 'info');
-
-            uploadFileToGoogleDriveDirectly(file);
-
-            if (ext === 'kml' || ext === 'xml') {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        processKMLFile(fileName, e.target.result);
-                    } catch (error) {
-                        console.error("Error al procesar KML:", error);
-                        showToast('Error al procesar el archivo KML.', 'error');
-                    }
-                };
-                reader.readAsText(file);
-            } else {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-                        const firstSheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[firstSheetName];
-                        const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-
-                        processExcelFile(fileName, jsonRows);
-                    } catch (error) {
-                        console.error("Error al procesar el archivo Excel/CSV:", error);
-                        showToast('Error al procesar el archivo Excel. Verifica el formato.', 'error');
-                    }
-                };
-                reader.readAsArrayBuffer(file);
-            }
-        }
-
-        function processKMLFile(fileName, xmlText) {
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-            const placemarks = xmlDoc.getElementsByTagName("Placemark");
-
-            if (!placemarks || placemarks.length === 0) {
-                showToast("No se encontraron Placemarks en el archivo KML.", "error");
-                return;
-            }
-
-            const styleMap = {};
-            const styles = xmlDoc.getElementsByTagName("Style");
-            for (let style of styles) {
-                const styleId = style.getAttribute("id");
-                if (styleId) {
-                    const iconStyle = style.getElementsByTagName("IconStyle")[0];
-                    if (iconStyle) {
-                        const colorElem = iconStyle.getElementsByTagName("color")[0];
-                        if (colorElem && colorElem.textContent) {
-                            styleMap[styleId] = kmlColorToHex(colorElem.textContent.trim());
-                        }
-                    }
-                }
-            }
-
-            clearCurrentMapMarkers();
-
-            const fileId = `file_${Date.now()}`;
-            const filePoints = [];
-            const localDesc3ColorMap = {};
-            const bounds = [];
-
-            for (let i = 0; i < placemarks.length; i++) {
-                const pm = placemarks[i];
-                const pointNode = pm.getElementsByTagName("Point")[0];
-                if (!pointNode) continue;
-
-                const coordsNode = pointNode.getElementsByTagName("coordinates")[0];
-                if (!coordsNode) continue;
-
-                const rawCoords = coordsNode.textContent.trim().split(',');
-                const lng = parseFloat(rawCoords[0]);
-                const lat = parseFloat(rawCoords[1]);
-                if (isNaN(lat) || isNaN(lng)) continue;
-
-                const nameNode = pm.getElementsByTagName("name")[0];
-                const name = nameNode ? nameNode.textContent.trim() : `Punto ${i + 1}`;
-
-                const descNode = pm.getElementsByTagName("description")[0];
-                const desc1 = descNode ? descNode.textContent.trim() : '';
-
-                let color = null;
-                const styleUrlNode = pm.getElementsByTagName("styleUrl")[0];
-                if (styleUrlNode) {
-                    const sId = styleUrlNode.textContent.trim().replace('#', '');
-                    if (styleMap[sId]) color = styleMap[sId];
-                }
-
-                if (!color) {
-                    color = PRESET_COLORS[colorCounter % PRESET_COLORS.length];
-                    colorCounter++;
-                }
-
-                const markerId = `pm_${i}_${Date.now()}`;
-                const pointItem = {
-                    id: markerId,
-                    name: name,
-                    lat: lat,
-                    lng: lng,
-                    desc1: desc1,
-                    desc2: '',
-                    desc3: '',
-                    desc4: '',
-                    color: color,
-                    leafletMarker: null
-                };
-
-                const leafletMarker = createLeafletMarker(pointItem);
-                pointItem.leafletMarker = leafletMarker;
-
-                filePoints.push(pointItem);
-                bounds.push([lat, lng]);
-            }
-
-            if (filePoints.length === 0) {
-                showToast("No se encontraron puntos válidos en el KML.", "error");
-                return;
-            }
-
-            const fileRecord = {
-                id: fileId,
-                fileName: fileName,
-                pointsData: filePoints,
-                desc3ColorMap: localDesc3ColorMap
-            };
-
-            loadedFiles.push(fileRecord);
-            currentFileId = fileId;
-            markersData = filePoints;
-            desc3ColorMap = localDesc3ColorMap;
-
-            updateWorkspaceDropdown();
-            document.getElementById('export-options-box').classList.remove('hidden');
-
-            if (bounds.length > 0) {
-                map.fitBounds(bounds, { padding: [40, 40] });
-            }
-
-            refreshUIAllTabs();
-            showToast(`¡Se cargaron ${filePoints.length} puntos desde ${fileName}!`, 'success');
-        }
-
-        function kmlColorToHex(kmlColor) {
-            if (!kmlColor || kmlColor.length !== 8) return DEFAULT_COLOR;
-            const r = kmlColor.substring(6, 8);
-            const g = kmlColor.substring(4, 6);
-            const b = kmlColor.substring(2, 4);
-            return `#${r}${g}${b}`;
-        }
-
-        function processExcelFile(fileName, rows) {
-            if (!rows || rows.length === 0) {
-                showToast('El archivo cargado está vacío.', 'error');
-                return;
-            }
-
-            clearCurrentMapMarkers();
-
-            const fileId = `file_${Date.now()}`;
-            const filePoints = [];
-            const localDesc3ColorMap = {};
-
-            const sample = rows[0];
-            const keys = Object.keys(sample);
-
-            let nameKey = keys.find(k => k.toLowerCase().match(/^(nombre|nombre del punto|punto|label|id)$/i)) || keys[0];
-            let latKey = keys.find(k => k.toLowerCase().match(/^(lat|latitud|latitude|y)$/i));
-            let lngKey = keys.find(k => k.toLowerCase().match(/^(lng|long|longitud|longitude|x)$/i));
-            let desc1Key = keys.find(k => k.toLowerCase().match(/^(descripción 1|descripcion 1|desc 1|desc1)$/i));
-            let desc2Key = keys.find(k => k.toLowerCase().match(/^(descripción 2|descripcion 2|desc 2|desc2)$/i));
-            let desc3Key = keys.find(k => k.toLowerCase().match(/^(descripción 3|descripcion 3|desc 3|desc3)$/i));
-            let desc4Key = keys.find(k => k.toLowerCase().match(/^(descripción 4|descripcion 4|desc 4|desc4)$/i));
-            let colorKey = keys.find(k => k.toLowerCase().match(/^(color|colour|hex)$/i));
-
-            const bounds = [];
-
-            rows.forEach((row, index) => {
-                let lat = parseFloat(row[latKey]);
-                let lng = parseFloat(row[lngKey]);
-
-                if (isNaN(lat) || isNaN(lng)) return;
-
-                const name = String(row[nameKey] || `Punto ${index + 1}`).trim();
-                const desc1 = desc1Key ? String(row[desc1Key]).trim() : '';
-                const desc2 = desc2Key ? String(row[desc2Key]).trim() : '';
-                const desc3 = desc3Key ? String(row[desc3Key]).trim() : '';
-                const desc4 = desc4Key ? String(row[desc4Key]).trim() : '';
-
-                let rawColor = colorKey && row[colorKey] ? String(row[colorKey]).trim() : null;
-                if (rawColor && !rawColor.startsWith('#') && rawColor.length === 6) rawColor = '#' + rawColor;
-
-                let color = rawColor;
-
-                if (desc3) {
-                    if (localDesc3ColorMap[desc3]) {
-                        color = localDesc3ColorMap[desc3];
-                    } else {
-                        if (!color) {
-                            color = PRESET_COLORS[colorCounter % PRESET_COLORS.length];
-                            colorCounter++;
-                        }
-                        localDesc3ColorMap[desc3] = color;
-                    }
-                } else if (!color) {
-                    color = DEFAULT_COLOR;
-                }
-
-                const markerId = `pm_${index}_${Date.now()}`;
-                const pointItem = {
-                    id: markerId,
-                    name: name,
-                    lat: lat,
-                    lng: lng,
-                    desc1: desc1,
-                    desc2: desc2,
-                    desc3: desc3,
-                    desc4: desc4,
-                    color: color,
-                    leafletMarker: null
-                };
-
-                const leafletMarker = createLeafletMarker(pointItem);
-                pointItem.leafletMarker = leafletMarker;
-
-                filePoints.push(pointItem);
-                bounds.push([lat, lng]);
-            });
-
-            if (filePoints.length === 0) {
-                showToast('No se encontraron coordenadas válidas (Latitud/Longitud) en el archivo.', 'error');
-                return;
-            }
-
-            const fileRecord = {
-                id: fileId,
-                fileName: fileName,
-                pointsData: filePoints,
-                desc3ColorMap: localDesc3ColorMap
-            };
-
-            loadedFiles.push(fileRecord);
-            currentFileId = fileId;
-            markersData = filePoints;
-            desc3ColorMap = localDesc3ColorMap;
-
-            updateWorkspaceDropdown();
-            document.getElementById('export-options-box').classList.remove('hidden');
-
-            if (bounds.length > 0) {
-                map.fitBounds(bounds, { padding: [40, 40] });
-            }
-
-            refreshUIAllTabs();
-            showToast(`¡Se cargaron ${filePoints.length} puntos desde ${fileName}!`, 'success');
-        }
-
-        function createLeafletMarker(item) {
-            const customIcon = L.divIcon({
-                className: 'custom-kml-marker',
-                html: `
-                    <div id="marker-icon-${item.id}" class="marker-pin-wrapper relative">
-                        <div class="marker-pin" style="background-color: ${item.color};"></div>
-                    </div>
-                `,
-                iconSize: [28, 28],
-                iconAnchor: [14, 28],
-                popupAnchor: [0, -28]
-            });
-
-            const marker = L.marker([item.lat, item.lng], { icon: customIcon }).addTo(map);
-            bindMarkerPopup(marker, item);
-
-            marker.on('click', function() {
-                if (isRouteEditMode && activeRouteId) {
-                    addMarkerToActiveRoute(item.id);
-                }
-            });
-
-            return marker;
-        }
-
-        function bindMarkerPopup(marker, item) {
-            let popupHtml = `<div class="p-1 space-y-1.5 min-w-[180px]">`;
-            popupHtml += `<div class="flex items-center gap-2 border-b border-slate-200 pb-1.5">`;
-            popupHtml += `<span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${item.color}"></span>`;
-            popupHtml += `<h4 class="font-bold text-sm text-slate-800">${escapeXml(item.name)}</h4>`;
-            popupHtml += `</div>`;
-
-            popupHtml += `<div class="space-y-1 text-xs text-slate-600 mt-1">`;
-            if (item.desc1) popupHtml += `<div><strong class="text-slate-700">Desc 1:</strong> ${escapeXml(item.desc1)}</div>`;
-            if (item.desc2) popupHtml += `<div><strong class="text-slate-700">Desc 2:</strong> ${escapeXml(item.desc2)}</div>`;
-            if (item.desc3) popupHtml += `<div class="bg-blue-50 text-blue-900 p-1 rounded font-medium"><strong class="text-blue-800">Desc 3:</strong> ${escapeXml(item.desc3)}</div>`;
-            if (item.desc4) popupHtml += `<div><strong class="text-slate-700">Desc 4:</strong> ${escapeXml(item.desc4)}</div>`;
-            popupHtml += `<div class="text-[10px] text-slate-400 font-mono mt-1">${item.lat.toFixed(5)}, ${item.lng.toFixed(5)}</div>`;
-            popupHtml += `</div></div>`;
-
-            marker.bindPopup(popupHtml);
-        }
-
-        function populateDataTable() {
-            const body = document.getElementById('data-table-body');
-            const tableCountTag = document.getElementById('table-rows-count');
-
-            if (!body) return;
-
-            if (markersData.length === 0) {
-                body.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="p-4 text-center italic text-slate-400">Carga un archivo Excel para visualizar la tabla.</td>
-                    </tr>
-                `;
-                if (tableCountTag) tableCountTag.textContent = '0 Registros';
-                return;
-            }
-
-            let bodyHtml = '';
-            markersData.forEach((m) => {
-                bodyHtml += `<tr class="table-row-item hover:bg-blue-50/40 transition-colors" data-marker-id="${m.id}">`;
-                bodyHtml += `<td class="p-2 border-r border-slate-200 text-center"><span class="marker-color-dot-${m.id} w-3.5 h-3.5 rounded-full inline-block shadow-sm" style="background-color: ${m.color}"></span></td>`;
-                bodyHtml += `<td class="p-2 border-r border-slate-200 font-semibold text-slate-800 whitespace-nowrap cursor-pointer hover:text-blue-600" onclick="focusMarkerFromTable('${m.id}')">${escapeXml(m.name)}</td>`;
-                bodyHtml += `<td class="p-2 border-r border-slate-200 font-mono text-[10px] text-slate-400 whitespace-nowrap">${m.lat.toFixed(5)}, ${m.lng.toFixed(5)}</td>`;
-                
-                bodyHtml += `<td class="p-1 border-r border-slate-200"><input type="text" class="editable-cell-input" value="${escapeHtmlAttr(m.desc1)}" onchange="updatePointDescription('${m.id}', 'desc1', this.value)"></td>`;
-                bodyHtml += `<td class="p-1 border-r border-slate-200"><input type="text" class="editable-cell-input" value="${escapeHtmlAttr(m.desc2)}" onchange="updatePointDescription('${m.id}', 'desc2', this.value)"></td>`;
-                bodyHtml += `<td class="p-1 border-r border-slate-200 bg-blue-50/30"><input type="text" class="editable-cell-input font-bold text-blue-900" value="${escapeHtmlAttr(m.desc3)}" onchange="updatePointDescription3('${m.id}', this.value)"></td>`;
-                bodyHtml += `<td class="p-1"><input type="text" class="editable-cell-input" value="${escapeHtmlAttr(m.desc4)}" onchange="updatePointDescription('${m.id}', 'desc4', this.value)"></td>`;
-
-                bodyHtml += `</tr>`;
-            });
-
-            body.innerHTML = bodyHtml;
-            if (tableCountTag) tableCountTag.textContent = `${markersData.length} Registros`;
-        }
-
-        function filterTableRows() {
-            const query = document.getElementById('table-search-input').value.toLowerCase().trim();
-            const rows = document.querySelectorAll('#data-table-body tr.table-row-item');
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(query) ? '' : 'none';
-            });
-        }
-
-        function updatePointDescription(markerId, field, newValue) {
-            const point = markersData.find(m => m.id === markerId);
-            if (!point) return;
-
-            point[field] = newValue.trim();
-            bindMarkerPopup(point.leafletMarker, point);
-            showToast(`Punto "${point.name}" actualizado`, 'info');
-        }
-
-        function updatePointDescription3(markerId, newDesc3Value) {
-            const point = markersData.find(m => m.id === markerId);
-            if (!point) return;
-
-            const cleanDesc3 = newDesc3Value.trim();
-            point.desc3 = cleanDesc3;
-
-            if (cleanDesc3) {
-                if (desc3ColorMap[cleanDesc3]) {
-                    point.color = desc3ColorMap[cleanDesc3];
-                } else {
-                    const newColor = PRESET_COLORS[colorCounter % PRESET_COLORS.length];
-                    colorCounter++;
-                    desc3ColorMap[cleanDesc3] = newColor;
-                    point.color = newColor;
-                }
-            } else {
-                point.color = DEFAULT_COLOR;
-            }
-
-            updateMarkerPinColor(point);
-            bindMarkerPopup(point.leafletMarker, point);
-
-            const colorDot = document.querySelector(`.marker-color-dot-${point.id}`);
-            if (colorDot) colorDot.style.backgroundColor = point.color;
-
-            populateFilterOptions();
-            populatePlacemarksSummary();
-
-            showToast(`Descripción 3 actualizada. Color vinculado: ${point.color}`, 'success');
-        }
-
-        function updateMarkerPinColor(point) {
-            const markerPinElem = document.querySelector(`#marker-icon-${point.id} .marker-pin`);
-            if (markerPinElem) {
-                markerPinElem.style.backgroundColor = point.color;
-            }
-        }
-
-        function focusMarkerFromTable(markerId) {
-            const m = markersData.find(item => item.id === markerId);
-            if (m && m.leafletMarker) {
-                map.setView([m.lat, m.lng], 16);
-                m.leafletMarker.openPopup();
-            }
-        }
-
-        function updateWorkspaceDropdown() {
-            const select = document.getElementById('file-workspace-select');
-            if (loadedFiles.length === 0) {
-                select.innerHTML = `<option value="none">-- Ningún archivo cargado --</option>`;
-                return;
-            }
-
-            select.innerHTML = loadedFiles.map(f => `
-                <option value="${f.id}" ${f.id === currentFileId ? 'selected' : ''}>${escapeXml(f.fileName)} (${f.pointsData.length} puntos)</option>
-            `).join('');
-        }
-
-        function switchWorkspaceFile(fileId) {
-            if (fileId === 'none') return;
-            const targetFile = loadedFiles.find(f => f.id === fileId);
-            if (!targetFile) return;
-
-            clearCurrentMapMarkers();
-
-            currentFileId = fileId;
-            markersData = targetFile.pointsData;
-            desc3ColorMap = targetFile.desc3ColorMap;
-
-            const bounds = [];
-            markersData.forEach(m => {
-                m.leafletMarker = createLeafletMarker(m);
-                bounds.push([m.lat, m.lng]);
-            });
-
-            if (bounds.length > 0) {
-                map.fitBounds(bounds, { padding: [40, 40] });
-            }
-
-            refreshUIAllTabs();
-            showToast(`Cambiado al archivo ${targetFile.fileName}`, 'info');
-        }
-
-        function clearCurrentMapMarkers() {
-            markersData.forEach(m => {
-                if (m.leafletMarker) map.removeLayer(m.leafletMarker);
-            });
-            markersData = [];
-        }
-
-        function refreshUIAllTabs() {
-            populatePlacemarksSummary();
-            populateDataTable();
-            populateFilterOptions();
-            updateBadgeCount();
-        }
-
-        function updateBadgeCount() {
-            const badge = document.getElementById('marker-count-badge');
-            badge.textContent = `${markersData.length} Puntos`;
-            badge.classList.remove('hidden');
-        }
-
-        function populatePlacemarksSummary() {
-            const listContainer = document.getElementById('placemarks-list');
-            listContainer.innerHTML = '';
-            document.getElementById('placemarks-summary-box').classList.remove('hidden');
-
-            markersData.forEach(m => {
-                const item = document.createElement('div');
-                item.className = 'flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors cursor-pointer text-xs';
-                item.innerHTML = `
-                    <div class="flex items-center gap-2 truncate">
-                        <span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${m.color}"></span>
-                        <span class="font-medium text-slate-700 truncate">${escapeXml(m.name)}</span>
-                    </div>
-                    <i class="fa-solid fa-location-crosshairs text-slate-400 hover:text-blue-600"></i>
-                `;
-                item.onclick = () => {
-                    map.setView([m.lat, m.lng], 16);
-                    m.leafletMarker.openPopup();
-                };
-                listContainer.appendChild(item);
-            });
-        }
-
-        function zoomToAllMarkers() {
-            const visibleBounds = markersData
-                .filter(m => map.hasLayer(m.leafletMarker))
-                .map(m => [m.lat, m.lng]);
-            if (visibleBounds.length > 0) {
-                map.fitBounds(visibleBounds, { padding: [40, 40] });
-            }
-        }
-
-        function populateFilterOptions() {
-            const namesContainer = document.getElementById('filter-names-list');
-            namesContainer.innerHTML = '';
-            
-            const nameItems = [];
-            markersData.forEach(m => {
-                if (m.name) nameItems.push(m.name);
-                if (m.desc1) nameItems.push(m.desc1);
-            });
-
-            const sortedNames = Array.from(new Set(nameItems)).sort();
-
-            if (sortedNames.length === 0) {
-                namesContainer.innerHTML = `<p class="text-slate-400 italic text-center py-2">No hay nombres ni descripciones disponibles.</p>`;
-            } else {
-                sortedNames.forEach(name => {
-                    const item = document.createElement('label');
-                    item.className = 'flex items-center gap-2 p-1 hover:bg-slate-50 rounded cursor-pointer';
-                    item.innerHTML = `
-                        <input type="checkbox" value="${escapeHtmlAttr(name)}" onchange="toggleNameFilter(this)" class="rounded text-blue-600 focus:ring-blue-500 h-3.5 w-3.5">
-                        <span class="text-slate-700 truncate">${escapeXml(name)}</span>
-                    `;
-                    namesContainer.appendChild(item);
-                });
-            }
-
-            const desc3Container = document.getElementById('filter-desc3-list');
-            desc3Container.innerHTML = '';
-            const sortedDesc3 = Array.from(new Set(markersData.map(m => m.desc3).filter(Boolean))).sort();
-
-            if (sortedDesc3.length === 0) {
-                desc3Container.innerHTML = `<p class="text-slate-400 italic text-center py-2">No hay Descripción 3 asignada.</p>`;
-            } else {
-                sortedDesc3.forEach(desc => {
-                    const color = desc3ColorMap[desc] || DEFAULT_COLOR;
-                    const item = document.createElement('label');
-                    item.className = 'flex items-center gap-2 p-1 hover:bg-slate-50 rounded cursor-pointer';
-                    item.innerHTML = `
-                        <input type="checkbox" value="${escapeHtmlAttr(desc)}" onchange="toggleDesc3Filter(this)" class="rounded text-blue-600 focus:ring-blue-500 h-3.5 w-3.5">
-                        <span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${color}"></span>
-                        <span class="text-slate-700 truncate font-medium">${escapeXml(desc)}</span>
-                    `;
-                    desc3Container.appendChild(item);
-                });
-            }
-
-            updateFilterSummaryInfo(markersData.length);
-        }
-
-        function toggleNameFilter(cb) {
-            if (cb.checked) selectedFilterNames.add(cb.value);
-            else selectedFilterNames.delete(cb.value);
-            applyFilters();
-        }
-
-        function toggleDesc3Filter(cb) {
-            if (cb.checked) selectedFilterDesc3.add(cb.value);
-            else selectedFilterDesc3.delete(cb.value);
-            applyFilters();
-        }
-
-        function selectAllNames(enable) {
-            document.querySelectorAll('#filter-names-list input[type="checkbox"]').forEach(cb => {
-                cb.checked = enable;
-                if (enable) selectedFilterNames.add(cb.value);
-                else selectedFilterNames.delete(cb.value);
-            });
-            applyFilters();
-        }
-
-        function selectAllDesc3(enable) {
-            document.querySelectorAll('#filter-desc3-list input[type="checkbox"]').forEach(cb => {
-                cb.checked = enable;
-                if (enable) selectedFilterDesc3.add(cb.value);
-                else selectedFilterDesc3.delete(cb.value);
-            });
-            applyFilters();
-        }
-
-        function applyFilters() {
-            const searchText = document.getElementById('filter-search-input').value.toLowerCase().trim();
-            let visibleCount = 0;
-
-            markersData.forEach(m => {
-                let matchSearch = true;
-                let matchName = true;
-                let matchDesc3 = true;
-
-                if (searchText) {
-                    matchSearch = m.name.toLowerCase().includes(searchText) ||
-                                  m.desc1.toLowerCase().includes(searchText) ||
-                                  m.desc2.toLowerCase().includes(searchText) ||
-                                  m.desc3.toLowerCase().includes(searchText) ||
-                                  m.desc4.toLowerCase().includes(searchText);
-                }
-
-                if (selectedFilterNames.size > 0) {
-                    matchName = selectedFilterNames.has(m.name) || selectedFilterNames.has(m.desc1);
-                }
-
-                if (selectedFilterDesc3.size > 0) matchDesc3 = selectedFilterDesc3.has(m.desc3);
-
-                const isVisible = matchSearch && matchName && matchDesc3;
-
-                if (isVisible) {
-                    if (!map.hasLayer(m.leafletMarker)) map.addLayer(m.leafletMarker);
-                    visibleCount++;
-                } else {
-                    if (map.hasLayer(m.leafletMarker)) map.removeLayer(m.leafletMarker);
-                }
-            });
-
-            updateFilterSummaryInfo(visibleCount);
-        }
-
-        function updateFilterSummaryInfo(visibleCount) {
-            const info = document.getElementById('filter-results-info');
-            info.innerHTML = `<span>Mostrando <strong>${visibleCount}</strong> de <strong>${markersData.length}</strong> puntos</span>`;
-        }
-
-        function resetFilters() {
-            document.getElementById('filter-search-input').value = '';
-            selectAllNames(false);
-            selectAllDesc3(false);
-            applyFilters();
-            showToast('Filtros restablecidos', 'info');
-        }
-
-        function downloadUpdatedExcel() {
-            if (markersData.length === 0) {
-                showToast('No hay datos para exportar a Excel.', 'error');
-                return;
-            }
-
-            const exportRows = markersData.map(m => ({
-                "Nombre del punto": m.name,
-                "Latitud": m.lat,
-                "Longitud": m.lng,
-                "Descripción 1": m.desc1,
-                "Descripción 2": m.desc2,
-                "Descripción 3": m.desc3,
-                "Descripción 4": m.desc4,
-                "Color": m.color
-            }));
-
-            const worksheet = XLSX.utils.json_to_sheet(exportRows);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Puntos Actualizados");
-
-            const currentFile = loadedFiles.find(f => f.id === currentFileId);
-            const outName = currentFile ? `actualizado_${currentFile.fileName}` : 'puntos_actualizados.xlsx';
-
-            XLSX.writeFile(workbook, outName);
-            showToast('¡Archivo Excel descargado con éxito!', 'success');
-        }
-
-        function exportKMLWithRoutes() {
-            if (markersData.length === 0) {
-                showToast('No hay datos para exportar a KML.', 'error');
-                return;
-            }
-
-            let kmlString = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-            kmlString += `<kml xmlns="http://www.opengis.net/kml/2.2">\n`;
-            kmlString += `  <Document>\n`;
-            kmlString += `    <name>Puntos y Rutas Exportadas</name>\n`;
-
-            markersData.forEach(m => {
-                kmlString += `    <Placemark>\n`;
-                kmlString += `      <name>${escapeXml(m.name)}</name>\n`;
-                kmlString += `      <description><![CDATA[Desc 1: ${escapeXml(m.desc1)}<br>Desc 2: ${escapeXml(m.desc2)}<br>Desc 3: ${escapeXml(m.desc3)}<br>Desc 4: ${escapeXml(m.desc4)}]]></description>\n`;
-                kmlString += `      <Style><IconStyle><color>${hexToKmlColor(m.color)}</color></IconStyle></Style>\n`;
-                kmlString += `      <Point>\n`;
-                kmlString += `        <coordinates>${m.lng},${m.lat},0</coordinates>\n`;
-                kmlString += `      </Point>\n`;
-                kmlString += `    </Placemark>\n`;
-            });
-
-            routes.forEach(r => {
-                if (r.stops.length > 0) {
-                    kmlString += `    <Placemark>\n`;
-                    kmlString += `      <name>${escapeXml(r.name)}</name>\n`;
-                    kmlString += `      <LineString>\n`;
-                    kmlString += `        <coordinates>\n`;
-                    r.stops.forEach(mId => {
-                        const m = markersData.find(item => item.id === mId);
-                        if (m) kmlString += `          ${m.lng},${m.lat},0\n`;
-                    });
-                    kmlString += `        </coordinates>\n`;
-                    kmlString += `      </LineString>\n`;
-                    kmlString += `    </Placemark>\n`;
-                }
-            });
-
-            kmlString += `  </Document>\n`;
-            kmlString += `</kml>`;
-
-            downloadFile(kmlString, 'mapa_actualizado.kml', 'application/vnd.google-earth.kml+xml');
-            showToast('¡Archivo KML descargado correctamente!', 'success');
-        }
-
-        function hexToKmlColor(hex) {
-            if (!hex || !hex.startsWith('#')) return 'ff0000ff';
-            const clean = hex.replace('#', '');
-            if (clean.length !== 6) return 'ff0000ff';
-            const r = clean.substring(0,2);
-            const g = clean.substring(2,4);
-            const b = clean.substring(4,6);
-            return `ff${b}${g}${r}`;
-        }
-
-        function createNewRoute() {
-            const routeNumber = routes.length + 1;
-            const routeId = `route_${Date.now()}`;
-            const assignedColor = PRESET_COLORS[routes.length % PRESET_COLORS.length];
-
-            const newRoute = { id: routeId, name: `Ruta ${routeNumber}`, color: assignedColor, stops: [], polyline: null };
-            routes.push(newRoute);
-            updateRouteSelectDropdown();
-            selectActiveRoute(routeId);
-            showToast(`¡${newRoute.name} creada!`, 'success');
-        }
-
-        function updateRouteSelectDropdown() {
-            const select = document.getElementById('active-route-select');
-            const tag = document.getElementById('routes-count-tag');
-
-            if (routes.length === 0) {
-                select.innerHTML = `<option value="none">-- Sin Ruta Activa --</option>`;
-                tag.classList.add('hidden');
-                return;
-            }
-
-            tag.textContent = routes.length;
-            tag.classList.remove('hidden');
-            select.innerHTML = routes.map(r => `<option value="${r.id}">${r.name} (${r.stops.length} puntos)</option>`).join('');
-        }
-
-        function selectActiveRoute(routeId) {
-            activeRouteId = (routeId === 'none') ? null : routeId;
-            const controlsBox = document.getElementById('route-controls-box');
-
-            if (!activeRouteId) {
-                controlsBox.classList.add('hidden');
-                setRouteEditMode(false);
-            } else {
-                controlsBox.classList.remove('hidden');
-                document.getElementById('active-route-select').value = activeRouteId;
-            }
-            renderRouteVisuals();
-        }
-
-        function toggleRouteEditMode() { setRouteEditMode(!isRouteEditMode); }
-
-        function setRouteEditMode(enabled) {
-            isRouteEditMode = enabled;
-            const btn = document.getElementById('toggle-edit-btn');
-            const indicator = document.getElementById('route-edit-indicator');
-
-            if (isRouteEditMode) {
-                btn.textContent = 'ACTIVADO';
-                btn.className = 'px-2.5 py-1 text-xs rounded-md font-semibold bg-blue-600 text-white shadow-sm';
-                indicator.className = 'w-3 h-3 rounded-full bg-blue-500 animate-ping';
-                showToast('Modo Selección activo: Haz clic en los puntos del mapa', 'info');
-            } else {
-                btn.textContent = 'Desactivado';
-                btn.className = 'px-2.5 py-1 text-xs rounded-md font-semibold bg-slate-200 text-slate-700 hover:bg-slate-300';
-                indicator.className = 'w-3 h-3 rounded-full bg-slate-300';
-            }
-        }
-
-        function addMarkerToActiveRoute(markerId) {
-            if (!activeRouteId) return;
-            const route = routes.find(r => r.id === activeRouteId);
-            if (!route) return;
-
-            route.stops.push(markerId);
-            updateRouteSelectDropdown();
-            renderRouteVisuals();
-            showToast(`Punto agregado a ${route.name}`, 'success');
-        }
-
-        function renderRouteVisuals() {
-            markersData.forEach(m => {
-                const el = document.getElementById(`marker-icon-${m.id}`);
-                if (el) {
-                    const badge = el.querySelector('.route-badge');
-                    if (badge) badge.remove();
-                }
-            });
-
-            routes.forEach(r => { if (r.polyline) map.removeLayer(r.polyline); });
-
-            if (!activeRouteId) return;
-            const activeRoute = routes.find(r => r.id === activeRouteId);
-            if (!activeRoute) return;
-
-            const latLngs = [];
-            const stopsList = document.getElementById('route-stops-list');
-            if (stopsList) stopsList.innerHTML = '';
-
-            activeRoute.stops.forEach((mId, index) => {
-                const m = markersData.find(item => item.id === mId);
-                if (m) {
-                    latLngs.push([m.lat, m.lng]);
-                    const iconElem = document.getElementById(`marker-icon-${m.id}`);
-                    if (iconElem) {
-                        let badge = document.createElement('div');
-                        badge.className = 'route-badge';
-                        badge.style.backgroundColor = activeRoute.color;
-                        badge.textContent = (index + 1);
-                        iconElem.appendChild(badge);
-                    }
-
-                    if (stopsList) {
-                        const stopItem = document.createElement('div');
-                        stopItem.className = 'flex items-center justify-between p-1.5 bg-slate-50 border border-slate-200 rounded text-xs';
-                        stopItem.innerHTML = `
-                            <div class="flex items-center gap-2 truncate">
-                                <span class="w-5 h-5 rounded-full text-white font-bold flex items-center justify-center text-[10px] flex-shrink-0" style="background-color: ${activeRoute.color}">${index + 1}</span>
-                                <span class="font-medium text-slate-700 truncate">${escapeXml(m.name)}</span>
-                            </div>
-                            <button onclick="removeStopFromRoute(${index})" class="text-red-500 hover:text-red-700 text-xs px-1" title="Quitar punto">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                        `;
-                        stopsList.appendChild(stopItem);
-                    }
-                }
-            });
-
-            if (stopsList && activeRoute.stops.length === 0) {
-                stopsList.innerHTML = '<p class="text-xs text-slate-400 text-center py-3 italic">No hay puntos seleccionados.</p>';
-            }
-
-            if (latLngs.length > 1) {
-                activeRoute.polyline = L.polyline(latLngs, { color: activeRoute.color, weight: 4, opacity: 0.85, dashArray: '6, 8' }).addTo(map);
-            }
-
-            document.getElementById('route-stops-count').textContent = activeRoute.stops.length;
-            calculateRouteDistance(latLngs);
-        }
-
-        function removeStopFromRoute(index) {
-            if (!activeRouteId) return;
-            const route = routes.find(r => r.id === activeRouteId);
-            if (route && route.stops[index] !== undefined) {
-                route.stops.splice(index, 1);
-                updateRouteSelectDropdown();
-                renderRouteVisuals();
-            }
-        }
-
-        function calculateRouteDistance(latLngs) {
-            let totalDistMeters = 0;
-            for (let i = 0; i < latLngs.length - 1; i++) {
-                const p1 = L.latLng(latLngs[i][0], latLngs[i][1]);
-                const p2 = L.latLng(latLngs[i+1][0], latLngs[i+1][1]);
-                totalDistMeters += p1.distanceTo(p2);
-            }
-            const km = (totalDistMeters / 1000).toFixed(2);
-            const distElem = document.getElementById('route-distance-text');
-            if (distElem) distElem.textContent = `${km} km`;
-        }
-
-        function clearCurrentRouteStops() {
-            if (!activeRouteId) return;
-            const route = routes.find(r => r.id === activeRouteId);
-            if (route) { route.stops = []; updateRouteSelectDropdown(); renderRouteVisuals(); }
-        }
-
-        function deleteActiveRoute() {
-            if (!activeRouteId) return;
-            const idx = routes.findIndex(r => r.id === activeRouteId);
-            if (idx !== -1) {
-                if (routes[idx].polyline) map.removeLayer(routes[idx].polyline);
-                routes.splice(idx, 1);
-                activeRouteId = routes.length > 0 ? routes[0].id : null;
-                updateRouteSelectDropdown();
-                selectActiveRoute(activeRouteId || 'none');
-            }
-        }
-
-        function escapeXml(unsafe) {
-            if (!unsafe) return '';
-            return String(unsafe).replace(/[<>&'"]/g, function (c) {
-                switch (c) {
-                    case '<': return '&lt;'; case '>': return '&gt;';
-                    case '&': return '&amp;'; case '\'': return '&apos;'; case '"': return '&quot;';
-                }
-            });
-        }
-
-        function escapeHtmlAttr(str) {
-            return String(str || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-        }
-
-        function downloadFile(content, fileName, mimeType) {
-            const blob = new Blob([content], { type: mimeType });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function switchTab(tabKey) {
-            ['data', 'table', 'filter', 'route'].forEach(key => {
-                const btn = document.getElementById(`tab-btn-${key}`);
-                const content = document.getElementById(`tab-content-${key}`);
-
-                if (key === tabKey) {
-                    btn.className = 'flex-1 py-3 px-2 text-center border-b-2 border-blue-600 text-blue-600 font-bold transition-all flex items-center justify-center gap-1.5 whitespace-nowrap';
-                    content.classList.remove('hidden');
-                } else {
-                    btn.className = 'flex-1 py-3 px-2 text-center border-b-2 border-transparent hover:text-slate-900 transition-all flex items-center justify-center gap-1.5 whitespace-nowrap';
-                    content.classList.add('hidden');
-                }
-            });
-        }
-
-        function showToast(msg, type = 'info') {
-            const toast = document.getElementById('toast-msg');
-            const icon = document.getElementById('toast-icon');
-            const text = document.getElementById('toast-text');
-
-            text.textContent = msg;
-
-            if (type === 'error') icon.className = 'fa-solid fa-circle-exclamation text-red-400';
-            else if (type === 'success') icon.className = 'fa-solid fa-circle-check text-emerald-400';
-            else icon.className = 'fa-solid fa-circle-info text-blue-400';
-
-            toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-[-20px]');
-            toast.classList.add('opacity-100', 'translate-y-0');
-
-            setTimeout(() => {
-                toast.classList.remove('opacity-100', 'translate-y-0');
-                toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-[-20px]');
-            }, 3500);
-        }
-    </script>
+      }
+
+    }
+  );
+
+
+  document
+    .getElementById(
+      'filter-info'
+    )
+    .textContent =
+      visible +
+      ' puntos visibles';
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 21 - FILTROS AUXILIARES
+ * =============================================================
+ */
+
+function selectAllColors(
+  select
+) {
+
+  document
+    .querySelectorAll(
+      '[data-color-filter]'
+    )
+    .forEach(
+      checkbox => {
+        checkbox.checked =
+          select;
+      }
+    );
+
+
+  applyFilters();
+
+}
+
+
+function selectAllDesc3(
+  select
+) {
+
+  document
+    .querySelectorAll(
+      '[data-desc3-filter]'
+    )
+    .forEach(
+      checkbox => {
+        checkbox.checked =
+          select;
+      }
+    );
+
+
+  applyFilters();
+
+}
+
+
+function resetFilters() {
+
+  document
+    .getElementById(
+      'general-search'
+    )
+    .value =
+      '';
+
+
+  selectAllColors(true);
+
+  selectAllDesc3(true);
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 22 - RUTAS
+ * =============================================================
+ ***************************************************************/
+
+function createRoute() {
+
+  const name =
+    prompt(
+      'Nombre de la nueva ruta:',
+      'Ruta ' +
+      (routes.length + 1)
+    );
+
+
+  if (!name) {
+    return;
+  }
+
+
+  const route = {
+
+    id:
+      'route_' +
+      Date.now(),
+
+    name:
+      name,
+
+    points:
+      []
+
+  };
+
+
+  routes.push(
+    route
+  );
+
+
+  activeRouteId =
+    route.id;
+
+
+  renderRoutes();
+
+
+  switchTab(
+    'route'
+  );
+
+
+  showToast(
+    'Ruta creada.'
+  );
+
+}
+
+
+/**
+ * Ruta activa.
+ */
+function getActiveRoute() {
+
+  return routes.find(
+    r =>
+      r.id === activeRouteId
+  );
+
+}
+
+
+/**
+ * Seleccionar ruta.
+ */
+function selectRoute(
+  id
+) {
+
+  activeRouteId =
+    id || null;
+
+
+  routeMode =
+    false;
+
+
+  updateRoutePanel();
+
+  drawMarkers();
+
+}
+
+
+/**
+ * Activar modo ruta.
+ */
+function toggleRouteMode() {
+
+  if (!activeRouteId) {
+
+    showToast(
+      'Primero crea o selecciona una ruta.'
+    );
+
+    return;
+  }
+
+
+  routeMode =
+    !routeMode;
+
+
+  const button =
+    document.getElementById(
+      'route-mode-btn'
+    );
+
+
+  if (routeMode) {
+
+    button.textContent =
+      'ACTIVADO';
+
+    button.classList.remove(
+      'bg-slate-200'
+    );
+
+    button.classList.add(
+      'bg-blue-600',
+      'text-white'
+    );
+
+
+    showToast(
+      'Haz clic en los puntos en el orden deseado.'
+    );
+
+  } else {
+
+    button.textContent =
+      'Desactivado';
+
+    button.classList.remove(
+      'bg-blue-600',
+      'text-white'
+    );
+
+    button.classList.add(
+      'bg-slate-200'
+    );
+
+  }
+
+}
+
+
+/**
+ * Agregar/quitar punto.
+ */
+function togglePointInRoute(
+  pointId
+) {
+
+  const route =
+    getActiveRoute();
+
+
+  if (!route) {
+    return;
+  }
+
+
+  const index =
+    route.points.indexOf(
+      pointId
+    );
+
+
+  if (index >= 0) {
+
+    /*
+     * Si ya estaba seleccionado,
+     * lo quitamos.
+     */
+
+    route.points.splice(
+      index,
+      1
+    );
+
+  } else {
+
+    /*
+     * Se agrega al final,
+     * por lo que automáticamente
+     * queda 1, 2, 3...
+     */
+
+    route.points.push(
+      pointId
+    );
+
+  }
+
+
+  updateRoutePanel();
+
+  drawMarkers();
+
+}
+
+
+/**
+ * Limpiar ruta.
+ */
+function clearRoute() {
+
+  const route =
+    getActiveRoute();
+
+
+  if (!route) {
+    return;
+  }
+
+
+  route.points =
+    [];
+
+
+  updateRoutePanel();
+
+  drawMarkers();
+
+}
+
+
+/**
+ * Eliminar ruta.
+ */
+function deleteRoute() {
+
+  if (!activeRouteId) {
+    return;
+  }
+
+
+  routes =
+    routes.filter(
+      r =>
+        r.id !== activeRouteId
+    );
+
+
+  activeRouteId =
+    routes.length
+      ? routes[0].id
+      : null;
+
+
+  routeMode =
+    false;
+
+
+  renderRoutes();
+
+  updateRoutePanel();
+
+  drawMarkers();
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 23 - RENDER DE RUTAS
+ * =============================================================
+ */
+
+function renderRoutes() {
+
+  const select =
+    document.getElementById(
+      'route-select'
+    );
+
+
+  select.innerHTML =
+    '<option value="">-- Sin ruta --</option>';
+
+
+  routes.forEach(
+    function(route) {
+
+      const option =
+        document.createElement(
+          'option'
+        );
+
+
+      option.value =
+        route.id;
+
+
+      option.textContent =
+        route.name +
+        ' (' +
+        route.points.length +
+        ')';
+
+
+      if (
+        route.id ===
+        activeRouteId
+      ) {
+
+        option.selected =
+          true;
+
+      }
+
+
+      select.appendChild(
+        option
+      );
+
+    }
+  );
+
+
+  updateRoutePanel();
+
+}
+
+
+/**
+ * Actualiza panel.
+ */
+function updateRoutePanel() {
+
+  const route =
+    getActiveRoute();
+
+
+  const panel =
+    document.getElementById(
+      'route-panel'
+    );
+
+
+  if (!route) {
+
+    panel.classList.add(
+      'hidden'
+    );
+
+    return;
+
+  }
+
+
+  panel.classList.remove(
+    'hidden'
+  );
+
+
+  document
+    .getElementById(
+      'route-points'
+    )
+    .textContent =
+      route.points.length;
+
+
+  const list =
+    document.getElementById(
+      'route-list'
+    );
+
+
+  list.innerHTML =
+    '';
+
+
+  route.points.forEach(
+    function(id, index) {
+
+      const point =
+        markersData.find(
+          p => p.id === id
+        );
+
+
+      if (!point) {
+        return;
+      }
+
+
+      list.innerHTML += `
+
+        <div
+          class="
+            flex
+            items-center
+            gap-2
+            p-2
+            bg-slate-50
+            rounded
+            border
+          "
+        >
+
+          <span
+            class="
+              w-6
+              h-6
+              rounded-full
+              bg-blue-600
+              text-white
+              text-xs
+              font-bold
+              flex
+              items-center
+              justify-center
+            "
+          >
+            ${index + 1}
+          </span>
+
+
+          <span
+            class="
+              flex-1
+              text-xs
+            "
+          >
+            ${escapeHtml(point.nombre)}
+          </span>
+
+
+          <button
+            onclick="removeRoutePoint('${point.id}')"
+            class="
+              text-red-500
+              text-xs
+            "
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+
+        </div>
+
+      `;
+
+    }
+  );
+
+
+  calculateRouteDistance();
+
+}
+
+
+/**
+ * Quitar punto.
+ */
+function removeRoutePoint(
+  pointId
+) {
+
+  const route =
+    getActiveRoute();
+
+
+  if (!route) {
+    return;
+  }
+
+
+  route.points =
+    route.points.filter(
+      id =>
+        id !== pointId
+    );
+
+
+  updateRoutePanel();
+
+  drawMarkers();
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 24 - DISTANCIA DE RUTA
+ * =============================================================
+ */
+
+function calculateRouteDistance() {
+
+  const route =
+    getActiveRoute();
+
+
+  if (
+    !route ||
+    route.points.length < 2
+  ) {
+
+    document
+      .getElementById(
+        'route-distance'
+      )
+      .textContent =
+        '0 km';
+
+    return;
+
+  }
+
+
+  let total =
+    0;
+
+
+  for (
+    let i = 1;
+    i < route.points.length;
+    i++
+  ) {
+
+    const a =
+      markersData.find(
+        p =>
+          p.id ===
+          route.points[i - 1]
+      );
+
+
+    const b =
+      markersData.find(
+        p =>
+          p.id ===
+          route.points[i]
+      );
+
+
+    if (!a || !b) {
+      continue;
+    }
+
+
+    total +=
+      distanceKm(
+        a.latitud,
+        a.longitud,
+        b.latitud,
+        b.longitud
+      );
+
+  }
+
+
+  document
+    .getElementById(
+      'route-distance'
+    )
+    .textContent =
+      total.toFixed(2) +
+      ' km';
+
+}
+
+
+/**
+ * Haversine.
+ */
+function distanceKm(
+  lat1,
+  lon1,
+  lat2,
+  lon2
+) {
+
+  const R =
+    6371;
+
+
+  const dLat =
+    (lat2 - lat1) *
+    Math.PI / 180;
+
+
+  const dLon =
+    (lon2 - lon1) *
+    Math.PI / 180;
+
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(
+      lat1 * Math.PI / 180
+    ) *
+    Math.cos(
+      lat2 * Math.PI / 180
+    ) *
+    Math.sin(dLon / 2) ** 2;
+
+
+  return 2 *
+    R *
+    Math.atan2(
+      Math.sqrt(a),
+      Math.sqrt(1 - a)
+    );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 25 - GOOGLE MAPS
+ * =============================================================
+ */
+
+function openGoogleRoute() {
+
+  const route =
+    getActiveRoute();
+
+
+  if (
+    !route ||
+    route.points.length < 2
+  ) {
+
+    showToast(
+      'La ruta necesita al menos 2 puntos.'
+    );
+
+    return;
+
+  }
+
+
+  const points =
+    route.points
+      .map(
+        id =>
+          markersData.find(
+            p =>
+              p.id === id
+          )
+      )
+      .filter(Boolean);
+
+
+  const origin =
+    points[0];
+
+
+  const destination =
+    points[
+      points.length - 1
+    ];
+
+
+  const waypoints =
+    points
+      .slice(
+        1,
+        -1
+      )
+      .map(
+        p =>
+          p.latitud +
+          ',' +
+          p.longitud
+      )
+      .join('|');
+
+
+  let url =
+    'https://www.google.com/maps/dir/?api=1';
+
+
+  url +=
+    '&origin=' +
+    encodeURIComponent(
+      origin.latitud +
+      ',' +
+      origin.longitud
+    );
+
+
+  url +=
+    '&destination=' +
+    encodeURIComponent(
+      destination.latitud +
+      ',' +
+      destination.longitud
+    );
+
+
+  if (waypoints) {
+
+    url +=
+      '&waypoints=' +
+      encodeURIComponent(
+        waypoints
+      );
+
+  }
+
+
+  url +=
+    '&travelmode=driving';
+
+
+  window.open(
+    url,
+    '_blank'
+  );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 26 - EXPORTAR KML
+ * =============================================================
+ */
+
+function downloadKML() {
+
+  if (
+    !markersData.length
+  ) {
+
+    showToast(
+      'No hay puntos para exportar.'
+    );
+
+    return;
+
+  }
+
+
+  const styles = {};
+
+  let stylesXml =
+    '';
+
+
+  markersData.forEach(
+    function(point, index) {
+
+      const color =
+        point.color ||
+        '#ef4444';
+
+
+      const styleId =
+        'style_' +
+        color
+          .replace('#', '');
+
+
+      if (
+        !styles[styleId]
+      ) {
+
+        styles[styleId] =
+          true;
+
+
+        stylesXml += `
+
+          <Style id="${styleId}">
+
+            <IconStyle>
+
+              <color>
+                ${hexToKmlColor(color)}
+              </color>
+
+              <scale>1.1</scale>
+
+              <Icon>
+
+                <href>
+                  http://maps.google.com/mapfiles/kml/pushpin/red-pushpin.png
+                </href>
+
+              </Icon>
+
+            </IconStyle>
+
+          </Style>
+
+        `;
+
+      }
+
+    }
+  );
+
+
+  let placemarks =
+    '';
+
+
+  markersData.forEach(
+    function(point, index) {
+
+      const styleId =
+        'style_' +
+        (
+          point.color ||
+          '#ef4444'
+        )
+        .replace('#', '');
+
+
+      const description =
+        buildKMLDescription(
+          point
+        );
+
+
+      placemarks += `
+
+        <Placemark>
+
+          <name>
+            ${escapeXml(point.nombre)}
+          </name>
+
+          <styleUrl>
+            #${styleId}
+          </styleUrl>
+
+          <description>
+            <![CDATA[
+              ${description}
+            ]]>
+          </description>
+
+          <Point>
+
+            <coordinates>
+              ${point.longitud},${point.latitud},0
+            </coordinates>
+
+          </Point>
+
+        </Placemark>
+
+      `;
+
+    }
+  );
+
+
+  /*
+   * Agregar rutas
+   */
+
+  routes.forEach(
+    function(route) {
+
+      if (
+        route.points.length < 2
+      ) {
+        return;
+      }
+
+
+      const coordinates =
+        route.points
+          .map(
+            id =>
+              markersData.find(
+                p =>
+                  p.id === id
+              )
+          )
+          .filter(Boolean)
+          .map(
+            p =>
+              p.longitud +
+              ',' +
+              p.latitud +
+              ',0'
+          )
+          .join(' ');
+
+
+      placemarks += `
+
+        <Placemark>
+
+          <name>
+            ${escapeXml(route.name)}
+          </name>
+
+          <Style>
+
+            <LineStyle>
+
+              <color>
+                ff2563eb
+              </color>
+
+              <width>
+                5
+              </width>
+
+            </LineStyle>
+
+          </Style>
+
+          <LineString>
+
+            <tessellate>
+              1
+            </tessellate>
+
+            <coordinates>
+              ${coordinates}
+            </coordinates>
+
+          </LineString>
+
+        </Placemark>
+
+      `;
+
+    }
+  );
+
+
+  const kml = `
+
+<?xml version="1.0" encoding="UTF-8"?>
+
+<kml
+  xmlns="http://www.opengis.net/kml/2.2"
+>
+
+<Document>
+
+  <name>
+    Visualizador actualizado
+  </name>
+
+  ${stylesXml}
+
+  ${placemarks}
+
+</Document>
+
+</kml>
+
+`;
+
+
+  const blob =
+    new Blob(
+      [kml],
+      {
+        type:
+          'application/vnd.google-earth.kml+xml'
+      }
+    );
+
+
+  const url =
+    URL.createObjectURL(
+      blob
+    );
+
+
+  const a =
+    document.createElement(
+      'a'
+    );
+
+
+  a.href =
+    url;
+
+
+  a.download =
+    getExportName(
+      currentFile ||
+      'mapa'
+    ) +
+    '.kml';
+
+
+  document.body.appendChild(
+    a
+  );
+
+
+  a.click();
+
+
+  a.remove();
+
+
+  URL.revokeObjectURL(
+    url
+  );
+
+
+  showToast(
+    'KML generado.'
+  );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 27 - GUARDAR EXCEL ACTUALIZADO
+ * =============================================================
+ */
+
+function saveCurrentExcel() {
+
+  if (
+    currentFileType !==
+    'excel' ||
+    !currentSheetId
+  ) {
+
+    showToast(
+      'No hay un Excel editable.'
+    );
+
+    return;
+
+  }
+
+
+  const rows = [
+
+    [
+      'Orden',
+      'Nombre',
+      'Latitud',
+      'Longitud',
+      'Descripción 1',
+      'Descripción 2',
+      'Descripción 3',
+      'Descripción 4'
+    ]
+
+  ];
+
+
+  markersData.forEach(
+    function(point) {
+
+      rows.push([
+
+        point.orden,
+        point.nombre,
+        point.latitud,
+        point.longitud,
+        point.desc1,
+        point.desc2,
+        point.desc3,
+        point.desc4
+
+      ]);
+
+    }
+  );
+
+
+  showToast(
+    'Generando Excel actualizado...'
+  );
+
+
+  google.script.run
+
+    .withSuccessHandler(
+      function(result) {
+
+        currentFile =
+          result.fileName;
+
+
+        refreshFiles();
+
+
+        showToast(
+          'Excel actualizado correctamente.'
+        );
+
+      }
+    )
+
+    .withFailureHandler(
+      function(error) {
+
+        console.error(error);
+
+        showToast(
+          'Error al generar Excel.'
+        );
+
+      }
+    )
+
+    .exportWorkingSheetToExcel({
+
+      sheetId:
+        currentSheetId,
+
+      fileId:
+        getSelectedFileId(),
+
+      fileName:
+        currentFile,
+
+      rows:
+        rows
+
+    });
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 28 - INTERFAZ
+ * =============================================================
+ */
+
+function refreshInterface() {
+
+  document
+    .getElementById(
+      'marker-count'
+    )
+    .textContent =
+      markersData.length +
+      ' puntos';
+
+
+  renderPointsList();
+
+  renderTable();
+
+  buildFilters();
+
+  renderRoutes();
+
+}
+
+
+/**
+ * Lista lateral.
+ */
+function renderPointsList() {
+
+  const container =
+    document.getElementById(
+      'points-list'
+    );
+
+
+  container.innerHTML =
+    '';
+
+
+  markersData.forEach(
+    function(point, index) {
+
+      container.innerHTML += `
+
+        <button
+          onclick="focusPoint('${point.id}')"
+          class="
+            w-full
+            text-left
+            flex
+            items-center
+            gap-2
+            p-2
+            rounded
+            hover:bg-slate-100
+            border-b
+          "
+        >
+
+          <span
+            style="
+              width:12px;
+              height:12px;
+              background:${point.color};
+              border-radius:50%;
+              display:inline-block;
+              flex-shrink:0;
+            "
+          ></span>
+
+
+          <span
+            class="
+              flex-1
+              truncate
+              text-xs
+            "
+          >
+            ${escapeHtml(point.nombre)}
+          </span>
+
+
+          <span
+            class="
+              text-[10px]
+              text-slate-400
+            "
+          >
+            ${index + 1}
+          </span>
+
+        </button>
+
+      `;
+
+    }
+  );
+
+}
+
+
+/**
+ * Centrar punto.
+ */
+function focusPoint(
+  id
+) {
+
+  const point =
+    markersData.find(
+      p => p.id === id
+    );
+
+
+  if (!point) {
+    return;
+  }
+
+
+  map.setView(
+    [
+      point.latitud,
+      point.longitud
+    ],
+    18
+  );
+
+
+  openPointEditor(
+    point
+  );
+
+}
+
+
+/**
+ * Zoom general.
+ */
+function zoomAll() {
+
+  const bounds =
+    markersData
+      .map(
+        p =>
+          [
+            p.latitud,
+            p.longitud
+          ]
+      );
+
+
+  if (!bounds.length) {
+    return;
+  }
+
+
+  map.fitBounds(
+    bounds,
+    {
+      padding: [40, 40]
+    }
+  );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 29 - LIMPIAR MAPA
+ * =============================================================
+ */
+
+function clearMap() {
+
+  markerLayer.forEach(
+    function(marker) {
+
+      try {
+
+        map.removeLayer(
+          marker
+        );
+
+      } catch (e) {}
+
+    }
+  );
+
+
+  markerLayer =
+    [];
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 30 - DESCRIPCIONES KML
+ * =============================================================
+ */
+
+function splitDescription(
+  description
+) {
+
+  if (!description) {
+    return [];
+  }
+
+
+  /*
+   * Primero eliminar etiquetas HTML.
+   */
+
+  let text =
+    description
+      .replace(
+        /<br\s*\/?>/gi,
+        '\n'
+      )
+      .replace(
+        /<\/p>/gi,
+        '\n'
+      )
+      .replace(
+        /<[^>]*>/g,
+        ''
+      );
+
+
+  text =
+    decodeHtml(
+      text
+    );
+
+
+  /*
+   * Detectar separador.
+   */
+
+  let parts;
+
+
+  if (
+    text.includes('\n')
+  ) {
+
+    parts =
+      text
+        .split(/\n+/);
+
+  } else if (
+    text.includes('|')
+  ) {
+
+    parts =
+      text.split('|');
+
+  } else if (
+    text.includes(';')
+  ) {
+
+    parts =
+      text.split(';');
+
+  } else {
+
+    parts =
+      [text];
+
+  }
+
+
+  return parts
+    .map(
+      p =>
+        p.trim()
+    )
+    .filter(
+      p =>
+        p !== ''
+    );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 31 - DESCRIPCIÓN KML
+ * =============================================================
+ */
+
+function buildKMLDescription(
+  point
+) {
+
+  const parts = [
+
+    point.desc1,
+    point.desc2,
+    point.desc3,
+    point.desc4
+
+  ]
+    .map(
+      p =>
+        String(
+          p || ''
+        ).trim()
+    )
+    .filter(Boolean);
+
+
+  /*
+   * Utilizamos <br>
+   * para conservar las diferentes
+   * secciones.
+   */
+
+  return parts
+    .map(
+      escapeXml
+    )
+    .join(
+      '<br>'
+    );
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 32 - COLORES KML
+ * =============================================================
+ */
+
+/*
+ * KML:
+ *
+ * AABBGGRR
+ *
+ * Ejemplo:
+ *
+ * ff0000ff = rojo
+ */
+
+function kmlColorToHex(
+  value
+) {
+
+  let color =
+    value
+      .replace('#', '')
+      .trim();
+
+
+  if (
+    color.length === 8
+  ) {
+
+    const rr =
+      color.substring(
+        6,
+        8
+      );
+
+
+    const gg =
+      color.substring(
+        4,
+        6
+      );
+
+
+    const bb =
+      color.substring(
+        2,
+        4
+      );
+
+
+    return '#' +
+      rr +
+      gg +
+      bb;
+
+  }
+
+
+  if (
+    color.length === 6
+  ) {
+
+    return '#' +
+      color;
+
+  }
+
+
+  return '#ef4444';
+
+}
+
+
+/**
+ * HEX -> KML
+ */
+function hexToKmlColor(
+  hex
+) {
+
+  let value =
+    hex
+      .replace('#', '');
+
+
+  if (
+    value.length !== 6
+  ) {
+
+    value =
+      'ef4444';
+
+  }
+
+
+  const rr =
+    value.substring(
+      0,
+      2
+    );
+
+
+  const gg =
+    value.substring(
+      2,
+      4
+    );
+
+
+  const bb =
+    value.substring(
+      4,
+      6
+    );
+
+
+  /*
+   * ff = opacidad
+   * + BB + GG + RR
+   */
+
+  return 'ff' +
+    bb +
+    gg +
+    rr;
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 33 - UTILIDADES
+ * =============================================================
+ */
+
+function escapeHtml(
+  value
+) {
+
+  return String(
+    value ?? ''
+  )
+    .replace(
+      /&/g,
+      '&amp;'
+    )
+    .replace(
+      /</g,
+      '&lt;'
+    )
+    .replace(
+      />/g,
+      '&gt;'
+    )
+    .replace(
+      /"/g,
+      '&quot;'
+    )
+    .replace(
+      /'/g,
+      '&#039;'
+    );
+
+}
+
+
+function escapeXml(
+  value
+) {
+
+  return String(
+    value ?? ''
+  )
+    .replace(
+      /&/g,
+      '&amp;'
+    )
+    .replace(
+      /</g,
+      '&lt;'
+    )
+    .replace(
+      />/g,
+      '&gt;'
+    )
+    .replace(
+      /"/g,
+      '&quot;'
+    )
+    .replace(
+      /'/g,
+      '&apos;'
+    );
+
+}
+
+
+function decodeHtml(
+  value
+) {
+
+  const textarea =
+    document.createElement(
+      'textarea'
+    );
+
+
+  textarea.innerHTML =
+    value;
+
+
+  return textarea.value;
+
+}
+
+
+function getExportName(
+  name
+) {
+
+  return String(
+    name || 'mapa'
+  )
+    .replace(
+      /\.[^.]+$/,
+      ''
+    )
+    .replace(
+      /[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_-]+/g,
+      '_'
+    );
+
+}
+
+
+function getSelectedFileId() {
+
+  return document
+    .getElementById(
+      'file-select'
+    )
+    .value;
+
+}
+
+
+/***************************************************************
+ * =============================================================
+ * 34 - TOAST
+ * =============================================================
+ */
+
+let toastTimer = null;
+
+
+function showToast(
+  message
+) {
+
+  const toast =
+    document.getElementById(
+      'toast'
+    );
+
+
+  const text =
+    document.getElementById(
+      'toast-text'
+    );
+
+
+  text.textContent =
+    message;
+
+
+  toast.classList.add(
+    'show'
+  );
+
+
+  clearTimeout(
+    toastTimer
+  );
+
+
+  toastTimer =
+    setTimeout(
+      function() {
+
+        toast.classList.remove(
+          'show'
+        );
+
+      },
+      2800
+    );
+
+}
+
+
+</script>
+
 </body>
 </html>
