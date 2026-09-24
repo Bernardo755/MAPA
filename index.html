@@ -1540,23 +1540,30 @@ textarea.formInput {
           <span>Exportar</span>
         </div>
 
-        <div class="buttonRow">
+       <div class="buttonRow">
 
-          <button
-            class="btn btnPrimary"
-            onclick="downloadKML()"
-          >
-            Descargar KML
-          </button>
+  <button
+    class="btn btnPrimary"
+    onclick="downloadKML()"
+  >
+    Descargar KML
+  </button>
 
-          <button
-            class="btn btnSecondary"
-            onclick="fitAllPoints()"
-          >
-            Ver todos
-          </button>
+  <button
+    class="btn btnPrimary"
+    onclick="downloadExcel()"
+  >
+    Descargar Excel
+  </button>
 
-        </div>
+  <button
+    class="btn btnSecondary"
+    onclick="fitAllPoints()"
+  >
+    Ver todos
+  </button>
+
+</div>
 
       </div>
 
@@ -6901,6 +6908,190 @@ function initializeEvents() {
   }
 
 })();
+
+
+
+
+  /* =========================================================
+   MÓDULO 29B - DESCARGAR EXCEL MODIFICADO
+   ========================================================= */
+
+function downloadExcel() {
+
+  if (!points.length) {
+
+    showToast(
+      "No hay puntos para exportar."
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+    /*
+       =====================================================
+       ESTRUCTURA DEL EXCEL
+
+       A = Nombre
+       B = Latitud
+       C = Longitud
+       D = Descripción 1
+       E = Descripción 2
+       F = Descripción 3
+       G = Color
+
+       Se genera un nuevo archivo Excel
+       con la información actualmente
+       disponible en el visor.
+       =====================================================
+    */
+
+
+    const data = [
+
+      [
+        "Nombre",
+        "Latitud",
+        "Longitud",
+        "Descripción 1",
+        "Descripción 2",
+        "Descripción 3",
+        "Color"
+      ]
+
+    ];
+
+
+    points.forEach(
+      function(point) {
+
+        data.push([
+
+          point.name || "",
+
+          point.lat,
+
+          point.lng,
+
+          point.desc1 || "",
+
+          point.desc2 || "",
+
+          point.desc3 || "",
+
+          normalizeColor(
+            point.color
+          )
+
+        ]);
+
+      }
+    );
+
+
+    /*
+       =====================================================
+       CREAR HOJA
+       =====================================================
+    */
+
+    const worksheet =
+      XLSX.utils.aoa_to_sheet(
+        data
+      );
+
+
+    /*
+       =====================================================
+       ANCHOS DE COLUMNAS
+       =====================================================
+    */
+
+    worksheet["!cols"] = [
+
+      {
+        wch: 30
+      },
+
+      {
+        wch: 15
+      },
+
+      {
+        wch: 15
+      },
+
+      {
+        wch: 35
+      },
+
+      {
+        wch: 35
+      },
+
+      {
+        wch: 35
+      },
+
+      {
+        wch: 15
+      }
+
+    ];
+
+
+    /*
+       =====================================================
+       CREAR LIBRO
+       =====================================================
+    */
+
+    const workbook =
+      XLSX.utils.book_new();
+
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "Datos"
+    );
+
+
+    /*
+       =====================================================
+       DESCARGAR
+       =====================================================
+    */
+
+    XLSX.writeFile(
+      workbook,
+      "datos_modificados.xlsx"
+    );
+
+
+    showToast(
+      "Excel modificado descargado correctamente."
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Error al generar Excel:",
+      error
+    );
+
+
+    showToast(
+      "No fue posible generar el Excel."
+    );
+
+  }
+
+}
 
 
 </script>
