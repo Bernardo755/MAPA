@@ -690,6 +690,181 @@ body {
 
 
 /* =========================================================
+   ORDEN DE PUNTOS
+   ========================================================= */
+
+.pointSortBar {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  margin-bottom: 9px;
+
+  padding: 8px;
+
+  border:
+    1px solid #e2e8f0;
+
+  border-radius: 10px;
+
+  background: #f8fafc;
+}
+
+.pointSortLabel {
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  color: #64748b;
+
+  white-space: nowrap;
+}
+
+.pointSortSelect {
+
+  flex: 1;
+
+  min-width: 0;
+
+  padding: 7px 8px;
+
+  border:
+    1px solid #cbd5e1;
+
+  border-radius: 8px;
+
+  background: white;
+
+  color: #334155;
+
+  font-size: 10px;
+
+  outline: none;
+
+  cursor: pointer;
+}
+
+.pointSortSelect:focus {
+
+  border-color: #60a5fa;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(59,130,246,.08);
+}
+
+
+/* =========================================================
+   ETIQUETAS DE PUNTOS EN MAPA
+   ========================================================= */
+
+.pointMapVisual {
+
+  position: absolute;
+
+  left: 0;
+
+  top: 0;
+
+  width: max-content;
+
+  min-width: 34px;
+
+  height: 42px;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 6px;
+
+  pointer-events: auto;
+
+  white-space: nowrap;
+
+  transition: transform .15s ease;
+}
+
+.pointMapPin {
+
+  width: 30px;
+
+  height: 30px;
+
+  margin-top: 2px;
+
+  border-radius: 50% 50% 50% 0;
+
+  transform: rotate(-45deg);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border: 3px solid white;
+
+  box-shadow:
+    0 3px 8px
+    rgba(0,0,0,.35);
+}
+
+.pointMapNumber {
+
+  transform: rotate(45deg);
+
+  color: white;
+
+  font-size: 9px;
+
+  font-weight: 900;
+}
+
+.pointMapLabel {
+
+  margin-top: 3px;
+
+  max-width: 210px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  padding: 4px 7px;
+
+  border-radius: 7px;
+
+  background: rgba(255,255,255,.96);
+
+  border:
+    1px solid rgba(15,23,42,.16);
+
+  box-shadow:
+    0 2px 7px
+    rgba(15,23,42,.22);
+
+  color: #0f172a;
+
+  font-size: 10px;
+
+  line-height: 1.2;
+
+  font-weight: 800;
+
+  pointer-events: auto;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
    TABLA
    ========================================================= */
 
@@ -1579,6 +1754,47 @@ textarea.formInput {
         </div>
 
 
+        <div class="pointSortBar">
+
+          <span class="pointSortLabel">
+            Reorganizar:
+          </span>
+
+          <select
+            id="pointSortSelect"
+            class="pointSortSelect"
+            onchange="sortPoints(this.value)"
+          >
+
+            <option value="original">
+              Orden original
+            </option>
+
+            <option value="color">
+              Por color
+            </option>
+
+            <option value="desc1">
+              Por descripción 1
+            </option>
+
+            <option value="desc2">
+              Por descripción 2
+            </option>
+
+            <option value="desc3">
+              Por descripción 3
+            </option>
+
+            <option value="name">
+              Nombre (A-Z)
+            </option>
+
+          </select>
+
+        </div>
+
+
         <div id="pointsList">
 
           <div class="statusBox">
@@ -2110,12 +2326,31 @@ textarea.formInput {
         Color
       </label>
 
-      <input
-        id="pointColor"
-        class="colorInput"
-        type="color"
-        value="#2563eb"
+      <div
+        style="
+          display:flex;
+          align-items:center;
+          gap:8px;
+        "
       >
+
+        <input
+          id="pointColor"
+          class="colorInput"
+          type="color"
+          value="#2563eb"
+        >
+
+        <button
+          type="button"
+          class="btn btnSecondary"
+          onclick="copyCurrentPointColor()"
+          title="Copiar el color seleccionado"
+        >
+          Copiar color
+        </button>
+
+      </div>
 
     </div>
 
@@ -2172,6 +2407,8 @@ let routeLayer = null;
 let routeMarkersLayer = null;
 
 let points = [];
+
+let originalPointOrder = [];
 
 let routes = [];
 
@@ -2586,6 +2823,8 @@ function loadExcel(file) {
 
         pointIdCounter = 1;
 
+        originalPointOrder = [];
+
 
         for (
           let i = 1;
@@ -2835,6 +3074,8 @@ function loadKML(file) {
         points = [];
 
         pointIdCounter = 1;
+
+        originalPointOrder = [];
 
 
         placemarks.forEach(
@@ -3673,16 +3914,67 @@ function renderMarkers() {
   markerObjects = {};
 
 
+  /*
+     =========================================================
+     ETIQUETAS + PUNTOS CON LA MISMA COORDENADA
+
+     Si varios puntos tienen exactamente la misma coordenada,
+     se les asigna una posición visual distinta alrededor del
+     mismo punto. Esto permite ver y seleccionar cada uno sin
+     modificar sus coordenadas reales.
+     =========================================================
+  */
+
+  const coordinateGroups = {};
+
+  points.forEach(
+    function(point) {
+
+      const key =
+        Number(point.lat).toFixed(7) +
+        "|" +
+        Number(point.lng).toFixed(7);
+
+      if (!coordinateGroups[key]) {
+        coordinateGroups[key] = [];
+      }
+
+      coordinateGroups[key].push(point);
+
+    }
+  );
+
+
+  const coordinateIndex = {};
+
+
   points.forEach(
     function(
       point,
       index
     ) {
 
+      const key =
+        Number(point.lat).toFixed(7) +
+        "|" +
+        Number(point.lng).toFixed(7);
+
+      const group =
+        coordinateGroups[key] || [point];
+
+      const occurrence =
+        coordinateIndex[key] || 0;
+
+      coordinateIndex[key] =
+        occurrence + 1;
+
+
       const icon =
         createPointIcon(
           point,
-          index + 1
+          index + 1,
+          occurrence,
+          group.length
         );
 
 
@@ -3693,14 +3985,32 @@ function renderMarkers() {
             point.lng
           ],
           {
-            icon
+            icon,
+
+            /*
+               Hace que los elementos visualmente
+               desplazados puedan quedar encima de
+               otros puntos de la misma coordenada.
+            */
+            zIndexOffset:
+              occurrence * 20
           }
         );
 
 
       marker.on(
         "click",
-        function() {
+        function(event) {
+
+          if (
+            event &&
+            event.originalEvent
+          ) {
+
+            event.originalEvent.stopPropagation();
+
+          }
+
 
           if (
             routeMode &&
@@ -3741,22 +4051,75 @@ function renderMarkers() {
 
 function createPointIcon(
   point,
-  number
+  number,
+  occurrence,
+  groupSize
 ) {
 
   /*
-     IMPORTANTE:
+     =========================================================
+     ETIQUETA DEL PUNTO
 
-     Aquí se utiliza directamente
-     el color almacenado en point.color.
+     Se muestra siempre el nombre del punto junto al marcador.
 
-     No se genera otro color.
+     Cuando hay varios puntos en la misma coordenada, la etiqueta
+     se desplaza visualmente en forma de abanico. Las coordenadas
+     reales del punto NO se modifican.
+     =========================================================
   */
 
   const color =
     normalizeColor(
       point.color
     );
+
+
+  const index =
+    Number.isFinite(
+      occurrence
+    )
+      ? occurrence
+      : 0;
+
+
+  let offsetX = 0;
+  let offsetY = 0;
+
+
+  if (
+    groupSize > 1
+  ) {
+
+    const radius =
+      34 +
+      Math.floor(
+        index / 8
+      ) * 18;
+
+    const angle =
+      (
+        -75 +
+        (
+          index % 8
+        ) *
+        22
+      ) *
+      Math.PI /
+      180;
+
+    offsetX =
+      Math.round(
+        Math.cos(angle) *
+        radius
+      );
+
+    offsetY =
+      Math.round(
+        Math.sin(angle) *
+        radius
+      );
+
+  }
 
 
   return L.divIcon({
@@ -3768,41 +4131,50 @@ function createPointIcon(
       `
       <div
         style="
-          width:34px;
-          height:42px;
+          width:1px;
+          height:1px;
           position:relative;
-          display:flex;
-          justify-content:center;
+          overflow:visible;
+          pointer-events:none;
         "
       >
 
         <div
+          class="pointMapVisual"
           style="
-            width:30px;
-            height:30px;
-            margin-top:2px;
-            border-radius:50% 50% 50% 0;
-            transform:rotate(-45deg);
-            background:${color};
-            border:3px solid white;
-            box-shadow:
-              0 3px 8px
-              rgba(0,0,0,.35);
-            display:flex;
-            align-items:center;
-            justify-content:center;
+            transform:
+              translate(
+                ${offsetX}px,
+                ${offsetY}px
+              );
           "
         >
 
           <div
+            class="pointMapPin"
             style="
-              transform:rotate(45deg);
-              color:white;
-              font-size:9px;
-              font-weight:900;
+              background:${color};
             "
           >
-            ${number}
+
+            <div
+              class="pointMapNumber"
+            >
+              ${number}
+            </div>
+
+          </div>
+
+
+          <div
+            class="pointMapLabel"
+            title="${escapeHtml(point.name || "")}"
+          >
+            ${escapeHtml(
+              point.name ||
+              "Punto " +
+              number
+            )}
           </div>
 
         </div>
@@ -3811,10 +4183,10 @@ function createPointIcon(
       `,
 
     iconSize:
-      [34,42],
+      [1,1],
 
     iconAnchor:
-      [17,42],
+      [0,0],
 
     popupAnchor:
       [0,-42]
@@ -3822,6 +4194,8 @@ function createPointIcon(
   });
 
 }
+
+
 
 
 /* =========================================================
@@ -4041,6 +4415,299 @@ function savePointChanges() {
   showToast(
     "Cambios guardados."
   );
+
+}
+
+
+/* =========================================================
+   MÓDULO 22B - REORDENAR Y REENUMERAR PUNTOS
+   ========================================================= */
+
+function captureOriginalPointOrder() {
+
+  originalPointOrder =
+    points.map(
+      point =>
+        point.id
+    );
+
+}
+
+
+function sortPoints(
+  mode
+) {
+
+  if (!points.length) {
+    return;
+  }
+
+
+  /*
+     La primera vez que se reorganizan los puntos
+     guardamos el orden original para poder recuperarlo.
+  */
+
+  if (
+    !originalPointOrder.length
+  ) {
+
+    captureOriginalPointOrder();
+
+  }
+
+
+  if (
+    mode === "original"
+  ) {
+
+    const position =
+      new Map(
+        originalPointOrder.map(
+          function(
+            id,
+            index
+          ) {
+
+            return [
+              id,
+              index
+            ];
+
+          }
+        )
+      );
+
+
+    points.sort(
+      function(a,b) {
+
+        return (
+          (position.get(a.id) ?? 999999) -
+          (position.get(b.id) ?? 999999)
+        );
+
+      }
+    );
+
+  } else {
+
+    points.sort(
+      function(a,b) {
+
+        let valueA = "";
+        let valueB = "";
+
+
+        if (
+          mode === "color"
+        ) {
+
+          valueA =
+            String(
+              a.color || ""
+            ).trim();
+
+          valueB =
+            String(
+              b.color || ""
+            ).trim();
+
+        }
+
+
+        if (
+          mode === "desc1"
+        ) {
+
+          valueA =
+            String(
+              a.desc1 || ""
+            ).trim();
+
+          valueB =
+            String(
+              b.desc1 || ""
+            ).trim();
+
+        }
+
+
+        if (
+          mode === "desc2"
+        ) {
+
+          valueA =
+            String(
+              a.desc2 || ""
+            ).trim();
+
+          valueB =
+            String(
+              b.desc2 || ""
+            ).trim();
+
+        }
+
+
+        if (
+          mode === "desc3"
+        ) {
+
+          valueA =
+            String(
+              a.desc3 || ""
+            ).trim();
+
+          valueB =
+            String(
+              b.desc3 || ""
+            ).trim();
+
+        }
+
+
+        if (
+          mode === "name"
+        ) {
+
+          valueA =
+            String(
+              a.name || ""
+            ).trim();
+
+          valueB =
+            String(
+              b.name || ""
+            ).trim();
+
+        }
+
+
+        return valueA.localeCompare(
+          valueB,
+          "es",
+          {
+            numeric: true,
+            sensitivity: "base"
+          }
+        );
+
+      }
+    );
+
+  }
+
+
+  /*
+     El orden del arreglo points es el orden visual
+     y de numeración que utiliza el visor.
+  */
+
+  renderMarkers();
+
+  renderPointsList();
+
+  renderTable();
+
+  renderRoutes();
+
+  updateCounter();
+
+  applyFilters();
+
+
+  showToast(
+    "Puntos reorganizados y renumerados."
+  );
+
+}
+
+
+/* =========================================================
+   MÓDULO 22C - COPIAR COLOR
+   ========================================================= */
+
+async function copyCurrentPointColor() {
+
+  const input =
+    document.getElementById(
+      "pointColor"
+    );
+
+
+  if (!input) {
+    return;
+  }
+
+
+  const color =
+    normalizeColor(
+      input.value
+    );
+
+
+  try {
+
+    if (
+      navigator.clipboard &&
+      window.isSecureContext
+    ) {
+
+      await navigator.clipboard.writeText(
+        color
+      );
+
+    } else {
+
+      const temporary =
+        document.createElement(
+          "textarea"
+        );
+
+      temporary.value =
+        color;
+
+      temporary.style.position =
+        "fixed";
+
+      temporary.style.left =
+        "-9999px";
+
+      document.body.appendChild(
+        temporary
+      );
+
+      temporary.select();
+
+      document.execCommand(
+        "copy"
+      );
+
+      document.body.removeChild(
+        temporary
+      );
+
+    }
+
+
+    showToast(
+      "Color copiado: " +
+      color
+    );
+
+  } catch (error) {
+
+    console.error(
+      "No fue posible copiar el color:",
+      error
+    );
+
+    showToast(
+      "No fue posible copiar el color."
+    );
+
+  }
 
 }
 
