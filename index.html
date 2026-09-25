@@ -2988,11 +2988,11 @@ function loadKML(file) {
               id:
                 pointIdCounter++,
 
-              name,
+           
 
               lat,
               lng,
-
+              name,
               desc1:
                 descriptionParts[0] || "",
 
@@ -4641,20 +4641,7 @@ function renderTable() {
               </td>
 
 
-              <td>
-
-                <span
-                  class="tablePointLink"
-                  onclick="focusPoint(${point.id})"
-                >
-
-                  ${escapeHtml(
-                    point.name
-                  )}
-
-                </span>
-
-              </td>
+             
 
 
               <td>
@@ -4669,7 +4656,20 @@ function renderTable() {
                   point.lng
                 )}
               </td>
+ <td>
 
+                <span
+                  class="tablePointLink"
+                  onclick="focusPoint(${point.id})"
+                >
+
+                  ${escapeHtml(
+                    point.name
+                  )}
+
+                </span>
+
+              </td>
 
               <td>
 
