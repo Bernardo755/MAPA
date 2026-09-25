@@ -1,707 +1,419 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta
   name="viewport"
   content="width=device-width, initial-scale=1.0"
 >
-
 <title>Visualizador KML & Excel</title>
-
-
 <!-- =========================================================
      MÓDULO 01 - LIBRERÍAS
      ========================================================= -->
-
 <link
   rel="stylesheet"
   href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
 />
-
 <script
   src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
 ></script>
-
 <script
   src="https://cdn.tailwindcss.com"
 ></script>
-
 <script
   src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"
 ></script>
-
-
 <!-- =========================================================
      MÓDULO 02 - ESTILOS
      ========================================================= -->
-
 <style>
-
 * {
   box-sizing: border-box;
 }
-
 html,
 body {
-
   width: 100%;
   height: 100%;
-
   margin: 0;
   padding: 0;
-
   overflow: hidden;
-
   font-family:
     Arial,
     Helvetica,
     sans-serif;
-
   background: #f1f5f9;
 }
-
-
 /* =========================================================
    MAPA
    ========================================================= */
-
 #map {
-
   position: fixed;
-
   inset: 0;
-
   width: 100%;
   height: 100%;
-
   z-index: 1;
-
   background: #dbeafe;
 }
-
 .leaflet-container {
-
   width: 100%;
   height: 100%;
-
   font-family:
     Arial,
     Helvetica,
     sans-serif;
 }
-
 .leaflet-control-layers {
-
   border-radius: 12px !important;
-
   overflow: hidden;
-
   box-shadow:
     0 5px 20px rgba(0,0,0,.18) !important;
 }
-
-
 /* =========================================================
    PANEL
    ========================================================= */
-
 #mainPanel {
-
   position: fixed;
-
   top: 14px;
   left: 14px;
   bottom: 14px;
-
   width: 470px;
-
   background:
     rgba(255,255,255,.97);
-
   border-radius: 18px;
-
   box-shadow:
     0 15px 45px
     rgba(15,23,42,.25);
-
   z-index: 1000;
-
   display: flex;
-
   flex-direction: column;
-
   overflow: hidden;
-
   backdrop-filter: blur(8px);
 }
-
-
 /* =========================================================
    ENCABEZADO
    ========================================================= */
-
 .appHeader {
-
   padding: 17px 18px;
-
   background:
     linear-gradient(
       135deg,
       #0f172a,
       #1e293b
     );
-
   color: white;
-
   flex-shrink: 0;
 }
-
 .headerTop {
-
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   gap: 12px;
 }
-
 .appTitle {
-
   font-size: 19px;
-
   font-weight: 800;
-
   letter-spacing: -.3px;
 }
-
 .appSubtitle {
-
   margin-top: 3px;
-
   font-size: 11px;
-
   color: #cbd5e1;
 }
-
 .headerActions {
-
   display: flex;
-
   flex-direction: column;
-
   align-items: flex-end;
-
   gap: 5px;
 }
-
 .cleanButton {
-
   border: 1px solid rgba(255,255,255,.16);
-
   background: rgba(255,255,255,.08);
-
   color: #cbd5e1;
-
   border-radius: 7px;
-
   padding: 4px 7px;
-
   font-size: 9px;
-
   font-weight: 700;
-
   cursor: pointer;
-
   line-height: 1;
-
   transition: .2s;
 }
-
 .cleanButton:hover {
-
   background: rgba(255,255,255,.16);
-
   color: white;
 }
-
 .pointCounter {
-
   min-width: 70px;
-
   padding: 7px 10px;
-
   border-radius: 10px;
-
   background:
     rgba(255,255,255,.12);
-
   text-align: center;
-
   font-size: 12px;
-
   font-weight: 700;
 }
-
-
 /* =========================================================
    PESTAÑAS
    ========================================================= */
-
 .tabs {
-
   display: grid;
-
   grid-template-columns:
     repeat(4, 1fr);
-
   background: #f8fafc;
-
   border-bottom:
     1px solid #e2e8f0;
-
   flex-shrink: 0;
 }
-
 .tabButton {
-
   border: 0;
-
   background: transparent;
-
   padding: 11px 5px;
-
   font-size: 11px;
-
   font-weight: 700;
-
   color: #64748b;
-
   cursor: pointer;
-
   transition: .2s;
 }
-
 .tabButton:hover {
-
   background:
     #f1f5f9;
 }
-
 .tabButton.active {
-
   color: #2563eb;
-
   background: white;
-
   box-shadow:
     inset 0 -2px 0 #2563eb;
 }
-
-
 /* =========================================================
    CONTENIDO
    ========================================================= */
-
 #content {
-
   flex: 1;
-
   min-height: 0;
-
   overflow: hidden;
 }
-
 .tabContent {
-
   display: none;
-
   height: 100%;
-
   overflow-y: auto;
-
   overflow-x: hidden;
-
   padding: 14px;
 }
-
 .tabContent.active {
-
   display: block;
 }
-
-
 /* =========================================================
    TARJETAS
    ========================================================= */
-
 .sectionCard {
-
   background: white;
-
   border:
     1px solid #e2e8f0;
-
   border-radius: 14px;
-
   padding: 13px;
-
   margin-bottom: 12px;
-
   box-shadow:
     0 3px 10px
     rgba(15,23,42,.04);
 }
-
 .sectionTitle {
-
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   gap: 10px;
-
   font-size: 13px;
-
   font-weight: 800;
-
   color: #0f172a;
-
   margin-bottom: 10px;
 }
-
-
 /* =========================================================
    CARGA
    ========================================================= */
-
 .uploadArea {
-
   border:
     2px dashed #cbd5e1;
-
   border-radius: 15px;
-
   padding: 20px 15px;
-
   text-align: center;
-
   background:
     linear-gradient(
       180deg,
       #f8fafc,
       #ffffff
     );
-
   transition: .2s;
 }
-
 .uploadArea:hover {
-
   border-color: #60a5fa;
-
   background: #eff6ff;
 }
-
 .uploadIcon {
-
   width: 50px;
   height: 50px;
-
   margin:
     0 auto 10px;
-
   border-radius: 14px;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   background: #dbeafe;
-
   color: #2563eb;
 }
-
 .uploadIcon svg {
-
   width: 27px;
   height: 27px;
 }
-
 .uploadTitle {
-
   font-size: 14px;
-
   font-weight: 800;
-
   color: #0f172a;
 }
-
 .uploadText {
-
   margin-top: 4px;
-
   color: #64748b;
-
   font-size: 11px;
-
   line-height: 1.5;
 }
-
 .uploadButton {
-
   display: inline-flex;
-
   align-items: center;
-
   justify-content: center;
-
   gap: 7px;
-
   margin-top: 13px;
-
   padding:
     9px 14px;
-
   border-radius: 10px;
-
   background: #2563eb;
-
   color: white;
-
   font-size: 12px;
-
   font-weight: 800;
-
   cursor: pointer;
-
   transition: .2s;
 }
-
 .uploadButton:hover {
-
   background: #1d4ed8;
 }
-
 #fileInput {
-
   display: none;
 }
-
-
 /* =========================================================
    ESTADO
    ========================================================= */
-
 .statusBox {
-
   padding:
     10px 11px;
-
   border-radius: 10px;
-
   background: #f8fafc;
-
   border:
     1px solid #e2e8f0;
-
   font-size: 11px;
-
   color: #475569;
-
   line-height: 1.5;
 }
-
 .statusBox.success {
-
   background: #f0fdf4;
-
   border-color: #bbf7d0;
-
   color: #166534;
 }
-
 .statusBox.error {
-
   background: #fef2f2;
-
   border-color: #fecaca;
-
   color: #991b1b;
 }
-
-
 /* =========================================================
    BOTONES
    ========================================================= */
-
 .btn {
-
   border: 0;
-
   border-radius: 9px;
-
   padding:
     8px 11px;
-
   font-size: 11px;
-
   font-weight: 800;
-
   cursor: pointer;
-
   transition: .2s;
 }
-
 .btnPrimary {
-
   background: #2563eb;
-
   color: white;
 }
-
 .btnPrimary:hover {
-
   background: #1d4ed8;
 }
-
 .btnSecondary {
-
   background: #f1f5f9;
-
   color: #334155;
-
   border:
     1px solid #e2e8f0;
 }
-
 .btnSecondary:hover {
-
   background: #e2e8f0;
 }
-
 .btnDanger {
-
   background: #fee2e2;
-
   color: #991b1b;
 }
-
 .btnDanger:hover {
-
   background: #fecaca;
 }
-
 .buttonRow {
-
   display: flex;
-
   flex-wrap: wrap;
-
   gap: 7px;
 }
-
-
 /* =========================================================
    LISTA DE PUNTOS
    ========================================================= */
-
 #pointsList {
-
   display: flex;
-
   flex-direction: column;
-
   gap: 8px;
-
   max-height: 46vh;
-
   overflow-y: auto;
-
   padding-right: 3px;
 }
-
 .pointCard {
-
   display: flex;
-
   align-items: center;
-
   gap: 10px;
-
   padding: 10px;
-
   background: white;
-
   border:
     1px solid #e2e8f0;
-
   border-radius: 13px;
-
   cursor: pointer;
-
   transition:
     transform .15s,
     box-shadow .15s,
     border-color .15s;
 }
-
 .pointCard:hover {
-
   transform:
     translateY(-1px);
-
   border-color:
     #93c5fd;
-
   box-shadow:
     0 5px 16px
     rgba(37,99,235,.10);
 }
-
 .pointNumber {
-
   flex:
     0 0 34px;
-
   width: 34px;
   height: 34px;
-
   border-radius: 11px;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   color: white;
-
   font-size: 11px;
-
   font-weight: 900;
 }
-
 .pointInfo {
-
   flex: 1;
-
   min-width: 0;
 }
-
 .pointName {
-
   font-size: 12px;
-
   font-weight: 800;
 
   color: #0f172a;
@@ -1913,19 +1625,12 @@ textarea.formInput {
               <tr>
 
                 <th>Orden</th>
-
-                <th>Nombre</th>
-
                 <th>Latitud</th>
-
                 <th>Longitud</th>
-
+                <th>Nombre</th>
                 <th>Desc. 1</th>
-
                 <th>Desc. 2</th>
-
                 <th>Desc. 3</th>
-
                 <th>Color</th>
 
               </tr>
@@ -2892,19 +2597,19 @@ function loadExcel(file) {
 
           const name =
             String(
-              row[0] ?? ""
+              row[2] ?? ""
             ).trim();
 
 
           const lat =
             parseCoordinate(
-              row[1]
+              row[0]
             );
 
 
           const lng =
             parseCoordinate(
-              row[2]
+              row[1]
             );
 
 
