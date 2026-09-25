@@ -4608,9 +4608,10 @@ function renderTable() {
 
 
         return [
-          point.name,
+          
           point.lat,
           point.lng,
+          point.name,
           point.desc1,
           point.desc2,
           point.desc3
@@ -5156,9 +5157,10 @@ function applyFilters() {
 
       const text =
         [
-          point.name,
+         
           point.lat,
           point.lng,
+          point.name,
           point.desc1,
           point.desc2,
           point.desc3
@@ -7541,9 +7543,10 @@ function downloadExcel() {
     const data = [
 
       [
-        "Nombre",
+      
         "Latitud",
         "Longitud",
+        "Nombre",
         "Descripción 1",
         "Descripción 2",
         "Descripción 3",
@@ -7558,16 +7561,13 @@ function downloadExcel() {
 
         data.push([
 
-          point.name || "",
+        
 
           point.lat,
-
           point.lng,
-
+          point.name || "",
           point.desc1 || "",
-
           point.desc2 || "",
-
           point.desc3 || "",
 
           normalizeColor(
@@ -7600,16 +7600,17 @@ function downloadExcel() {
 
     worksheet["!cols"] = [
 
+     
+
       {
+        wch: 15
+      },
+
+      {
+        wch: 15
+      },
+       {
         wch: 30
-      },
-
-      {
-        wch: 15
-      },
-
-      {
-        wch: 15
       },
 
       {
