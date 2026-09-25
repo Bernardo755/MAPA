@@ -189,6 +189,47 @@ body {
   color: #cbd5e1;
 }
 
+.headerActions {
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-end;
+
+  gap: 5px;
+}
+
+.cleanButton {
+
+  border: 1px solid rgba(255,255,255,.16);
+
+  background: rgba(255,255,255,.08);
+
+  color: #cbd5e1;
+
+  border-radius: 7px;
+
+  padding: 4px 7px;
+
+  font-size: 9px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  line-height: 1;
+
+  transition: .2s;
+}
+
+.cleanButton:hover {
+
+  background: rgba(255,255,255,.16);
+
+  color: white;
+}
+
 .pointCounter {
 
   min-width: 70px;
@@ -1536,11 +1577,24 @@ textarea.formInput {
 
       </div>
 
-      <div
-        class="pointCounter"
-        id="pointCounter"
-      >
-        0 puntos
+      <div class="headerActions">
+
+        <div
+          class="pointCounter"
+          id="pointCounter"
+        >
+          0 puntos
+        </div>
+
+        <button
+          type="button"
+          class="cleanButton"
+          onclick="clearApplication()"
+          title="Limpiar y preparar para otro trabajo"
+        >
+          ↻ Limpiar
+        </button>
+
       </div>
 
     </div>
@@ -7326,6 +7380,168 @@ function escapeXml(
     /'/g,
     "&apos;"
   );
+
+}
+
+
+/* =========================================================
+   MÓDULO 29A - LIMPIAR / NUEVO TRABAJO
+   ========================================================= */
+
+function clearApplication() {
+
+  const confirmed =
+    window.confirm(
+      "¿Deseas limpiar el trabajo actual y preparar el visor para subir otro archivo?\n\nSe eliminarán los puntos, rutas, filtros y datos cargados de esta sesión."
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  try {
+
+    /*
+       Liberamos primero las referencias y capas
+       que pueden contener muchos objetos.
+    */
+
+    if (markersLayer) {
+      markersLayer.clearLayers();
+    }
+
+    if (routeLayer) {
+      routeLayer.clearLayers();
+    }
+
+    if (routeMarkersLayer) {
+      routeMarkersLayer.clearLayers();
+    }
+
+    if (initialMarkerLayer) {
+      initialMarkerLayer.clearLayers();
+    }
+
+    if (typeof closePointModal === "function") {
+      closePointModal();
+    }
+
+    points = [];
+    originalPointOrder = [];
+    routes = [];
+    markerObjects = {};
+
+    currentPointId = null;
+    currentRouteId = null;
+    routeMode = false;
+
+    pointIdCounter = 1;
+    routeIdCounter = 1;
+
+
+    /*
+       Limpiamos los controles de entrada para que
+       pueda seleccionarse inmediatamente otro archivo.
+    */
+
+    const fileInput =
+      document.getElementById("fileInput");
+
+    if (fileInput) {
+      fileInput.value = "";
+    }
+
+    const tableSearch =
+      document.getElementById("tableSearch");
+
+    if (tableSearch) {
+      tableSearch.value = "";
+    }
+
+    const generalFilter =
+      document.getElementById("generalFilter");
+
+    if (generalFilter) {
+      generalFilter.value = "";
+    }
+
+    const sortSelect =
+      document.getElementById("pointSortSelect");
+
+    if (sortSelect) {
+      sortSelect.value = "original";
+    }
+
+
+    /*
+       Dejamos la pantalla visualmente como al iniciar.
+    */
+
+    renderPointsList();
+    renderTable();
+    buildFilters();
+    renderRoutes();
+    updateCounter();
+
+    showStatus(
+      "Listo para cargar un nuevo trabajo.",
+      "normal"
+    );
+
+
+    if (map) {
+
+      map.setView(
+        [
+          23.6345,
+          -102.5528
+        ],
+        5,
+        { animate: false }
+      );
+
+      setTimeout(
+        function() {
+          map.invalidateSize();
+        },
+        100
+      );
+
+    }
+
+
+    showToast(
+      "Trabajo limpiado. Preparando un nuevo trabajo..."
+    );
+
+
+    /*
+       Una recarga final reinicia por completo el contexto
+       JavaScript de esta página y permite al navegador
+       recuperar la memoria asociada al trabajo anterior.
+       No se puede ordenar al navegador liberar RAM de forma
+       absoluta desde JavaScript, pero la recarga es la forma
+       más completa de restablecer este visor.
+    */
+
+    setTimeout(
+      function() {
+        window.location.reload();
+      },
+      350
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Error al limpiar la aplicación:",
+      error
+    );
+
+    window.location.reload();
+
+  }
 
 }
 
