@@ -1,35 +1,49 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta
   name="viewport"
   content="width=device-width, initial-scale=1.0"
 >
+
 <title>Visualizador KML & Excel</title>
+
 <!-- =========================================================
      MÓDULO 01 - LIBRERÍAS
      ========================================================= -->
+
 <link
   rel="stylesheet"
   href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
 />
+
 <script
   src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
 ></script>
+
 <script
   src="https://cdn.tailwindcss.com"
 ></script>
+
 <script
   src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"
 ></script>
+
+
 <!-- =========================================================
      MÓDULO 02 - ESTILOS
      ========================================================= -->
+
 <style>
+
 * {
   box-sizing: border-box;
 }
+
 html,
 body {
   width: 100%;
@@ -43,9 +57,12 @@ body {
     sans-serif;
   background: #f1f5f9;
 }
+
+
 /* =========================================================
    MAPA
    ========================================================= */
+
 #map {
   position: fixed;
   inset: 0;
@@ -54,6 +71,7 @@ body {
   z-index: 1;
   background: #dbeafe;
 }
+
 .leaflet-container {
   width: 100%;
   height: 100%;
@@ -62,15 +80,19 @@ body {
     Helvetica,
     sans-serif;
 }
+
 .leaflet-control-layers {
   border-radius: 12px !important;
   overflow: hidden;
   box-shadow:
     0 5px 20px rgba(0,0,0,.18) !important;
 }
+
+
 /* =========================================================
    PANEL
    ========================================================= */
+
 #mainPanel {
   position: fixed;
   top: 14px;
@@ -89,9 +111,12 @@ body {
   overflow: hidden;
   backdrop-filter: blur(8px);
 }
+
+
 /* =========================================================
    ENCABEZADO
    ========================================================= */
+
 .appHeader {
   padding: 17px 18px;
   background:
@@ -103,28 +128,33 @@ body {
   color: white;
   flex-shrink: 0;
 }
+
 .headerTop {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
+
 .appTitle {
   font-size: 19px;
   font-weight: 800;
   letter-spacing: -.3px;
 }
+
 .appSubtitle {
   margin-top: 3px;
   font-size: 11px;
   color: #cbd5e1;
 }
+
 .headerActions {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 5px;
 }
+
 .cleanButton {
   border: 1px solid rgba(255,255,255,.16);
   background: rgba(255,255,255,.08);
@@ -137,10 +167,12 @@ body {
   line-height: 1;
   transition: .2s;
 }
+
 .cleanButton:hover {
   background: rgba(255,255,255,.16);
   color: white;
 }
+
 .pointCounter {
   min-width: 70px;
   padding: 7px 10px;
@@ -151,9 +183,12 @@ body {
   font-size: 12px;
   font-weight: 700;
 }
+
+
 /* =========================================================
    PESTAÑAS
    ========================================================= */
+
 .tabs {
   display: grid;
   grid-template-columns:
@@ -163,6 +198,7 @@ body {
     1px solid #e2e8f0;
   flex-shrink: 0;
 }
+
 .tabButton {
   border: 0;
   background: transparent;
@@ -173,24 +209,30 @@ body {
   cursor: pointer;
   transition: .2s;
 }
+
 .tabButton:hover {
   background:
     #f1f5f9;
 }
+
 .tabButton.active {
   color: #2563eb;
   background: white;
   box-shadow:
     inset 0 -2px 0 #2563eb;
 }
+
+
 /* =========================================================
    CONTENIDO
    ========================================================= */
+
 #content {
   flex: 1;
   min-height: 0;
   overflow: hidden;
 }
+
 .tabContent {
   display: none;
   height: 100%;
@@ -198,12 +240,16 @@ body {
   overflow-x: hidden;
   padding: 14px;
 }
+
 .tabContent.active {
   display: block;
 }
+
+
 /* =========================================================
    TARJETAS
    ========================================================= */
+
 .sectionCard {
   background: white;
   border:
@@ -215,6 +261,7 @@ body {
     0 3px 10px
     rgba(15,23,42,.04);
 }
+
 .sectionTitle {
   display: flex;
   align-items: center;
@@ -225,9 +272,12 @@ body {
   color: #0f172a;
   margin-bottom: 10px;
 }
+
+
 /* =========================================================
    CARGA
    ========================================================= */
+
 .uploadArea {
   border:
     2px dashed #cbd5e1;
@@ -242,10 +292,12 @@ body {
     );
   transition: .2s;
 }
+
 .uploadArea:hover {
   border-color: #60a5fa;
   background: #eff6ff;
 }
+
 .uploadIcon {
   width: 50px;
   height: 50px;
@@ -258,21 +310,25 @@ body {
   background: #dbeafe;
   color: #2563eb;
 }
+
 .uploadIcon svg {
   width: 27px;
   height: 27px;
 }
+
 .uploadTitle {
   font-size: 14px;
   font-weight: 800;
   color: #0f172a;
 }
+
 .uploadText {
   margin-top: 4px;
   color: #64748b;
   font-size: 11px;
   line-height: 1.5;
 }
+
 .uploadButton {
   display: inline-flex;
   align-items: center;
@@ -289,15 +345,20 @@ body {
   cursor: pointer;
   transition: .2s;
 }
+
 .uploadButton:hover {
   background: #1d4ed8;
 }
+
 #fileInput {
   display: none;
 }
+
+
 /* =========================================================
    ESTADO
    ========================================================= */
+
 .statusBox {
   padding:
     10px 11px;
@@ -309,19 +370,24 @@ body {
   color: #475569;
   line-height: 1.5;
 }
+
 .statusBox.success {
   background: #f0fdf4;
   border-color: #bbf7d0;
   color: #166534;
 }
+
 .statusBox.error {
   background: #fef2f2;
   border-color: #fecaca;
   color: #991b1b;
 }
+
+
 /* =========================================================
    BOTONES
    ========================================================= */
+
 .btn {
   border: 0;
   border-radius: 9px;
@@ -332,37 +398,47 @@ body {
   cursor: pointer;
   transition: .2s;
 }
+
 .btnPrimary {
   background: #2563eb;
   color: white;
 }
+
 .btnPrimary:hover {
   background: #1d4ed8;
 }
+
 .btnSecondary {
   background: #f1f5f9;
   color: #334155;
   border:
     1px solid #e2e8f0;
 }
+
 .btnSecondary:hover {
   background: #e2e8f0;
 }
+
 .btnDanger {
   background: #fee2e2;
   color: #991b1b;
 }
+
 .btnDanger:hover {
   background: #fecaca;
 }
+
 .buttonRow {
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
 }
+
+
 /* =========================================================
    LISTA DE PUNTOS
    ========================================================= */
+
 #pointsList {
   display: flex;
   flex-direction: column;
@@ -371,6 +447,7 @@ body {
   overflow-y: auto;
   padding-right: 3px;
 }
+
 .pointCard {
   display: flex;
   align-items: center;
@@ -386,6 +463,7 @@ body {
     box-shadow .15s,
     border-color .15s;
 }
+
 .pointCard:hover {
   transform:
     translateY(-1px);
@@ -395,6 +473,7 @@ body {
     0 5px 16px
     rgba(37,99,235,.10);
 }
+
 .pointNumber {
   flex:
     0 0 34px;
@@ -408,36 +487,29 @@ body {
   font-size: 11px;
   font-weight: 900;
 }
+
 .pointInfo {
   flex: 1;
   min-width: 0;
 }
+
 .pointName {
   font-size: 12px;
   font-weight: 800;
-
   color: #0f172a;
-
   white-space: nowrap;
-
   overflow: hidden;
-
   text-overflow: ellipsis;
 }
 
 .pointCoords {
-
   margin-top: 3px;
-
   font-size: 9px;
-
   color: #64748b;
 }
 
 .pointArrow {
-
   color: #94a3b8;
-
   font-size: 16px;
 }
 
@@ -447,64 +519,40 @@ body {
    ========================================================= */
 
 .pointSortBar {
-
   display: flex;
-
   align-items: center;
-
   gap: 7px;
-
   margin-bottom: 9px;
-
   padding: 8px;
-
   border:
     1px solid #e2e8f0;
-
   border-radius: 10px;
-
   background: #f8fafc;
 }
 
 .pointSortLabel {
-
   font-size: 9px;
-
   font-weight: 800;
-
   color: #64748b;
-
   white-space: nowrap;
 }
 
 .pointSortSelect {
-
   flex: 1;
-
   min-width: 0;
-
   padding: 7px 8px;
-
   border:
     1px solid #cbd5e1;
-
   border-radius: 8px;
-
   background: white;
-
   color: #334155;
-
   font-size: 10px;
-
   outline: none;
-
   cursor: pointer;
 }
 
 .pointSortSelect:focus {
-
   border-color: #60a5fa;
-
   box-shadow:
     0 0 0 3px
     rgba(59,130,246,.08);
@@ -516,103 +564,61 @@ body {
    ========================================================= */
 
 .pointMapVisual {
-
   position: absolute;
-
   left: 0;
-
   top: 0;
-
   width: max-content;
-
   min-width: 34px;
-
   height: 42px;
-
   display: flex;
-
   align-items: flex-start;
-
   gap: 6px;
-
   pointer-events: auto;
-
   white-space: nowrap;
-
   transition: transform .15s ease;
 }
 
 .pointMapPin {
-
   width: 30px;
-
   height: 30px;
-
   margin-top: 2px;
-
   border-radius: 50% 50% 50% 0;
-
   transform: rotate(-45deg);
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   flex-shrink: 0;
-
   border: 3px solid white;
-
   box-shadow:
     0 3px 8px
     rgba(0,0,0,.35);
 }
 
 .pointMapNumber {
-
   transform: rotate(45deg);
-
   color: white;
-
   font-size: 9px;
-
   font-weight: 900;
 }
 
 .pointMapLabel {
-
   margin-top: 3px;
-
   max-width: 210px;
-
   overflow: hidden;
-
   text-overflow: ellipsis;
-
   padding: 4px 7px;
-
   border-radius: 7px;
-
   background: rgba(255,255,255,.96);
-
   border:
     1px solid rgba(15,23,42,.16);
-
   box-shadow:
     0 2px 7px
     rgba(15,23,42,.22);
-
   color: #0f172a;
-
   font-size: 10px;
-
   line-height: 1.2;
-
   font-weight: 800;
-
   pointer-events: auto;
-
   cursor: pointer;
 }
 
@@ -622,161 +628,108 @@ body {
    ========================================================= */
 
 .tableSearch {
-
   width: 100%;
-
   padding: 9px 10px;
-
   border:
     1px solid #cbd5e1;
-
   border-radius: 9px;
-
   outline: none;
-
   font-size: 11px;
-
   margin-bottom: 9px;
 }
 
 .tableSearch:focus {
-
   border-color:
     #60a5fa;
-
   box-shadow:
     0 0 0 3px
     rgba(59,130,246,.10);
 }
 
 .tableViewport {
-
   height:
     calc(100vh - 250px);
-
   min-height: 280px;
-
   max-height:
     calc(100vh - 250px);
-
   overflow: auto;
-
   border:
     1px solid #e2e8f0;
-
   border-radius: 10px;
-
   background: white;
-
   position: relative;
 }
 
 table {
-
   width: max-content;
-
   min-width: 100%;
-
   border-collapse:
     separate;
-
   border-spacing: 0;
-
   font-size: 10px;
 }
 
 th {
-
   position: sticky;
-
   top: 0;
-
   z-index: 5;
-
   background: #f1f5f9;
-
   color: #334155;
-
   font-weight: 800;
-
   padding: 8px;
-
   border-bottom:
     1px solid #cbd5e1;
-
   white-space: nowrap;
 }
 
 td {
-
   padding: 6px 8px;
-
   border-bottom:
     1px solid #f1f5f9;
-
   white-space: nowrap;
-
   background: white;
 }
 
 tr:hover td {
-
   background:
     #f8fafc;
 }
 
 .tablePointLink {
-
   color: #2563eb;
-
   font-weight: 800;
-
   cursor: pointer;
 }
 
 .tablePointLink:hover {
-
   text-decoration:
     underline;
 }
 
 .tableInput {
-
   width: 125px;
-
   border:
     1px solid transparent;
-
   background:
     transparent;
-
   padding: 4px;
-
   font-size: 10px;
-
   outline: none;
 }
 
 .tableInput:focus {
-
   border-color:
     #93c5fd;
-
   background: white;
-
   border-radius: 5px;
 }
 
 .colorCell {
-
   width: 28px;
   height: 20px;
-
   border-radius: 5px;
-
   border:
     1px solid #cbd5e1;
-
   cursor: pointer;
 }
 
@@ -786,133 +739,89 @@ tr:hover td {
    ========================================================= */
 
 .filterSearch {
-
   width: 100%;
-
   padding:
     9px 10px;
-
   border:
     1px solid #cbd5e1;
-
   border-radius: 9px;
-
   outline: none;
-
   font-size: 11px;
-
   margin-bottom: 9px;
 }
 
 .filterDropdown {
-
   border:
     1px solid #e2e8f0;
-
   border-radius: 10px;
-
   margin-bottom: 7px;
-
   background: white;
-
   overflow: hidden;
 }
 
 .filterDropdownHeader {
-
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   width: 100%;
-
   padding: 10px;
-
   border: 0;
-
   background: #f8fafc;
-
   cursor: pointer;
-
   font-size: 11px;
-
   font-weight: 800;
-
   color: #334155;
 }
 
 .filterDropdownHeader:hover {
-
   background:
     #f1f5f9;
 }
 
 .filterArrow {
-
   transition:
     transform .2s;
 }
 
 .filterDropdown.open
 .filterArrow {
-
   transform:
     rotate(180deg);
 }
 
 .filterDropdownBody {
-
   display: none;
-
   padding: 9px;
-
   border-top:
     1px solid #e2e8f0;
-
   max-height: 180px;
-
   overflow-y: auto;
 }
 
 .filterDropdown.open
 .filterDropdownBody {
-
   display: block;
 }
 
 .filterOption {
-
   display: flex;
-
   align-items: center;
-
   gap: 7px;
-
   padding: 5px 2px;
-
   font-size: 10px;
-
   color: #475569;
-
   cursor: pointer;
 }
 
 .filterOption input {
-
   accent-color:
     #2563eb;
 }
 
 .selectedCount {
-
   font-size: 9px;
-
   color: #2563eb;
-
   margin-left: auto;
-
   margin-right: 8px;
 }
 
@@ -922,82 +831,52 @@ tr:hover td {
    ========================================================= */
 
 .routeInput {
-
   width: 100%;
-
   padding: 8px 9px;
-
   border:
     1px solid #cbd5e1;
-
   border-radius: 8px;
-
   outline: none;
-
   font-size: 11px;
 }
 
 .routeInput:focus {
-
   border-color:
     #60a5fa;
 }
 
 .routePoint {
-
   display: flex;
-
   align-items: center;
-
   gap: 7px;
-
   padding: 7px;
-
   border-bottom:
     1px solid #f1f5f9;
-
   font-size: 10px;
 }
 
 .routeBadge {
-
   width: 23px;
   height: 23px;
-
   border-radius: 8px;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   background: #2563eb;
-
   color: white;
-
   font-size: 9px;
-
   font-weight: 900;
-
   flex-shrink: 0;
 }
 
 .routeMode {
-
   padding: 9px;
-
   background: #eff6ff;
-
   border:
     1px solid #bfdbfe;
-
   border-radius: 9px;
-
   color: #1e40af;
-
   font-size: 10px;
-
   line-height: 1.4;
 }
 
@@ -1007,150 +886,99 @@ tr:hover td {
    ========================================================= */
 
 #pointModal {
-
   display: none;
-
   position: fixed;
-
   inset: 0;
-
   z-index: 5000;
-
   background:
     rgba(15,23,42,.48);
-
   align-items: center;
-
   justify-content: center;
-
   padding: 15px;
 }
 
 #pointModal.show {
-
   display: flex;
 }
 
 .modalCard {
-
   width:
     min(440px, 100%);
-
   max-height: 90vh;
-
   overflow-y: auto;
-
   background: white;
-
   border-radius: 17px;
-
   box-shadow:
     0 25px 70px
     rgba(15,23,42,.30);
-
   padding: 17px;
 }
 
 .modalHeader {
-
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   margin-bottom: 14px;
 }
 
 .modalTitle {
-
   font-size: 15px;
-
   font-weight: 900;
-
   color: #0f172a;
 }
 
 .closeButton {
-
   width: 31px;
   height: 31px;
-
   border: 0;
-
   border-radius: 9px;
-
   background: #f1f5f9;
-
   cursor: pointer;
-
   font-size: 18px;
-
   color: #475569;
 }
 
 .formGroup {
-
   margin-bottom: 10px;
 }
 
 .formLabel {
-
   display: block;
-
   margin-bottom: 5px;
-
   font-size: 10px;
-
   font-weight: 800;
-
   color: #475569;
 }
 
 .formInput {
-
   width: 100%;
-
   padding: 9px;
-
   border:
     1px solid #cbd5e1;
-
   border-radius: 8px;
-
   outline: none;
-
   font-size: 11px;
 }
 
 .formInput:focus {
-
   border-color:
     #60a5fa;
-
   box-shadow:
     0 0 0 3px
     rgba(59,130,246,.08);
 }
 
 textarea.formInput {
-
   min-height: 65px;
-
   resize: vertical;
 }
 
 .colorInput {
-
   width: 50px;
   height: 35px;
-
   border: 0;
-
   padding: 0;
-
   cursor: pointer;
-
   background:
     transparent;
 }
@@ -1161,47 +989,30 @@ textarea.formInput {
    ========================================================= */
 
 #toast {
-
   position: fixed;
-
   left: 50%;
-
   bottom: 20px;
-
   transform:
     translate(-50%,120px);
-
   z-index: 10000;
-
   padding:
     11px 15px;
-
   border-radius: 10px;
-
   background:
     #0f172a;
-
   color: white;
-
   font-size: 11px;
-
   font-weight: 700;
-
   box-shadow:
     0 10px 30px
     rgba(0,0,0,.25);
-
   transition: .25s;
-
   pointer-events: none;
-
   max-width: 90vw;
-
   text-align: center;
 }
 
 #toast.show {
-
   transform:
     translate(-50%,0);
 }
@@ -1214,34 +1025,24 @@ textarea.formInput {
 @media(max-width:760px) {
 
   #mainPanel {
-
     top: auto;
-
     left: 8px;
     right: 8px;
-
     bottom: 8px;
-
     width: auto;
-
     height: 48vh;
-
     border-radius: 16px;
   }
 
   .tableViewport {
-
     height:
       calc(48vh - 150px);
-
     min-height: 220px;
-
     max-height:
       calc(48vh - 150px);
   }
 
   #pointsList {
-
     max-height: 30vh;
   }
 
@@ -1367,16 +1168,13 @@ textarea.formInput {
       class="tabContent active"
     >
 
-
       <div class="sectionCard">
 
         <div class="sectionTitle">
           <span>Cargar archivo</span>
         </div>
 
-
         <div class="uploadArea">
-
 
           <div class="uploadIcon">
 
@@ -1399,11 +1197,9 @@ textarea.formInput {
 
           </div>
 
-
           <div class="uploadTitle">
             Selecciona un archivo
           </div>
-
 
           <div class="uploadText">
 
@@ -1417,7 +1213,6 @@ textarea.formInput {
             </strong>
 
           </div>
-
 
           <label
             for="fileInput"
@@ -1446,7 +1241,6 @@ textarea.formInput {
             Seleccionar archivo
 
           </label>
-
 
           <input
             id="fileInput"
@@ -1481,30 +1275,30 @@ textarea.formInput {
           <span>Exportar</span>
         </div>
 
-       <div class="buttonRow">
+        <div class="buttonRow">
 
-  <button
-    class="btn btnPrimary"
-    onclick="downloadKML()"
-  >
-    Descargar KML
-  </button>
+          <button
+            class="btn btnPrimary"
+            onclick="downloadKML()"
+          >
+            Descargar KML
+          </button>
 
-  <button
-    class="btn btnPrimary"
-    onclick="downloadExcel()"
-  >
-    Descargar Excel
-  </button>
+          <button
+            class="btn btnPrimary"
+            onclick="downloadExcel()"
+          >
+            Descargar Excel
+          </button>
 
-  <button
-    class="btn btnSecondary"
-    onclick="fitAllPoints()"
-  >
-    Ver todos
-  </button>
+          <button
+            class="btn btnSecondary"
+            onclick="fitAllPoints()"
+          >
+            Ver todos
+          </button>
 
-</div>
+        </div>
 
       </div>
 
@@ -1518,7 +1312,6 @@ textarea.formInput {
           </span>
 
         </div>
-
 
         <div class="pointSortBar">
 
@@ -1574,7 +1367,6 @@ textarea.formInput {
 
       </div>
 
-
     </section>
 
 
@@ -1607,14 +1399,12 @@ textarea.formInput {
 
         </div>
 
-
         <input
           id="tableSearch"
           class="tableSearch"
           type="text"
           placeholder="Buscar en la tabla..."
         >
-
 
         <div class="tableViewport">
 
@@ -1676,7 +1466,6 @@ textarea.formInput {
 
         </div>
 
-
         <input
           id="generalFilter"
           class="filterSearch"
@@ -1711,7 +1500,6 @@ textarea.formInput {
             </span>
 
           </button>
-
 
           <div
             class="filterDropdownBody"
@@ -1748,7 +1536,6 @@ textarea.formInput {
 
           </button>
 
-
           <div
             class="filterDropdownBody"
             id="desc1Options"
@@ -1783,7 +1570,6 @@ textarea.formInput {
             </span>
 
           </button>
-
 
           <div
             class="filterDropdownBody"
@@ -1820,7 +1606,6 @@ textarea.formInput {
 
           </button>
 
-
           <div
             class="filterDropdownBody"
             id="desc3Options"
@@ -1842,13 +1627,11 @@ textarea.formInput {
       class="tabContent"
     >
 
-
       <div class="sectionCard">
 
         <div class="sectionTitle">
           <span>Nueva ruta</span>
         </div>
-
 
         <input
           id="routeName"
@@ -1856,16 +1639,13 @@ textarea.formInput {
           placeholder="Nombre de la ruta"
         >
 
-
         <div style="height:7px"></div>
-
 
         <input
           id="routeInitial"
           class="routeInput"
           placeholder="Coordenada inicial opcional: lat,lng"
         >
-
 
         <label
           style="
@@ -1887,9 +1667,7 @@ textarea.formInput {
 
         </label>
 
-
         <div style="height:9px"></div>
-
 
         <button
           class="btn btnPrimary"
@@ -1911,18 +1689,20 @@ textarea.formInput {
 
         </div>
 
-
         <div class="routeMode">
 
           Activa el modo de selección y después
           haz clic en los puntos del mapa para
           agregarlos a la ruta.
 
+          <br><br>
+
+          El orden de selección será el orden
+          guardado en el Excel y KML.
+
         </div>
 
-
         <div style="height:9px"></div>
-
 
         <button
           id="routeModeButton"
@@ -1948,7 +1728,6 @@ textarea.formInput {
 
       </div>
 
-
     </section>
 
 
@@ -1964,7 +1743,6 @@ textarea.formInput {
 <div id="pointModal">
 
   <div class="modalCard">
-
 
     <div class="modalHeader">
 
@@ -2185,6 +1963,144 @@ let routeIdCounter = 1;
 
 
 /* =========================================================
+   MÓDULO 11B - INFORMACIÓN DE RUTAS POR PUNTO
+   ========================================================= */
+
+function getPointRouteAssignments(
+  pointId
+) {
+
+  const assignments = [];
+
+  routes.forEach(
+    function(route) {
+
+      const index =
+        route.pointIds.indexOf(
+          pointId
+        );
+
+      if (index !== -1) {
+
+        assignments.push({
+
+          routeId:
+            route.id,
+
+          routeName:
+            route.name,
+
+          order:
+            index + 1
+
+        });
+
+      }
+
+    }
+  );
+
+  return assignments;
+
+}
+
+
+function getPointRouteNames(
+  pointId
+) {
+
+  return getPointRouteAssignments(
+    pointId
+  )
+  .map(
+    function(item) {
+
+      return item.routeName;
+
+    }
+  )
+  .join(" | ");
+
+}
+
+
+function getPointRouteOrders(
+  pointId
+) {
+
+  return getPointRouteAssignments(
+    pointId
+  )
+  .map(
+    function(item) {
+
+      return String(
+        item.order
+      );
+
+    }
+  )
+  .join(" | ");
+
+}
+
+
+function getPointRouteLabel(
+  pointId
+) {
+
+  const assignments =
+    getPointRouteAssignments(
+      pointId
+    );
+
+  if (!assignments.length) {
+    return "";
+  }
+
+  return assignments
+    .map(
+      function(item) {
+
+        return (
+          "Ruta: " +
+          item.routeName +
+          " | Orden: " +
+          item.order
+        );
+
+      }
+    )
+    .join(" || ");
+
+}
+
+
+function sanitizeFileName(
+  value
+) {
+
+  return String(
+    value || "archivo"
+  )
+  .trim()
+  .replace(
+    /[<>:"/\\|?*\x00-\x1F]/g,
+    "_"
+  )
+  .replace(
+    /\s+/g,
+    "_"
+  )
+  .substring(
+    0,
+    120
+  );
+
+}
+
+
+/* =========================================================
    MÓDULO 12 - MAPA
    ========================================================= */
 
@@ -2280,6 +2196,7 @@ function initializeMap() {
 
         "Google Terreno":
           googleTerrain
+
       },
       null,
       {
@@ -2438,11 +2355,9 @@ function initializeFileInput() {
       "fileInput"
     );
 
-
   if (!input) {
     return;
   }
-
 
   input.addEventListener(
     "change",
@@ -2451,11 +2366,9 @@ function initializeFileInput() {
       const file =
         event.target.files[0];
 
-
       if (!file) {
         return;
       }
-
 
       loadFile(file);
 
@@ -2635,18 +2548,6 @@ function loadExcel(file) {
           }
 
 
-          /*
-             ==================================================
-             IMPORTANTE:
-
-             EL COLOR DEL EXCEL VIENE DE LA COLUMNA G.
-
-             NO SE CAMBIA SI ES UN COLOR VÁLIDO.
-
-             SOLO SE GENERA UNO SI G ESTÁ VACÍA.
-             ==================================================
-          */
-
           const originalColor =
             row[6];
 
@@ -2698,7 +2599,7 @@ function loadExcel(file) {
         if (!points.length) {
 
           throw new Error(
-            "No se encontraron coordenadas válidas. Revisa que B sea Latitud y C Longitud."
+            "No se encontraron coordenadas válidas. Revisa que A sea Latitud y B Longitud."
           );
 
         }
@@ -2941,40 +2842,12 @@ function loadKML(file) {
               );
 
 
-            /*
-               =================================================
-               COLOR KML
-
-               KML usa:
-
-               AABBGGRR
-
-               Ejemplo:
-
-               ff0000ff
-
-               significa rojo.
-
-               La función convierte correctamente
-               ese formato a #RRGGBB.
-               =================================================
-            */
-
             const kmlColor =
               extractKMLColor(
                 pm,
                 xml
               );
 
-
-            /*
-               =================================================
-               REGLA:
-
-               1. Si KML tiene color -> RESPETARLO.
-               2. Si no tiene -> generar color.
-               =================================================
-            */
 
             const color =
               kmlColor ||
@@ -2988,11 +2861,12 @@ function loadKML(file) {
               id:
                 pointIdCounter++,
 
-           
-
               lat,
+
               lng,
+
               name,
+
               desc1:
                 descriptionParts[0] || "",
 
@@ -3093,14 +2967,6 @@ function getExcelColor(
   index
 ) {
 
-  /*
-     Si la celda G está vacía,
-     se genera un color.
-
-     Si tiene información,
-     se intenta conservar.
-  */
-
   if (
     value === null ||
     value === undefined
@@ -3140,13 +3006,6 @@ function getExcelColor(
   }
 
 
-  /*
-     Si no se pudo interpretar,
-     se mantiene el color automático
-     solamente porque G no contiene
-     un color reconocible.
-  */
-
   return automaticColor(
     index
   );
@@ -3172,10 +3031,6 @@ function parseAnyColor(
       .trim();
 
 
-  /*
-     HEX #RRGGBB
-  */
-
   if (
     /^#[0-9a-fA-F]{6}$/.test(
       text
@@ -3186,10 +3041,6 @@ function parseAnyColor(
 
   }
 
-
-  /*
-     HEX RRGGBB
-  */
 
   if (
     /^[0-9a-fA-F]{6}$/.test(
@@ -3204,10 +3055,6 @@ function parseAnyColor(
 
   }
 
-
-  /*
-     HEX #RGB
-  */
 
   if (
     /^#[0-9a-fA-F]{3}$/.test(
@@ -3228,13 +3075,9 @@ function parseAnyColor(
   }
 
 
-  /*
-     RGB
-  */
-
   const rgb =
     text.match(
-      /^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i
+      /^rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i
     );
 
 
@@ -3264,10 +3107,6 @@ function parseAnyColor(
 
   }
 
-
-  /*
-     NOMBRES DE COLORES
-  */
 
   const namedColors = {
 
@@ -3388,13 +3227,6 @@ function extractKMLColor(
   xml
 ) {
 
-  /*
-     PRIMERA OPCIÓN:
-
-     Style definido directamente
-     dentro del Placemark.
-  */
-
   let colorNode =
     placemark.querySelector(
       "Style IconStyle color"
@@ -3437,13 +3269,6 @@ function extractKMLColor(
 
   }
 
-
-  /*
-     SEGUNDA OPCIÓN:
-
-     styleUrl apunta a un Style
-     definido en el documento.
-  */
 
   const styleUrl =
     placemark.querySelector(
@@ -3530,16 +3355,6 @@ function extractKMLColor(
 }
 
 
-/*
-   KML:
-
-   AABBGGRR
-
-   HTML:
-
-   #RRGGBB
-*/
-
 function kmlColorToHex(
   value
 ) {
@@ -3557,10 +3372,6 @@ function kmlColorToHex(
         ""
       );
 
-
-  /*
-     KML completo AABBGGRR
-  */
 
   if (
     /^[0-9a-fA-F]{8}$/.test(
@@ -3596,10 +3407,6 @@ function kmlColorToHex(
 
   }
 
-
-  /*
-     En caso de recibir RRGGBB
-  */
 
   if (
     /^[0-9a-fA-F]{6}$/.test(
@@ -3640,6 +3447,8 @@ function refreshAll() {
 
   updateInitialMarker();
 
+  drawRoutes();
+
 
   if (map) {
 
@@ -3673,18 +3482,8 @@ function renderMarkers() {
   markerObjects = {};
 
 
-  /*
-     =========================================================
-     ETIQUETAS + PUNTOS CON LA MISMA COORDENADA
-
-     Si varios puntos tienen exactamente la misma coordenada,
-     se les asigna una posición visual distinta alrededor del
-     mismo punto. Esto permite ver y seleccionar cada uno sin
-     modificar sus coordenadas reales.
-     =========================================================
-  */
-
   const coordinateGroups = {};
+
 
   points.forEach(
     function(point) {
@@ -3694,11 +3493,15 @@ function renderMarkers() {
         "|" +
         Number(point.lng).toFixed(7);
 
+
       if (!coordinateGroups[key]) {
         coordinateGroups[key] = [];
       }
 
-      coordinateGroups[key].push(point);
+
+      coordinateGroups[key].push(
+        point
+      );
 
     }
   );
@@ -3718,11 +3521,15 @@ function renderMarkers() {
         "|" +
         Number(point.lng).toFixed(7);
 
+
       const group =
-        coordinateGroups[key] || [point];
+        coordinateGroups[key] ||
+        [point];
+
 
       const occurrence =
         coordinateIndex[key] || 0;
+
 
       coordinateIndex[key] =
         occurrence + 1;
@@ -3746,11 +3553,6 @@ function renderMarkers() {
           {
             icon,
 
-            /*
-               Hace que los elementos visualmente
-               desplazados puedan quedar encima de
-               otros puntos de la misma coordenada.
-            */
             zIndexOffset:
               occurrence * 20
           }
@@ -3815,18 +3617,6 @@ function createPointIcon(
   groupSize
 ) {
 
-  /*
-     =========================================================
-     ETIQUETA DEL PUNTO
-
-     Se muestra siempre el nombre del punto junto al marcador.
-
-     Cuando hay varios puntos en la misma coordenada, la etiqueta
-     se desplaza visualmente en forma de abanico. Las coordenadas
-     reales del punto NO se modifican.
-     =========================================================
-  */
-
   const color =
     normalizeColor(
       point.color
@@ -3855,6 +3645,7 @@ function createPointIcon(
         index / 8
       ) * 18;
 
+
     const angle =
       (
         -75 +
@@ -3866,11 +3657,13 @@ function createPointIcon(
       Math.PI /
       180;
 
+
     offsetX =
       Math.round(
         Math.cos(angle) *
         radius
       );
+
 
     offsetY =
       Math.round(
@@ -3927,7 +3720,9 @@ function createPointIcon(
 
           <div
             class="pointMapLabel"
-            title="${escapeHtml(point.name || "")}"
+            title="${escapeHtml(
+              point.name || ""
+            )}"
           >
             ${escapeHtml(
               point.name ||
@@ -3955,8 +3750,6 @@ function createPointIcon(
 }
 
 
-
-
 /* =========================================================
    MÓDULO 22 - SELECCIÓN DE PUNTO
    ========================================================= */
@@ -3976,13 +3769,6 @@ function focusPoint(
     return;
   }
 
-
-  /*
-     Si el punto estaba oculto
-     por un filtro, lo volvemos a
-     colocar visualmente antes de
-     abrirlo.
-  */
 
   const marker =
     markerObjects[id];
@@ -4202,11 +3988,6 @@ function sortPoints(
   }
 
 
-  /*
-     La primera vez que se reorganizan los puntos
-     guardamos el orden original para poder recuperarlo.
-  */
-
   if (
     !originalPointOrder.length
   ) {
@@ -4358,11 +4139,6 @@ function sortPoints(
   }
 
 
-  /*
-     El orden del arreglo points es el orden visual
-     y de numeración que utiliza el visor.
-  */
-
   renderMarkers();
 
   renderPointsList();
@@ -4424,24 +4200,31 @@ async function copyCurrentPointColor() {
           "textarea"
         );
 
+
       temporary.value =
         color;
+
 
       temporary.style.position =
         "fixed";
 
+
       temporary.style.left =
         "-9999px";
+
 
       document.body.appendChild(
         temporary
       );
 
+
       temporary.select();
+
 
       document.execCommand(
         "copy"
       );
+
 
       document.body.removeChild(
         temporary
@@ -4455,12 +4238,14 @@ async function copyCurrentPointColor() {
       color
     );
 
+
   } catch (error) {
 
     console.error(
       "No fue posible copiar el color:",
       error
     );
+
 
     showToast(
       "No fue posible copiar el color."
@@ -4608,13 +4393,14 @@ function renderTable() {
 
 
         return [
-          
+
           point.lat,
           point.lng,
           point.name,
           point.desc1,
           point.desc2,
           point.desc3
+
         ]
         .join(" ")
         .toLowerCase()
@@ -4640,23 +4426,19 @@ function renderTable() {
                 ${index + 1}
               </td>
 
-
-             
-
-
               <td>
                 ${formatCoordinate(
                   point.lat
                 )}
               </td>
 
-
               <td>
                 ${formatCoordinate(
                   point.lng
                 )}
               </td>
- <td>
+
+              <td>
 
                 <span
                   class="tablePointLink"
@@ -4689,7 +4471,6 @@ function renderTable() {
 
               </td>
 
-
               <td>
 
                 <input
@@ -4708,7 +4489,6 @@ function renderTable() {
 
               </td>
 
-
               <td>
 
                 <input
@@ -4726,7 +4506,6 @@ function renderTable() {
                 >
 
               </td>
-
 
               <td>
 
@@ -4966,7 +4745,6 @@ function buildFilterOptions(
                   data-filter-field="color"
                 >
 
-
                 <span
                   style="
                     width:13px;
@@ -4978,7 +4756,6 @@ function buildFilterOptions(
                     border:1px solid #cbd5e1;
                   "
                 ></span>
-
 
                 <span>
 
@@ -5010,7 +4787,6 @@ function buildFilterOptions(
                 onchange="applyFilters()"
                 data-filter-field="${field}"
               >
-
 
               <span>
 
@@ -5157,13 +4933,14 @@ function applyFilters() {
 
       const text =
         [
-         
+
           point.lat,
           point.lng,
           point.name,
           point.desc1,
           point.desc2,
           point.desc3
+
         ]
         .join(" ")
         .toLowerCase();
@@ -5452,6 +5229,8 @@ function createRoute() {
 
   renderRoutes();
 
+  drawRoutes();
+
 
   showToast(
     "Ruta creada. Selecciona puntos en el mapa."
@@ -5566,7 +5345,8 @@ function addPointToCurrentRoute(
 
 
   showToast(
-    "Punto agregado a la ruta."
+    "Punto agregado a la ruta. Orden: " +
+    route.pointIds.length
   );
 
 }
@@ -5688,6 +5468,7 @@ function toggleRouteModeFor(
 
   drawRoutes();
 
+
   showToast(
     "Selecciona los puntos en el mapa."
   );
@@ -5715,12 +5496,28 @@ function removeLastRoutePoint() {
   }
 
 
+  if (!route.pointIds.length) {
+
+    showToast(
+      "La ruta no tiene puntos."
+    );
+
+    return;
+
+  }
+
+
   route.pointIds.pop();
 
 
   renderRoutes();
 
   drawRoutes();
+
+
+  showToast(
+    "Último punto eliminado de la ruta."
+  );
 
 }
 
@@ -5741,6 +5538,10 @@ function clearRoute(
   ) {
     return;
   }
+
+
+  const routeName =
+    routes[index].name;
 
 
   routes.splice(
@@ -5774,8 +5575,18 @@ function clearRoute(
 
   updateInitialMarker();
 
+
+  showToast(
+    "Ruta eliminada: " +
+    routeName
+  );
+
 }
 
+
+/* =========================================================
+   MÓDULO 26A - MOSTRAR RUTAS
+   ========================================================= */
 
 function renderRoutes() {
 
@@ -5807,7 +5618,10 @@ function renderRoutes() {
   container.innerHTML =
     routes
       .map(
-        function(route) {
+        function(
+          route,
+          routeIndex
+        ) {
 
           const routePoints =
             route.pointIds
@@ -5852,7 +5666,6 @@ function renderRoutes() {
               "
             >
 
-
               <div
                 style="
                   display:flex;
@@ -5867,24 +5680,46 @@ function renderRoutes() {
 
                   <div
                     style="
+                      display:flex;
+                      align-items:center;
+                      gap:7px;
                       font-size:12px;
                       font-weight:900;
                       color:#0f172a;
                     "
                   >
 
-                    ${escapeHtml(
-                      route.name
-                    )}
+                    <span
+                      style="
+                        display:inline-flex;
+                        align-items:center;
+                        justify-content:center;
+                        min-width:30px;
+                        height:22px;
+                        padding:0 7px;
+                        border-radius:7px;
+                        background:#2563eb;
+                        color:white;
+                        font-size:9px;
+                        font-weight:900;
+                      "
+                    >
+                      R${routeIndex + 1}
+                    </span>
+
+                    <span>
+                      ${escapeHtml(
+                        route.name
+                      )}
+                    </span>
 
                   </div>
-
 
                   <div
                     style="
                       font-size:9px;
                       color:#64748b;
-                      margin-top:2px;
+                      margin-top:3px;
                     "
                   >
 
@@ -5927,11 +5762,9 @@ function renderRoutes() {
                               <div
                                 class="routeBadge"
                               >
-
                                 ${
                                   index + 1
                                 }
-
                               </div>
 
 
@@ -5942,9 +5775,27 @@ function renderRoutes() {
                                 "
                               >
 
-                                ${escapeHtml(
-                                  point.name
-                                )}
+                                <div
+                                  style="
+                                    font-weight:800;
+                                    color:#0f172a;
+                                  "
+                                >
+                                  ${escapeHtml(
+                                    point.name
+                                  )}
+                                </div>
+
+
+                                <div
+                                  style="
+                                    font-size:8px;
+                                    color:#64748b;
+                                    margin-top:2px;
+                                  "
+                                >
+                                  Orden ${index + 1}
+                                </div>
 
                               </div>
 
@@ -5956,6 +5807,7 @@ function renderRoutes() {
                       )
                       .join("")
                   : `
+
                     <div
                       style="
                         padding:7px;
@@ -5965,6 +5817,7 @@ function renderRoutes() {
                     >
                       Sin puntos.
                     </div>
+
                   `
               }
 
@@ -5999,6 +5852,24 @@ function renderRoutes() {
 
 
                 <button
+                  class="btn btnSecondary"
+                  onclick="downloadRouteExcel(${route.id})"
+                  title="Descargar Excel de esta ruta"
+                >
+                  Excel
+                </button>
+
+
+                <button
+                  class="btn btnSecondary"
+                  onclick="downloadRouteKML(${route.id})"
+                  title="Descargar KML de esta ruta"
+                >
+                  KML
+                </button>
+
+
+                <button
                   class="btn btnDanger"
                   onclick="clearRoute(${route.id})"
                 >
@@ -6017,6 +5888,10 @@ function renderRoutes() {
 
 }
 
+
+/* =========================================================
+   MÓDULO 26B - DIBUJAR RUTAS
+   ========================================================= */
 
 function drawRoutes() {
 
@@ -6048,6 +5923,51 @@ function drawRoutes() {
       if (
         routePoints.length < 2
       ) {
+
+        /*
+           Aunque la línea no se dibuja,
+           si existe un solo punto sigue siendo
+           una ruta válida para exportar.
+        */
+
+        routePoints.forEach(
+          function(
+            point,
+            index
+          ) {
+
+            const marker =
+              L.circleMarker(
+                [
+                  point.lat,
+                  point.lng
+                ],
+                {
+                  radius: 7,
+                  weight: 3,
+                  fillOpacity: 1
+                }
+              );
+
+
+            marker.bindTooltip(
+              String(
+                index + 1
+              ),
+              {
+                permanent: true,
+                direction: "center"
+              }
+            );
+
+
+            marker.addTo(
+              routeMarkersLayer
+            );
+
+          }
+        );
+
 
         return;
 
@@ -6157,6 +6077,10 @@ function drawRoutes() {
 }
 
 
+/* =========================================================
+   MÓDULO 26C - MARCADOR INICIAL
+   ========================================================= */
+
 function updateInitialMarker() {
 
   if (
@@ -6210,6 +6134,10 @@ function updateInitialMarker() {
 
 }
 
+
+/* =========================================================
+   MÓDULO 26D - DISTANCIA
+   ========================================================= */
 
 function calculateRouteDistance(
   route
@@ -6300,6 +6228,10 @@ function calculateRouteDistance(
 
 }
 
+
+/* =========================================================
+   MÓDULO 26E - GOOGLE MAPS
+   ========================================================= */
 
 function openRouteInGoogleMaps(
   id
@@ -6398,6 +6330,615 @@ function openRouteInGoogleMaps(
 
 
 /* =========================================================
+   MÓDULO 26F - DESCARGAR EXCEL DE UNA RUTA
+   ========================================================= */
+
+function downloadRouteExcel(
+  routeId
+) {
+
+  const route =
+    routes.find(
+      r =>
+        r.id === routeId
+    );
+
+
+  if (!route) {
+
+    showToast(
+      "No se encontró la ruta."
+    );
+
+    return;
+
+  }
+
+
+  const routePoints =
+    route.pointIds
+      .map(
+        id =>
+          points.find(
+            p =>
+              p.id === id
+          )
+      )
+      .filter(Boolean);
+
+
+  if (!routePoints.length) {
+
+    showToast(
+      "La ruta no tiene puntos para exportar."
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+    const data = [
+
+      [
+
+        "Orden",
+
+        "Nombre de ruta",
+
+        "Etiqueta ruta",
+
+        "Latitud",
+
+        "Longitud",
+
+        "Nombre",
+
+        "Descripción 1",
+
+        "Descripción 2",
+
+        "Descripción 3",
+
+        "Color"
+
+      ]
+
+    ];
+
+
+    routePoints.forEach(
+      function(
+        point,
+        index
+      ) {
+
+        const order =
+          index + 1;
+
+
+        const routeLabel =
+          "Ruta: " +
+          route.name +
+          " | Orden: " +
+          order;
+
+
+        data.push([
+
+          order,
+
+          route.name,
+
+          routeLabel,
+
+          point.lat,
+
+          point.lng,
+
+          point.name || "",
+
+          point.desc1 || "",
+
+          point.desc2 || "",
+
+          point.desc3 || "",
+
+          normalizeColor(
+            point.color
+          )
+
+        ]);
+
+      }
+    );
+
+
+    const worksheet =
+      XLSX.utils.aoa_to_sheet(
+        data
+      );
+
+
+    worksheet["!cols"] = [
+
+      {
+        wch: 10
+      },
+
+      {
+        wch: 28
+      },
+
+      {
+        wch: 42
+      },
+
+      {
+        wch: 15
+      },
+
+      {
+        wch: 15
+      },
+
+      {
+        wch: 32
+      },
+
+      {
+        wch: 35
+      },
+
+      {
+        wch: 35
+      },
+
+      {
+        wch: 35
+      },
+
+      {
+        wch: 15
+      }
+
+    ];
+
+
+    const workbook =
+      XLSX.utils.book_new();
+
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "Ruta"
+    );
+
+
+    const fileName =
+      "Ruta_" +
+      sanitizeFileName(
+        route.name
+      ) +
+      ".xlsx";
+
+
+    XLSX.writeFile(
+      workbook,
+      fileName
+    );
+
+
+    showToast(
+      "Excel de la ruta descargado."
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Error al generar Excel de la ruta:",
+      error
+    );
+
+
+    showToast(
+      "No fue posible generar el Excel de la ruta."
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   MÓDULO 26G - DESCARGAR KML DE UNA RUTA
+   ========================================================= */
+
+function downloadRouteKML(
+  routeId
+) {
+
+  const route =
+    routes.find(
+      r =>
+        r.id === routeId
+    );
+
+
+  if (!route) {
+
+    showToast(
+      "No se encontró la ruta."
+    );
+
+    return;
+
+  }
+
+
+  const routePoints =
+    route.pointIds
+      .map(
+        id =>
+          points.find(
+            p =>
+              p.id === id
+          )
+      )
+      .filter(Boolean);
+
+
+  if (!routePoints.length) {
+
+    showToast(
+      "La ruta no tiene puntos para exportar."
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+    let kml =
+      `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+
+<name>
+${escapeXml(route.name)}
+</name>
+
+<description>
+Ruta: ${escapeXml(route.name)}
+| Puntos: ${routePoints.length}
+</description>
+`;
+
+
+    routePoints.forEach(
+      function(
+        point,
+        index
+      ) {
+
+        const order =
+          index + 1;
+
+
+        const color =
+          hexToKMLColor(
+            point.color
+          );
+
+
+        const routeLabel =
+          "Ruta: " +
+          route.name +
+          " | Orden: " +
+          order;
+
+
+        const descriptionParts = [
+
+          routeLabel,
+
+          point.desc1 || "",
+
+          point.desc2 || "",
+
+          point.desc3 || ""
+
+        ]
+        .filter(
+          function(value) {
+
+            return String(
+              value || ""
+            ).trim() !== "";
+
+          }
+        );
+
+
+        const description =
+          descriptionParts.join(
+            "\n"
+          );
+
+
+        kml += `
+
+<Style id="route_${route.id}_style_${point.id}">
+
+  <IconStyle>
+
+    <color>
+      ${color}
+    </color>
+
+    <scale>
+      1.1
+    </scale>
+
+  </IconStyle>
+
+</Style>
+
+<Placemark>
+
+  <name>
+    ${String(
+      order
+    ).padStart(
+      2,
+      "0"
+    )} - ${escapeXml(
+      point.name
+    )}
+  </name>
+
+  <description>
+    ${escapeXml(
+      description
+    )}
+  </description>
+
+  <ExtendedData>
+
+    <Data name="NombreRuta">
+      <value>
+        ${escapeXml(
+          route.name
+        )}
+      </value>
+    </Data>
+
+    <Data name="OrdenEnRuta">
+      <value>
+        ${order}
+      </value>
+    </Data>
+
+    <Data name="EtiquetaRuta">
+      <value>
+        ${escapeXml(
+          routeLabel
+        )}
+      </value>
+    </Data>
+
+  </ExtendedData>
+
+  <styleUrl>
+    #route_${route.id}_style_${point.id}
+  </styleUrl>
+
+  <Point>
+
+    <coordinates>
+      ${point.lng},${point.lat},0
+    </coordinates>
+
+  </Point>
+
+</Placemark>
+
+`;
+
+      }
+    );
+
+
+    let coordinates =
+      routePoints
+        .map(
+          function(point) {
+
+            return (
+              point.lng +
+              "," +
+              point.lat +
+              ",0"
+            );
+
+          }
+        );
+
+
+    if (
+      route.returnInitial
+    ) {
+
+      if (
+        route.initial
+      ) {
+
+        coordinates.unshift(
+
+          route.initial.lng +
+          "," +
+          route.initial.lat +
+          ",0"
+
+        );
+
+
+        coordinates.push(
+
+          route.initial.lng +
+          "," +
+          route.initial.lat +
+          ",0"
+
+        );
+
+      } else {
+
+        coordinates.push(
+          coordinates[0]
+        );
+
+      }
+
+    }
+
+
+    kml += `
+
+<Placemark>
+
+  <name>
+    Ruta: ${escapeXml(
+      route.name
+    )}
+  </name>
+
+  <description>
+    Ruta: ${escapeXml(
+      route.name
+    )}
+    | Puntos: ${routePoints.length}
+  </description>
+
+  <ExtendedData>
+
+    <Data name="NombreRuta">
+      <value>
+        ${escapeXml(
+          route.name
+        )}
+      </value>
+    </Data>
+
+    <Data name="NumeroDePuntos">
+      <value>
+        ${routePoints.length}
+      </value>
+    </Data>
+
+  </ExtendedData>
+
+  <LineString>
+
+    <tessellate>
+      1
+    </tessellate>
+
+    <coordinates>
+      ${coordinates.join(" ")}
+    </coordinates>
+
+  </LineString>
+
+</Placemark>
+
+`;
+
+
+    kml += `
+</Document>
+</kml>`;
+
+
+    const blob =
+      new Blob(
+        [kml],
+        {
+          type:
+            "application/vnd.google-earth.kml+xml"
+        }
+      );
+
+
+    const url =
+      URL.createObjectURL(
+        blob
+      );
+
+
+    const link =
+      document.createElement(
+        "a"
+      );
+
+
+    link.href =
+      url;
+
+
+    link.download =
+      "Ruta_" +
+      sanitizeFileName(
+        route.name
+      ) +
+      ".kml";
+
+
+    document.body.appendChild(
+      link
+    );
+
+
+    link.click();
+
+
+    link.remove();
+
+
+    URL.revokeObjectURL(
+      url
+    );
+
+
+    showToast(
+      "KML de la ruta descargado."
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Error al generar KML de la ruta:",
+      error
+    );
+
+
+    showToast(
+      "No fue posible generar el KML de la ruta."
+    );
+
+  }
+
+}
+
+
+/* =========================================================
    MÓDULO 27 - MAPA
    ========================================================= */
 
@@ -6443,7 +6984,7 @@ function fitAllPoints() {
 
 
 /* =========================================================
-   MÓDULO 28 - EXPORTAR KML
+   MÓDULO 28 - EXPORTAR KML PRINCIPAL
    ========================================================= */
 
 function downloadKML() {
@@ -6463,24 +7004,111 @@ function downloadKML() {
     `<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
 <Document>
-<name>Visualizador KML &amp; Excel</name>
+
+<name>
+Visualizador KML &amp; Excel
+</name>
 `;
 
+
+  /*
+     ========================================================
+     PUNTOS
+     ========================================================
+  */
 
   points.forEach(
     function(point) {
 
-      /*
-         El color almacenado ya está
-         convertido a #RRGGBB.
-
-         Se vuelve a convertir a
-         AABBGGRR para KML.
-      */
-
       const color =
         hexToKMLColor(
           point.color
+        );
+
+
+      const assignments =
+        getPointRouteAssignments(
+          point.id
+        );
+
+
+      const routeNames =
+        assignments
+          .map(
+            function(item) {
+
+              return item.routeName;
+
+            }
+          )
+          .join(" | ");
+
+
+      const routeOrders =
+        assignments
+          .map(
+            function(item) {
+
+              return String(
+                item.order
+              );
+
+            }
+          )
+          .join(" | ");
+
+
+      const routeLabel =
+        assignments.length
+          ? assignments
+              .map(
+                function(item) {
+
+                  return (
+                    "Ruta: " +
+                    item.routeName +
+                    " | Orden: " +
+                    item.order
+                  );
+
+                }
+              )
+              .join(" || ")
+          : "";
+
+
+      const descriptionParts = [
+
+        point.desc1 || "",
+
+        point.desc2 || "",
+
+        point.desc3 || ""
+
+      ]
+      .filter(
+        function(value) {
+
+          return String(
+            value || ""
+          ).trim() !== "";
+
+        }
+      );
+
+
+      if (routeLabel) {
+
+        descriptionParts.push(
+          routeLabel
+        );
+
+      }
+
+
+      const description =
+        descriptionParts.join(
+          "\n"
         );
 
 
@@ -6502,7 +7130,6 @@ function downloadKML() {
 
 </Style>
 
-
 <Placemark>
 
   <name>
@@ -6511,26 +7138,43 @@ function downloadKML() {
     )}
   </name>
 
+  <description>
+    ${escapeXml(
+      description
+    )}
+  </description>
+
+  <ExtendedData>
+
+    <Data name="NombreRuta">
+      <value>
+        ${escapeXml(
+          routeNames
+        )}
+      </value>
+    </Data>
+
+    <Data name="OrdenEnRuta">
+      <value>
+        ${escapeXml(
+          routeOrders
+        )}
+      </value>
+    </Data>
+
+    <Data name="EtiquetaRuta">
+      <value>
+        ${escapeXml(
+          routeLabel
+        )}
+      </value>
+    </Data>
+
+  </ExtendedData>
+
   <styleUrl>
     #style_${point.id}
   </styleUrl>
-
-  <description>
-    ${escapeXml(
-      [
-        point.desc1,
-        point.desc2,
-        point.desc3
-      ]
-      .filter(
-        x =>
-          String(
-            x || ""
-          ).trim()
-      )
-      .join("\n")
-    )}
-  </description>
 
   <Point>
 
@@ -6548,6 +7192,12 @@ function downloadKML() {
   );
 
 
+  /*
+     ========================================================
+     RUTAS
+     ========================================================
+  */
+
   routes.forEach(
     function(route) {
 
@@ -6564,7 +7214,7 @@ function downloadKML() {
 
 
       if (
-        routePoints.length < 2
+        routePoints.length < 1
       ) {
 
         return;
@@ -6575,8 +7225,16 @@ function downloadKML() {
       let coordinates =
         routePoints
           .map(
-            p =>
-              `${p.lng},${p.lat},0`
+            function(point) {
+
+              return (
+                point.lng +
+                "," +
+                point.lat +
+                ",0"
+              );
+
+            }
           );
 
 
@@ -6589,12 +7247,22 @@ function downloadKML() {
         ) {
 
           coordinates.unshift(
-            `${route.initial.lng},${route.initial.lat},0`
+
+            route.initial.lng +
+            "," +
+            route.initial.lat +
+            ",0"
+
           );
 
 
           coordinates.push(
-            `${route.initial.lng},${route.initial.lat},0`
+
+            route.initial.lng +
+            "," +
+            route.initial.lat +
+            ",0"
+
           );
 
         } else {
@@ -6608,15 +7276,107 @@ function downloadKML() {
       }
 
 
+      /*
+         Para una ruta con un solo punto,
+         se conserva el Placemark como punto.
+         Con 2 o más se genera LineString.
+      */
+
+      if (
+        routePoints.length === 1 &&
+        !route.returnInitial
+      ) {
+
+        const singlePoint =
+          routePoints[0];
+
+
+        kml += `
+
+<Placemark>
+
+  <name>
+    Ruta: ${escapeXml(
+      route.name
+    )}
+  </name>
+
+  <description>
+    Ruta: ${escapeXml(
+      route.name
+    )}
+    | Puntos: 1
+  </description>
+
+  <ExtendedData>
+
+    <Data name="NombreRuta">
+      <value>
+        ${escapeXml(
+          route.name
+        )}
+      </value>
+    </Data>
+
+    <Data name="NumeroDePuntos">
+      <value>
+        1
+      </value>
+    </Data>
+
+  </ExtendedData>
+
+  <Point>
+
+    <coordinates>
+      ${singlePoint.lng},${singlePoint.lat},0
+    </coordinates>
+
+  </Point>
+
+</Placemark>
+
+`;
+
+        return;
+
+      }
+
+
       kml += `
 
 <Placemark>
 
   <name>
-    ${escapeXml(
+    Ruta: ${escapeXml(
       route.name
     )}
   </name>
+
+  <description>
+    Ruta: ${escapeXml(
+      route.name
+    )}
+    | Puntos: ${routePoints.length}
+  </description>
+
+  <ExtendedData>
+
+    <Data name="NombreRuta">
+      <value>
+        ${escapeXml(
+          route.name
+        )}
+      </value>
+    </Data>
+
+    <Data name="NumeroDePuntos">
+      <value>
+        ${routePoints.length}
+      </value>
+    </Data>
+
+  </ExtendedData>
 
   <LineString>
 
@@ -6690,7 +7450,7 @@ function downloadKML() {
 
 
   showToast(
-    "KML descargado conservando los colores."
+    "KML descargado con colores, rutas y orden."
   );
 
 }
@@ -6724,13 +7484,6 @@ function parseCoordinate(
   }
 
 
-  /*
-     Permite:
-
-     19.123456
-     19,123456
-  */
-
   text =
     text.replace(
       ",",
@@ -6762,12 +7515,6 @@ function normalizeColor(
   }
 
 
-  /*
-     Si por alguna razón
-     point.color ya está en
-     formato correcto.
-  */
-
   if (
     typeof value === "string" &&
     /^#[0-9a-fA-F]{6}$/.test(
@@ -6788,12 +7535,6 @@ function normalizeColor(
 function automaticColor(
   index
 ) {
-
-  /*
-     Estos colores SOLO se utilizan
-     cuando el archivo no proporciona
-     un color válido.
-  */
 
   const colors = [
 
@@ -6911,16 +7652,19 @@ function haversineDistance(
     Math.sin(
       dLat / 2
     ) ** 2 +
+
     Math.cos(
       toRadians(
         lat1
       )
     ) *
+
     Math.cos(
       toRadians(
         lat2
       )
     ) *
+
     Math.sin(
       dLon / 2
     ) ** 2;
@@ -7102,6 +7846,7 @@ function clearApplication() {
       "¿Deseas limpiar el trabajo actual y preparar el visor para subir otro archivo?\n\nSe eliminarán los puntos, rutas, filtros y datos cargados de esta sesión."
     );
 
+
   if (!confirmed) {
     return;
   }
@@ -7109,87 +7854,112 @@ function clearApplication() {
 
   try {
 
-    /*
-       Liberamos primero las referencias y capas
-       que pueden contener muchos objetos.
-    */
-
     if (markersLayer) {
       markersLayer.clearLayers();
     }
+
 
     if (routeLayer) {
       routeLayer.clearLayers();
     }
 
+
     if (routeMarkersLayer) {
       routeMarkersLayer.clearLayers();
     }
+
 
     if (initialMarkerLayer) {
       initialMarkerLayer.clearLayers();
     }
 
-    if (typeof closePointModal === "function") {
+
+    if (
+      typeof closePointModal === "function"
+    ) {
+
       closePointModal();
+
     }
 
+
     points = [];
+
     originalPointOrder = [];
+
     routes = [];
+
     markerObjects = {};
 
+
     currentPointId = null;
+
     currentRouteId = null;
+
     routeMode = false;
 
+
     pointIdCounter = 1;
+
     routeIdCounter = 1;
 
 
-    /*
-       Limpiamos los controles de entrada para que
-       pueda seleccionarse inmediatamente otro archivo.
-    */
-
     const fileInput =
-      document.getElementById("fileInput");
+      document.getElementById(
+        "fileInput"
+      );
+
 
     if (fileInput) {
       fileInput.value = "";
     }
 
+
     const tableSearch =
-      document.getElementById("tableSearch");
+      document.getElementById(
+        "tableSearch"
+      );
+
 
     if (tableSearch) {
       tableSearch.value = "";
     }
 
+
     const generalFilter =
-      document.getElementById("generalFilter");
+      document.getElementById(
+        "generalFilter"
+      );
+
 
     if (generalFilter) {
       generalFilter.value = "";
     }
 
+
     const sortSelect =
-      document.getElementById("pointSortSelect");
+      document.getElementById(
+        "pointSortSelect"
+      );
+
 
     if (sortSelect) {
       sortSelect.value = "original";
     }
 
 
-    /*
-       Dejamos la pantalla visualmente como al iniciar.
-    */
-
     renderPointsList();
+
     renderTable();
+
     buildFilters();
+
     renderRoutes();
+
     updateCounter();
+
+    updateRouteModeButton();
+
 
     showStatus(
       "Listo para cargar un nuevo trabajo.",
@@ -7205,12 +7975,17 @@ function clearApplication() {
           -102.5528
         ],
         5,
-        { animate: false }
+        {
+          animate: false
+        }
       );
+
 
       setTimeout(
         function() {
+
           map.invalidateSize();
+
         },
         100
       );
@@ -7223,21 +7998,15 @@ function clearApplication() {
     );
 
 
-    /*
-       Una recarga final reinicia por completo el contexto
-       JavaScript de esta página y permite al navegador
-       recuperar la memoria asociada al trabajo anterior.
-       No se puede ordenar al navegador liberar RAM de forma
-       absoluta desde JavaScript, pero la recarga es la forma
-       más completa de restablecer este visor.
-    */
-
     setTimeout(
       function() {
+
         window.location.reload();
+
       },
       350
     );
+
 
   } catch (error) {
 
@@ -7246,12 +8015,223 @@ function clearApplication() {
       error
     );
 
+
     window.location.reload();
 
   }
 
 }
 
+
+/* =========================================================
+   MÓDULO 29B - DESCARGAR EXCEL PRINCIPAL
+   ========================================================= */
+
+function downloadExcel() {
+
+  if (!points.length) {
+
+    showToast(
+      "No hay puntos para exportar."
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+    /*
+       =====================================================
+       ESTRUCTURA DEL EXCEL
+
+       A = Latitud
+       B = Longitud
+       C = Nombre
+       D = Descripción 1
+       E = Descripción 2
+       F = Descripción 3
+       G = Color
+       H = Nombre de ruta
+       I = Orden en ruta
+       J = Etiqueta ruta
+       =====================================================
+    */
+
+    const data = [
+
+      [
+
+        "Latitud",
+
+        "Longitud",
+
+        "Nombre",
+
+        "Descripción 1",
+
+        "Descripción 2",
+
+        "Descripción 3",
+
+        "Color",
+
+        "Nombre de ruta",
+
+        "Orden en ruta",
+
+        "Etiqueta ruta"
+
+      ]
+
+    ];
+
+
+    points.forEach(
+      function(point) {
+
+        const routeNames =
+          getPointRouteNames(
+            point.id
+          );
+
+
+        const routeOrders =
+          getPointRouteOrders(
+            point.id
+          );
+
+
+        const routeLabel =
+          getPointRouteLabel(
+            point.id
+          );
+
+
+        data.push([
+
+          point.lat,
+
+          point.lng,
+
+          point.name || "",
+
+          point.desc1 || "",
+
+          point.desc2 || "",
+
+          point.desc3 || "",
+
+          normalizeColor(
+            point.color
+          ),
+
+          routeNames,
+
+          routeOrders,
+
+          routeLabel
+
+        ]);
+
+      }
+    );
+
+
+    const worksheet =
+      XLSX.utils.aoa_to_sheet(
+        data
+      );
+
+
+    worksheet["!cols"] = [
+
+      {
+        wch: 15
+      },
+
+      {
+        wch: 15
+      },
+
+      {
+        wch: 32
+      },
+
+      {
+        wch: 35
+      },
+
+      {
+        wch: 35
+      },
+
+      {
+        wch: 35
+      },
+
+      {
+        wch: 15
+      },
+
+      {
+        wch: 30
+      },
+
+      {
+        wch: 16
+      },
+
+      {
+        wch: 50
+      }
+
+    ];
+
+
+    const workbook =
+      XLSX.utils.book_new();
+
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "Datos"
+    );
+
+
+    XLSX.writeFile(
+      workbook,
+      "datos_modificados.xlsx"
+    );
+
+
+    showToast(
+      "Excel descargado con rutas y orden."
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Error al generar Excel:",
+      error
+    );
+
+
+    showToast(
+      "No fue posible generar el Excel."
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   MÓDULO 29C - CONTADOR
+   ========================================================= */
 
 function updateCounter() {
 
@@ -7466,6 +8446,8 @@ function initializeEvents() {
 
     updateCounter();
 
+    updateRouteModeButton();
+
 
     setTimeout(
       function() {
@@ -7500,191 +8482,7 @@ function initializeEvents() {
 })();
 
 
-
-
-  /* =========================================================
-   MÓDULO 29B - DESCARGAR EXCEL MODIFICADO
-   ========================================================= */
-
-function downloadExcel() {
-
-  if (!points.length) {
-
-    showToast(
-      "No hay puntos para exportar."
-    );
-
-    return;
-
-  }
-
-
-  try {
-
-    /*
-       =====================================================
-       ESTRUCTURA DEL EXCEL
-
-       A = Nombre
-       B = Latitud
-       C = Longitud
-       D = Descripción 1
-       E = Descripción 2
-       F = Descripción 3
-       G = Color
-
-       Se genera un nuevo archivo Excel
-       con la información actualmente
-       disponible en el visor.
-       =====================================================
-    */
-
-
-    const data = [
-
-      [
-      
-        "Latitud",
-        "Longitud",
-        "Nombre",
-        "Descripción 1",
-        "Descripción 2",
-        "Descripción 3",
-        "Color"
-      ]
-
-    ];
-
-
-    points.forEach(
-      function(point) {
-
-        data.push([
-
-        
-
-          point.lat,
-          point.lng,
-          point.name || "",
-          point.desc1 || "",
-          point.desc2 || "",
-          point.desc3 || "",
-
-          normalizeColor(
-            point.color
-          )
-
-        ]);
-
-      }
-    );
-
-
-    /*
-       =====================================================
-       CREAR HOJA
-       =====================================================
-    */
-
-    const worksheet =
-      XLSX.utils.aoa_to_sheet(
-        data
-      );
-
-
-    /*
-       =====================================================
-       ANCHOS DE COLUMNAS
-       =====================================================
-    */
-
-    worksheet["!cols"] = [
-
-     
-
-      {
-        wch: 15
-      },
-
-      {
-        wch: 15
-      },
-       {
-        wch: 30
-      },
-
-      {
-        wch: 35
-      },
-
-      {
-        wch: 35
-      },
-
-      {
-        wch: 35
-      },
-
-      {
-        wch: 15
-      }
-
-    ];
-
-
-    /*
-       =====================================================
-       CREAR LIBRO
-       =====================================================
-    */
-
-    const workbook =
-      XLSX.utils.book_new();
-
-
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      "Datos"
-    );
-
-
-    /*
-       =====================================================
-       DESCARGAR
-       =====================================================
-    */
-
-    XLSX.writeFile(
-      workbook,
-      "datos_modificados.xlsx"
-    );
-
-
-    showToast(
-      "Excel modificado descargado correctamente."
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      "Error al generar Excel:",
-      error
-    );
-
-
-    showToast(
-      "No fue posible generar el Excel."
-    );
-
-  }
-
-}
-
-
 </script>
 
 </body>
-
 </html>
