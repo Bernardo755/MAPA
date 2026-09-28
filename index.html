@@ -58,7 +58,6 @@ body {
   background: #f1f5f9;
 }
 
-
 /* =========================================================
    MAPA
    ========================================================= */
@@ -1963,7 +1962,7 @@ let routeIdCounter = 1;
 
 
 /* =========================================================
-   MÓDULO 11B - INFORMACIÓN DE RUTAS POR PUNTO
+   MÓDULO 11B - INFORMACIÓN DE RUTAS
    ========================================================= */
 
 function getPointRouteAssignments(
@@ -2095,6 +2094,238 @@ function sanitizeFileName(
   .substring(
     0,
     120
+  );
+
+}
+
+
+/* =========================================================
+   MÓDULO 11C - AGREGAR INFORMACIÓN DE RUTA
+   ========================================================= */
+
+function escapeRegExp(
+  value
+) {
+
+  return String(
+    value ?? ""
+  ).replace(
+    /[.*+?^${}()|[\]\\]/g,
+    "\\$&"
+  );
+
+}
+
+
+function buildRouteTag(
+  routeName,
+  order
+) {
+
+  return (
+    "Ruta: " +
+    routeName +
+    " | Orden: " +
+    order
+  );
+
+}
+
+
+function appendRouteTagToDescription(
+  currentValue,
+  routeName,
+  order
+) {
+
+  let text =
+    String(
+      currentValue ?? ""
+    ).trim();
+
+
+  const safeRouteName =
+    escapeRegExp(
+      routeName
+    );
+
+
+  const previousRouteRegex =
+    new RegExp(
+      "\\s*-\\s*Ruta:\\s*" +
+      safeRouteName +
+      "\\s*\\|\\s*Orden:\\s*\\d+",
+      "gi"
+    );
+
+
+  text =
+    text
+      .replace(
+        previousRouteRegex,
+        ""
+      )
+      .trim();
+
+
+  const routeTag =
+    buildRouteTag(
+      routeName,
+      order
+    );
+
+
+  if (!text) {
+
+    return routeTag;
+
+  }
+
+
+  return (
+    text +
+    " - " +
+    routeTag
+  );
+
+}
+
+
+function getDescriptionLabel(
+  field
+) {
+
+  if (
+    field === "desc1"
+  ) {
+
+    return "Descripción 1";
+
+  }
+
+
+  if (
+    field === "desc2"
+  ) {
+
+    return "Descripción 2";
+
+  }
+
+
+  if (
+    field === "desc3"
+  ) {
+
+    return "Descripción 3";
+
+  }
+
+
+  return "la descripción";
+
+}
+
+
+function addRouteInfoToMainDescription(
+  routeId,
+  descriptionField
+) {
+
+  const route =
+    routes.find(
+      r =>
+        r.id === routeId
+    );
+
+
+  if (!route) {
+
+    showToast(
+      "No se encontró la ruta."
+    );
+
+    return;
+
+  }
+
+
+  if (
+    descriptionField !== "desc1" &&
+    descriptionField !== "desc2" &&
+    descriptionField !== "desc3"
+  ) {
+
+    showToast(
+      "Selecciona una descripción válida."
+    );
+
+    return;
+
+  }
+
+
+  const routePoints =
+    route.pointIds
+      .map(
+        id =>
+          points.find(
+            p =>
+              p.id === id
+          )
+      )
+      .filter(Boolean);
+
+
+  if (!routePoints.length) {
+
+    showToast(
+      "La ruta no tiene puntos."
+    );
+
+    return;
+
+  }
+
+
+  routePoints.forEach(
+    function(
+      point,
+      index
+    ) {
+
+      const order =
+        index + 1;
+
+
+      point[descriptionField] =
+        appendRouteTagToDescription(
+          point[descriptionField] || "",
+          route.name,
+          order
+        );
+
+    }
+  );
+
+
+  renderPointsList();
+
+  renderTable();
+
+  buildFilters();
+
+
+  showToast(
+    "Ruta '" +
+    route.name +
+    "' agregada a " +
+    getDescriptionLabel(
+      descriptionField
+    ) +
+    " de " +
+    routePoints.length +
+    " puntos."
   );
 
 }
@@ -2355,9 +2586,11 @@ function initializeFileInput() {
       "fileInput"
     );
 
+
   if (!input) {
     return;
   }
+
 
   input.addEventListener(
     "change",
@@ -2366,9 +2599,11 @@ function initializeFileInput() {
       const file =
         event.target.files[0];
 
+
       if (!file) {
         return;
       }
+
 
       loadFile(file);
 
@@ -2569,6 +2804,7 @@ function loadExcel(file) {
               "Punto " + i,
 
             lat,
+
             lng,
 
             desc1:
@@ -3965,7 +4201,7 @@ function savePointChanges() {
 
 
 /* =========================================================
-   MÓDULO 22B - REORDENAR Y REENUMERAR PUNTOS
+   MÓDULO 22B - REORDENAR PUNTOS
    ========================================================= */
 
 function captureOriginalPointOrder() {
@@ -5767,7 +6003,6 @@ function renderRoutes() {
                                 }
                               </div>
 
-
                               <div
                                 style="
                                   flex:1;
@@ -5785,7 +6020,6 @@ function renderRoutes() {
                                     point.name
                                   )}
                                 </div>
-
 
                                 <div
                                   style="
@@ -5822,6 +6056,112 @@ function renderRoutes() {
               }
 
 
+              <!-- =================================================
+                   AGREGAR RUTA A EXCEL / KML PRINCIPAL
+                   ================================================= -->
+
+              <div
+                style="
+                  margin-top:10px;
+                  padding:9px;
+                  border:1px solid #dbeafe;
+                  border-radius:10px;
+                  background:#f8fafc;
+                "
+              >
+
+                <div
+                  style="
+                    font-size:9px;
+                    font-weight:800;
+                    color:#334155;
+                    margin-bottom:6px;
+                  "
+                >
+                  Agregar información de esta ruta a:
+                </div>
+
+
+                <div
+                  style="
+                    display:flex;
+                    gap:7px;
+                    align-items:center;
+                    flex-wrap:wrap;
+                  "
+                >
+
+                  <select
+                    id="routeDescriptionSelect_${route.id}"
+                    style="
+                      flex:1;
+                      min-width:150px;
+                      padding:7px 8px;
+                      border:1px solid #cbd5e1;
+                      border-radius:8px;
+                      background:white;
+                      color:#334155;
+                      font-size:10px;
+                      outline:none;
+                    "
+                  >
+
+                    <option value="desc1">
+                      Descripción 1
+                    </option>
+
+                    <option value="desc2">
+                      Descripción 2
+                    </option>
+
+                    <option value="desc3">
+                      Descripción 3
+                    </option>
+
+                  </select>
+
+
+                  <button
+                    class="btn btnPrimary"
+                    onclick="
+                      addRouteInfoToMainDescription(
+                        ${route.id},
+                        document.getElementById(
+                          'routeDescriptionSelect_${route.id}'
+                        ).value
+                      )
+                    "
+                    title="Concatena Ruta y Orden en la descripción seleccionada"
+                  >
+                    Agregar a KML o Excel principal
+                  </button>
+
+                </div>
+
+
+                <div
+                  style="
+                    margin-top:6px;
+                    font-size:8px;
+                    color:#64748b;
+                    line-height:1.4;
+                  "
+                >
+                  Formato:
+                  <strong>
+                    - Ruta: ${escapeHtml(
+                      route.name
+                    )} | Orden: 1
+                  </strong>
+                </div>
+
+              </div>
+
+
+              <!-- =================================================
+                   BOTONES DE RUTA
+                   ================================================= -->
+
               <div
                 class="buttonRow"
                 style="margin-top:9px;"
@@ -5854,7 +6194,6 @@ function renderRoutes() {
                 <button
                   class="btn btnSecondary"
                   onclick="downloadRouteExcel(${route.id})"
-                  title="Descargar Excel de esta ruta"
                 >
                   Excel
                 </button>
@@ -5863,7 +6202,6 @@ function renderRoutes() {
                 <button
                   class="btn btnSecondary"
                   onclick="downloadRouteKML(${route.id})"
-                  title="Descargar KML de esta ruta"
                 >
                   KML
                 </button>
@@ -5923,12 +6261,6 @@ function drawRoutes() {
       if (
         routePoints.length < 2
       ) {
-
-        /*
-           Aunque la línea no se dibuja,
-           si existe un solo punto sigue siendo
-           una ruta válida para exportar.
-        */
 
         routePoints.forEach(
           function(
@@ -6330,7 +6662,7 @@ function openRouteInGoogleMaps(
 
 
 /* =========================================================
-   MÓDULO 26F - DESCARGAR EXCEL DE UNA RUTA
+   MÓDULO 26F - EXCEL DE UNA RUTA
    ========================================================= */
 
 function downloadRouteExcel(
@@ -6380,15 +6712,27 @@ function downloadRouteExcel(
 
   try {
 
+    /*
+       ORDEN ORIGINAL PRIMERO:
+
+       A = Latitud
+       B = Longitud
+       C = Nombre
+       D = Descripción 1
+       E = Descripción 2
+       F = Descripción 3
+       G = Color
+
+       DESPUÉS:
+
+       H = Nombre de ruta
+       I = Orden en ruta
+       J = Etiqueta ruta
+    */
+
     const data = [
 
       [
-
-        "Orden",
-
-        "Nombre de ruta",
-
-        "Etiqueta ruta",
 
         "Latitud",
 
@@ -6402,7 +6746,13 @@ function downloadRouteExcel(
 
         "Descripción 3",
 
-        "Color"
+        "Color",
+
+        "Nombre de ruta",
+
+        "Orden en ruta",
+
+        "Etiqueta ruta"
 
       ]
 
@@ -6428,12 +6778,6 @@ function downloadRouteExcel(
 
         data.push([
 
-          order,
-
-          route.name,
-
-          routeLabel,
-
           point.lat,
 
           point.lng,
@@ -6448,7 +6792,13 @@ function downloadRouteExcel(
 
           normalizeColor(
             point.color
-          )
+          ),
+
+          route.name,
+
+          order,
+
+          routeLabel
 
         ]);
 
@@ -6463,18 +6813,6 @@ function downloadRouteExcel(
 
 
     worksheet["!cols"] = [
-
-      {
-        wch: 10
-      },
-
-      {
-        wch: 28
-      },
-
-      {
-        wch: 42
-      },
 
       {
         wch: 15
@@ -6502,6 +6840,18 @@ function downloadRouteExcel(
 
       {
         wch: 15
+      },
+
+      {
+        wch: 30
+      },
+
+      {
+        wch: 16
+      },
+
+      {
+        wch: 45
       }
 
     ];
@@ -6518,17 +6868,13 @@ function downloadRouteExcel(
     );
 
 
-    const fileName =
+    XLSX.writeFile(
+      workbook,
       "Ruta_" +
       sanitizeFileName(
         route.name
       ) +
-      ".xlsx";
-
-
-    XLSX.writeFile(
-      workbook,
-      fileName
+      ".xlsx"
     );
 
 
@@ -6555,7 +6901,7 @@ function downloadRouteExcel(
 
 
 /* =========================================================
-   MÓDULO 26G - DESCARGAR KML DE UNA RUTA
+   MÓDULO 26G - KML DE UNA RUTA
    ========================================================= */
 
 function downloadRouteKML(
@@ -6645,8 +6991,6 @@ Ruta: ${escapeXml(route.name)}
 
 
         const descriptionParts = [
-
-          routeLabel,
 
           point.desc1 || "",
 
@@ -6809,7 +7153,11 @@ Ruta: ${escapeXml(route.name)}
     }
 
 
-    kml += `
+    if (
+      routePoints.length >= 2
+    ) {
+
+      kml += `
 
 <Placemark>
 
@@ -6860,6 +7208,8 @@ Ruta: ${escapeXml(route.name)}
 
 `;
 
+    }
+
 
     kml += `
 </Document>
@@ -6907,9 +7257,7 @@ Ruta: ${escapeXml(route.name)}
 
     link.click();
 
-
     link.remove();
-
 
     URL.revokeObjectURL(
       url
@@ -7011,11 +7359,9 @@ Visualizador KML &amp; Excel
 `;
 
 
-  /*
-     ========================================================
+  /* =====================================================
      PUNTOS
-     ========================================================
-  */
+     ===================================================== */
 
   points.forEach(
     function(point) {
@@ -7059,23 +7405,33 @@ Visualizador KML &amp; Excel
 
 
       const routeLabel =
-        assignments.length
-          ? assignments
-              .map(
-                function(item) {
+        assignments
+          .map(
+            function(item) {
 
-                  return (
-                    "Ruta: " +
-                    item.routeName +
-                    " | Orden: " +
-                    item.order
-                  );
+              return (
+                "Ruta: " +
+                item.routeName +
+                " | Orden: " +
+                item.order
+              );
 
-                }
-              )
-              .join(" || ")
-          : "";
+            }
+          )
+          .join(" || ");
 
+
+      /*
+         IMPORTANTE:
+
+         La descripción YA contiene la ruta solamente
+         si el usuario presionó:
+
+         "Agregar a KML o Excel principal"
+
+         Por eso aquí NO concatenamos routeLabel
+         automáticamente.
+      */
 
       const descriptionParts = [
 
@@ -7095,15 +7451,6 @@ Visualizador KML &amp; Excel
 
         }
       );
-
-
-      if (routeLabel) {
-
-        descriptionParts.push(
-          routeLabel
-        );
-
-      }
 
 
       const description =
@@ -7192,11 +7539,9 @@ Visualizador KML &amp; Excel
   );
 
 
-  /*
-     ========================================================
+  /* =====================================================
      RUTAS
-     ========================================================
-  */
+     ===================================================== */
 
   routes.forEach(
     function(route) {
@@ -7276,15 +7621,8 @@ Visualizador KML &amp; Excel
       }
 
 
-      /*
-         Para una ruta con un solo punto,
-         se conserva el Placemark como punto.
-         Con 2 o más se genera LineString.
-      */
-
       if (
-        routePoints.length === 1 &&
-        !route.returnInitial
+        routePoints.length === 1
       ) {
 
         const singlePoint =
@@ -7836,7 +8174,7 @@ function escapeXml(
 
 
 /* =========================================================
-   MÓDULO 29A - LIMPIAR / NUEVO TRABAJO
+   MÓDULO 29A - LIMPIAR
    ========================================================= */
 
 function clearApplication() {
@@ -8024,7 +8362,7 @@ function clearApplication() {
 
 
 /* =========================================================
-   MÓDULO 29B - DESCARGAR EXCEL PRINCIPAL
+   MÓDULO 29B - EXCEL PRINCIPAL
    ========================================================= */
 
 function downloadExcel() {
@@ -8044,7 +8382,7 @@ function downloadExcel() {
 
     /*
        =====================================================
-       ESTRUCTURA DEL EXCEL
+       ORDEN ORIGINAL:
 
        A = Latitud
        B = Longitud
@@ -8053,6 +8391,9 @@ function downloadExcel() {
        E = Descripción 2
        F = Descripción 3
        G = Color
+
+       DATOS DE RUTA DESPUÉS:
+
        H = Nombre de ruta
        I = Orden en ruta
        J = Etiqueta ruta
@@ -8230,7 +8571,7 @@ function downloadExcel() {
 
 
 /* =========================================================
-   MÓDULO 29C - CONTADOR
+   MÓDULO 29C - CONTADOR / ESTADO
    ========================================================= */
 
 function updateCounter() {
@@ -8480,7 +8821,6 @@ function initializeEvents() {
   }
 
 })();
-
 
 </script>
 
